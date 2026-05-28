@@ -64,13 +64,40 @@ export default function CandidateApplyPage() {
     setUploading(true)
     setErrorMsg(null)
     try {
-      // Upload batch (sends 1 resume in array)
+      // Upload resume to backend — uses existing candidateApi
       const results = await candidateApi.uploadResumes(mrfId, [files[0]])
+      
       if (results && results.length > 0) {
-        // Take the parsed candidate (usually last uploaded)
         const newCand = results[results.length - 1]
-        setCandidate(newCand)
-        setFormData(newCand.details || {})
+        
+        // Use real match score from backend
+        setCandidate({
+          _id:        newCand._id,
+          fileName:   newCand.fileName,
+          matchScore: newCand.matchScore  || 0,
+          matchLevel: newCand.matchLevel  || 'Low',
+          details:    newCand.details     || {},
+        })
+
+        // Auto fill form with parsed details from backend
+        const d = newCand.details || {}
+        setFormData({
+          fullName:        d.fullName        || '',
+          email:           d.email           || '',
+          phone:           d.phone           || '',
+          currentTitle:    d.currentTitle    || '',
+          totalExp:        d.totalExp        || '',
+          highestQual:     d.highestQual     || '',
+          skills:          d.skills          || '',
+          currentLocation: d.currentLocation || '',
+          currentCompany:  d.currentCompany  || '',
+          currentCtc:      d.currentCtc      || '',
+          expectedCtc:     d.expectedCtc     || '',
+          noticePeriod:    d.noticePeriod    || '',
+          reasonForChange: d.reasonForChange || '',
+          alternatePhone:  d.alternatePhone  || '',
+          notes:           d.notes           || '',
+        })
       }
     } catch (err) {
       console.error('Upload failed:', err)
@@ -253,12 +280,23 @@ export default function CandidateApplyPage() {
             <p className="text-xs font-semibold text-white truncate">{candidate.fileName}</p>
             <p className="text-[10px] text-slate-500 mt-0.5">Resume parsed and evaluated successfully.</p>
           </div>
-          <button
-            onClick={() => { setCandidate(null); setFormData({}) }}
-            className="text-[11px] text-slate-500 hover:text-red-400 transition-colors"
-          >
-            Replace Resume
-          </button>
+         <button
+  onClick={async () => {
+    // Delete old candidate from DB before replacing
+    if (candidate && candidate._id) {
+      try {
+        await candidateApi.delete(candidate._id)
+      } catch (err) {
+        console.log('Could not delete old candidate:', err)
+      }
+    }
+    setCandidate(null)
+    setFormData({})
+  }}
+  className="text-[11px] text-slate-500 hover:text-red-400 transition-colors"
+>
+  Replace Resume
+</button>
         </div>
       )}
 
