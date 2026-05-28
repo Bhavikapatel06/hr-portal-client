@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink-950: #0A0E1A;
+  --ink-900: #0F1629;
+  --ink-800: #1A2040;
+  --accent: #4F8EF7;
+  --accent-glow: rgba(79,142,247,0.18);
+  --gold: #F5A623;
+  --success: #22D3A5;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--ink-950);
+  color: #E2E8F8;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ink-900); }
+::-webkit-scrollbar-thumb { background: #2A3560; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Subtle grid pattern */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(79,142,247,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glow pulse animation */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(79,142,247,0.2); }
+  50% { box-shadow: 0 0 28px rgba(79,142,247,0.45); }
+}
+
+/* Fade-slide in */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: fade-up 0.45s ease both; }
+.fade-up-1 { animation: fade-up 0.45s 0.08s ease both; }
+.fade-up-2 { animation: fade-up 0.45s 0.16s ease both; }
+.fade-up-3 { animation: fade-up 0.45s 0.24s ease both; }
+.fade-up-4 { animation: fade-up 0.45s 0.32s ease both; }
+
+/* Input base */
+.field {
+  @apply w-full bg-ink-900 border border-white/10 rounded-lg px-3.5 py-2.5
+         text-sm text-slate-200 placeholder-slate-500
+         focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30
+         transition-all duration-200;
+}
+
+.field:hover { border-color: rgba(79,142,247,0.35); }
+
+/* Label */
+.label {
+  @apply block text-xs font-medium text-slate-400 mb-1.5 tracking-wide uppercase;
+}
+
+/* Section header */
+.section-tag {
+  @apply inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase
+         text-accent bg-accent/10 border border-accent/20 rounded-full px-3 py-1;
+}
+
+/* Card */
+.card {
+  @apply bg-ink-800 rounded-2xl shadow-card;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Btn primary */
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+         bg-accent text-white font-semibold text-sm
+         hover:bg-accent-light active:scale-95 transition-all duration-150
+         shadow-glow-sm;
+}
+
+/* Btn ghost */
+.btn-ghost {
+  @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl
+         bg-white/5 border border-white/10 text-slate-300 text-sm font-medium
+         hover:bg-white/10 hover:border-white/20 active:scale-95 transition-all duration-150;
+}
+
+/* Divider */
+.divider {
+  @apply border-t my-6;
+  border-color: rgba(255,255,255,0.08);
+}
+
+/* Status badge */
+.badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+}
