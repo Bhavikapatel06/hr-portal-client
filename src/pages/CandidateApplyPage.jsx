@@ -30,7 +30,6 @@ export default function CandidateApplyPage() {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
-  // States
   const [opening, setOpening] = useState(null)
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -57,20 +56,47 @@ export default function CandidateApplyPage() {
     loadOpening()
   }, [mrfId])
 
-  // Handle resume upload
+  // Handle resume upload + auto parse
   const handleResumeFile = async (e) => {
     const files = e.target.files
     if (!files || !files.length) return
     setUploading(true)
     setErrorMsg(null)
     try {
-      // Upload batch (sends 1 resume in array)
+      // Upload resume to backend and get parsed + scored candidate
       const results = await candidateApi.uploadResumes(mrfId, [files[0]])
+
       if (results && results.length > 0) {
-        // Take the parsed candidate (usually last uploaded)
         const newCand = results[results.length - 1]
-        setCandidate(newCand)
-        setFormData(newCand.details || {})
+
+        // Set candidate with REAL match score from backend
+        setCandidate({
+          _id:        newCand._id,
+          fileName:   newCand.fileName,
+          matchScore: newCand.matchScore  || 0,
+          matchLevel: newCand.matchLevel  || 'Low',
+          details:    newCand.details     || {},
+        })
+
+        // Auto fill form with parsed details from backend
+        const d = newCand.details || {}
+        setFormData({
+          fullName:        d.fullName        || '',
+          email:           d.email           || '',
+          phone:           d.phone           || '',
+          currentTitle:    d.currentTitle    || '',
+          totalExp:        d.totalExp        || '',
+          highestQual:     d.highestQual     || '',
+          skills:          d.skills          || '',
+          currentLocation: d.currentLocation || '',
+          currentCompany:  d.currentCompany  || '',
+          currentCtc:      d.currentCtc      || '',
+          expectedCtc:     d.expectedCtc     || '',
+          noticePeriod:    d.noticePeriod    || '',
+          reasonForChange: d.reasonForChange || '',
+          alternatePhone:  d.alternatePhone  || '',
+          notes:           d.notes           || '',
+        })
       }
     } catch (err) {
       console.error('Upload failed:', err)
@@ -108,7 +134,6 @@ export default function CandidateApplyPage() {
     setErrors({})
     setSubmitting(true)
     try {
-      // Save details to backend (this triggers DB update, re-score & CSV local write!)
       await candidateApi.updateDetails(candidate._id || candidate.id, formData)
       setSuccess(true)
     } catch (err) {
@@ -142,9 +167,7 @@ export default function CandidateApplyPage() {
   if (success) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16 text-center card bg-ink-950/80 border-white/8 space-y-6 fade-up relative overflow-hidden">
-        {/* Glow effect */}
         <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-success/10 blur-3xl" />
-        
         <div className="w-16 h-16 rounded-full bg-success/15 border border-success/30 flex items-center justify-center mx-auto mb-2">
           <CheckCircle2 size={32} className="text-success" />
         </div>
@@ -164,18 +187,17 @@ export default function CandidateApplyPage() {
     )
   }
 
-  // Matching score colors
   const mc = candidate ? (MATCH_COLORS[candidate.matchLevel] || MATCH_COLORS.Low) : null
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      
+
       {/* Back Link */}
       <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-accent transition-colors">
         <ArrowLeft size={13} /> Back to Job Openings
       </Link>
 
-      {/* error banner */}
+      {/* Error banner */}
       {errorMsg && (
         <div className="card p-4 border-l-2 border-l-red-400 bg-red-500/10 flex items-start gap-3 fade-up">
           <AlertTriangle className="text-red-400 mt-0.5 flex-shrink-0" size={16} />
@@ -183,7 +205,7 @@ export default function CandidateApplyPage() {
         </div>
       )}
 
-      {/* ── Section 1: Job Header ── */}
+      {/* Section 1: Job Header */}
       <div className="card p-6 bg-ink-950/80 relative overflow-hidden">
         <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-accent/5 blur-2xl" />
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -215,7 +237,7 @@ export default function CandidateApplyPage() {
         )}
       </div>
 
-      {/* ── Section 2: Resume Upload ── */}
+      {/* Section 2: Resume Upload */}
       {!candidate ? (
         <div className="card p-6 space-y-4">
           <h3 className="font-display font-semibold text-white text-sm">Step 1: Upload Your Resume</h3>
@@ -254,7 +276,18 @@ export default function CandidateApplyPage() {
             <p className="text-[10px] text-slate-500 mt-0.5">Resume parsed and evaluated successfully.</p>
           </div>
           <button
-            onClick={() => { setCandidate(null); setFormData({}) }}
+            onClick={async () => {
+              // Delete old candidate from DB before replacing
+              if (candidate && candidate._id) {
+                try {
+                  await candidateApi.delete(candidate._id)
+                } catch (err) {
+                  console.log('Could not delete old candidate:', err)
+                }
+              }
+              setCandidate(null)
+              setFormData({})
+            }}
             className="text-[11px] text-slate-500 hover:text-red-400 transition-colors"
           >
             Replace Resume
@@ -262,7 +295,7 @@ export default function CandidateApplyPage() {
         </div>
       )}
 
-      {/* ── Section 3: Match Compatibility Score ── */}
+      {/* Section 3: Match Compatibility Score */}
       {candidate && mc && (
         <div className="card p-5 bg-ink-950/50 flex items-start gap-4 fade-up">
           <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
@@ -293,7 +326,7 @@ export default function CandidateApplyPage() {
         </div>
       )}
 
-      {/* ── Section 4: Applicant Details Form ── */}
+      {/* Section 4: Applicant Details Form */}
       {candidate && (
         <form onSubmit={handleSubmit} className="card p-6 space-y-5 fade-up">
           <div className="flex items-center gap-2 mb-2">
