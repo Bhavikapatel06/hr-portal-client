@@ -1028,9 +1028,7 @@ export default function ResumeTrackerPage() {
     document.body.removeChild(link);
 
     // Silently export directly to the local folder at Book1.csv
-    if (mrfId) {
-      candidateApi.exportLocal(mrfId).catch(err => console.error('Failed to write to local directory:', err));
-    }
+    candidateApi.exportLocal(mrfId || null).catch(err => console.error('Failed to write to local directory:', err));
   }, [candidates, requirements, mrfId]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
