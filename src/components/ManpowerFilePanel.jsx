@@ -12,6 +12,7 @@ import {
   formatSize,
   formatDate,
 } from '../services/manpowerStore.js'
+import { mrfApi } from '../services/api.js'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -159,6 +160,9 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
   const [stored, setStored] = useState(null)       // persisted record
   const [phase, setPhase] = useState('idle')        // idle | confirm | replacing
   const [pendingFile, setPendingFile] = useState(null)
+  const [parsing, setParsing] = useState(false)
+  const [parsedRequirements, setParsedRequirements] = useState(null)
+  const [parseError, setParseError] = useState(null)
 
   // Load on mount
   useEffect(() => {
@@ -167,19 +171,30 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
     if (rec) onRequirementsChange?.(rec.requirements)
   }, [])
 
+  // ── File selected ─────────────────────────────────────────────
+  const handleFile = useCallback(async (file) => {
+    setPendingFile(file)
+    setPhase('confirm')
+    setParsing(true)
+    setParseError(null)
+    setParsedRequirements(null)
+    try {
+      const parsedData = await mrfApi.parseFile(file)
+      setParsedRequirements(parsedData)
+    } catch (err) {
+      console.error('Failed to parse MRF file:', err)
+      setParseError(err.message || 'Failed to parse file. Please fill out details manually.')
+    } finally {
+      setParsing(false)
+    }
+  }, [])
+
   // Auto-load initialFile if provided from parent bypass
   useEffect(() => {
     if (initialFile) {
-      setPendingFile(initialFile)
-      setPhase('confirm')
+      handleFile(initialFile)
     }
-  }, [initialFile])
-
-  // ── File selected ─────────────────────────────────────────────
-  const handleFile = useCallback((file) => {
-    setPendingFile(file)
-    setPhase('confirm')
-  }, [])
+  }, [initialFile, handleFile])
 
   // ── Requirements confirmed ────────────────────────────────────
   const handleSave = useCallback((requirements) => {
@@ -250,13 +265,27 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
           </span>
         </div>
 
-        <div className="card p-5">
-          <RequirementsForm
-            initial={stored?.requirements || {}}
-            onSave={handleSave}
-            onCancel={stored ? () => setPhase('idle') : null}
-          />
-        </div>
+        {parsing ? (
+          <div className="card p-8 flex flex-col items-center justify-center gap-3 text-center">
+            <RefreshCw size={24} className="text-accent animate-spin" />
+            <p className="text-slate-300 text-sm">Parsing manpower requirements document using AI...</p>
+          </div>
+        ) : (
+          <div className="card p-5 space-y-4">
+            {parseError && (
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/20 text-xs text-red-300">
+                <AlertCircle size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
+                <span>{parseError}</span>
+              </div>
+            )}
+            <RequirementsForm
+              key={JSON.stringify(parsedRequirements || {})}
+              initial={parsedRequirements || stored?.requirements || {}}
+              onSave={handleSave}
+              onCancel={stored ? () => setPhase('idle') : null}
+            />
+          </div>
+        )}
       </div>
     )
   }

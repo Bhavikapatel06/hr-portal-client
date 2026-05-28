@@ -32,6 +32,22 @@ export const mrfApi = {
   /** Delete a job opening and its candidates */
   delete: (id) =>
     request(`/mrf/${id}`, { method: 'DELETE' }),
+
+  /** Upload and parse MRF file */
+  parseFile: (file) => {
+    const form = new FormData();
+    form.append('mrfFile', file);
+    return fetch(`${BASE_URL}/mrf/parse`, {
+      method: 'POST',
+      body: form,
+    }).then(async (res) => {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `HTTP ${res.status}`);
+      }
+      return res.json();
+    });
+  },
 };
 
 // ── Candidates & Resume Matching ────────────────────────────
