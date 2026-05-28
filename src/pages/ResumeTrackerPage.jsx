@@ -231,17 +231,29 @@ const STATUS_CFG = {
 
 function CandidateCard({ c, requirements, onUpdate, onRemove }) {
   const [expanded, setExpanded] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [localDetails, setLocalDetails] = useState(c.details || {})
+
+  useEffect(() => {
+    setLocalDetails(c.details || {})
+  }, [c.details])
+
   const { Icon, color, bg } = getFileIcon(c.file?.type || '', c.details._fileName)
   const mc  = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
   const sc  = STATUS_CFG[c.overallStatus] || STATUS_CFG.new
 
   const updateDetail = (key, val) => {
-    onUpdate(c.id, 'details', { ...c.details, [key]: val })
+    setLocalDetails(prev => ({ ...prev, [key]: val }))
   }
 
-  // Live re-score preview
+  const handleSave = () => {
+    onUpdate(c.id, 'details', localDetails)
+    setEditMode(false)
+  }
+
+  // Live re-score preview based on local edits
   const liveScore = requirements
-    ? scoreCandidate({ ...c.details, notes: `${c.details.skills || ''} ${c.details.notes || ''}` }, requirements)
+    ? scoreCandidate({ ...localDetails, notes: `${localDetails.skills || ''} ${localDetails.notes || ''}` }, requirements)
     : null
 
   return (
@@ -254,10 +266,10 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">
-            {c.details.fullName || c.details._fileName}
+            {localDetails.fullName || localDetails._fileName}
           </p>
           <p className="text-xs text-slate-500 truncate mt-0.5">
-            {c.details._fileName} {c.details._fileSize ? `· ${fmtBytes(c.details._fileSize)}` : ''}
+            {localDetails._fileName} {localDetails._fileSize ? `· ${fmtBytes(localDetails._fileSize)}` : ''}
           </p>
         </div>
 
@@ -294,41 +306,69 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
       {/* ─ Expanded detail form ─ */}
       {expanded && (
         <div className="border-t border-white/8 p-5 bg-ink-900/50 space-y-4">
-          <p className="text-xs text-accent font-semibold uppercase tracking-widest">Candidate Details</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-accent font-semibold uppercase tracking-widest">Candidate Details</p>
+            {!editMode && (
+              <p className="text-[10px] text-slate-500 italic">Double click any field to edit</p>
+            )}
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" onDoubleClick={() => setEditMode(true)}>
             {DETAIL_FIELDS.map(({ key, Icon: FIcon, label, ph }) => (
               <div key={key}>
                 <label className="label flex items-center gap-1.5">
                   <FIcon size={11} className="text-accent/60" /> {label}
                 </label>
-                <input
-                  className="field text-xs"
-                  placeholder={ph}
-                  value={c.details[key] || ''}
-                  onChange={e => updateDetail(key, e.target.value)}
-                />
+                {editMode ? (
+                  <input
+                    className="field text-xs"
+                    placeholder={ph}
+                    value={localDetails[key] || ''}
+                    onChange={e => updateDetail(key, e.target.value)}
+                  />
+                ) : (
+                  <div className="text-xs text-white bg-white/5 border border-transparent px-3 py-2 rounded-lg cursor-pointer hover:bg-white/10 select-none min-h-[34px] flex items-center">
+                    {localDetails[key] || <span className="text-slate-500 italic">Not provided</span>}
+                  </div>
+                )}
               </div>
             ))}
           </div>
 
-          <div>
+          <div onDoubleClick={() => setEditMode(true)}>
             <label className="label">Additional Notes</label>
-            <textarea
-              className="field text-xs min-h-[60px] resize-none"
-              placeholder="Any extra information, observations or remarks…"
-              value={c.details.notes || ''}
-              onChange={e => updateDetail('notes', e.target.value)}
-            />
+            {editMode ? (
+              <textarea
+                className="field text-xs min-h-[60px] resize-none"
+                placeholder="Any extra information, observations or remarks…"
+                value={localDetails.notes || ''}
+                onChange={e => updateDetail('notes', e.target.value)}
+              />
+            ) : (
+              <div className="text-xs text-white bg-white/5 border border-transparent px-3 py-2 rounded-lg cursor-pointer hover:bg-white/10 select-none min-h-[60px]">
+                {localDetails.notes || <span className="text-slate-500 italic">No additional notes</span>}
+              </div>
+            )}
           </div>
 
+          {editMode && (
+            <div className="pt-3 border-t border-white/8 flex justify-end gap-3">
+              <button onClick={() => { setEditMode(false); setLocalDetails(c.details || {}) }} className="btn-ghost text-xs px-4 py-1.5">
+                Cancel
+              </button>
+              <button onClick={handleSave} className="btn-primary text-xs px-4 py-1.5">
+                <CheckCircle2 size={13} /> Save Details
+              </button>
+            </div>
+          )}
+
           {/* Live match preview */}
-          {liveScore && (
+          {liveScore && !editMode && (
             <div className="pt-3 border-t border-white/8 flex items-start gap-3">
               <BarChart3 size={14} className="text-accent flex-shrink-0 mt-0.5" />
               <div className="flex-1 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs text-slate-500">Live match score:</span>
+                  <span className="text-xs text-slate-500">Match score:</span>
                   <span className={`badge border ${(MATCH_COLORS[liveScore.matchLevel] || MATCH_COLORS.Low).bg} ${(MATCH_COLORS[liveScore.matchLevel] || MATCH_COLORS.Low).text} ${(MATCH_COLORS[liveScore.matchLevel] || MATCH_COLORS.Low).border}`}>
                     {liveScore.score}% · {liveScore.matchLevel}
                   </span>
@@ -359,38 +399,11 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
   )
 }
 
-function Step2({ candidates, requirements, onAddFiles, onUpdate, onRemove, onClearAll }) {
-  const [dragging, setDragging] = useState(false)
-  const inputRef = useRef(null)
+function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll }) {
   const parsed   = candidates.filter(c => c.parseStatus === 'parsed').length
 
   return (
     <div className="space-y-4 fade-up">
-      {/* Drop zone */}
-      <div
-        onDrop={e => { e.preventDefault(); setDragging(false); onAddFiles(e.dataTransfer.files) }}
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onClick={() => inputRef.current?.click()}
-        className={`relative rounded-2xl border-2 border-dashed cursor-pointer flex flex-col items-center justify-center gap-3 py-10 px-6 text-center transition-all duration-200
-          ${dragging ? 'border-accent bg-accent/8 scale-[1.01]' : 'border-white/15 bg-white/3 hover:border-accent/40 hover:bg-accent/4'}`}
-      >
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200
-          ${dragging ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
-          <Upload size={22} className={dragging ? 'text-accent' : 'text-slate-400'} />
-        </div>
-        <div>
-          <p className="font-display font-semibold text-white">{dragging ? 'Drop resumes here' : 'Upload Candidate Resumes'}</p>
-          <p className="text-slate-500 text-sm mt-1">Drag & drop or <span className="text-accent">browse files</span></p>
-          <p className="text-slate-600 text-xs mt-1">PDF · Word (.doc/.docx) · JPG · PNG · any format</p>
-        </div>
-        <input ref={inputRef} type="file" multiple
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt,.xlsx,.csv"
-          className="hidden"
-          onChange={e => { if (e.target.files.length) { onAddFiles(e.target.files); e.target.value = '' } }}
-        />
-      </div>
-
       {/* Stats bar */}
       {candidates.length > 0 && (
         <div className="flex items-center justify-between px-1 text-sm flex-wrap gap-2">
@@ -427,7 +440,7 @@ function Step2({ candidates, requirements, onAddFiles, onUpdate, onRemove, onCle
 
 const INTERVIEW_TYPES = ['Initial', 'Technical', 'HR', 'Final']
 
-function InterviewCard({ c, onUpdate }) {
+function InterviewCard({ c, requirements, onUpdate }) {
   const [open, setOpen] = useState(false)
   const mc = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
 
@@ -437,6 +450,41 @@ function InterviewCard({ c, onUpdate }) {
     if (!c.interview.date || !c.interview.time) return
     onUpdate(c.id, 'interview', { ...c.interview, scheduled: true })
     onUpdate(c.id, 'overallStatus', 'scheduled')
+
+    const email = c.details.email || '';
+    if (!email) {
+      alert('Schedule updated successfully! (Note: No email address found for candidate, so email draft could not be generated)');
+      return;
+    }
+
+    const jobTitle = requirements?.designation || 'the position';
+    const candidateName = c.details.fullName || 'Candidate';
+    const interviewType = c.interview.type;
+    const date = c.interview.date;
+    const time = c.interview.time;
+    const mode = c.interview.mode;
+    const location = mode === 'online' ? `Meeting Link: ${c.interview.link || 'TBA'}` : `Venue: ${c.interview.venue || 'TBA'}`;
+    const notes = c.interview.notes ? `\\nAdditional Info: ${c.interview.notes}` : '';
+
+    const subject = `Interview Schedule - ${jobTitle}`;
+    const body = `Hi ${candidateName},
+
+Congratulations! You have been scheduled for an interview for the position of ${jobTitle}.
+
+Here are the details of your interview:
+- Interview Type: ${interviewType}
+- Date: ${date}
+- Time: ${time}
+- Mode: ${mode === 'online' ? 'Online' : 'In-Person'}
+- ${location}${notes}
+
+Please let us know if you have any questions or require to reschedule.
+
+Best regards,
+HR Team`;
+
+    const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
   }
 
   return (
@@ -551,7 +599,7 @@ function InterviewCard({ c, onUpdate }) {
           <div className="flex gap-3 pt-1">
             <button onClick={confirmSchedule} disabled={!c.interview.date || !c.interview.time}
               className={`btn-primary flex-1 justify-center ${(!c.interview.date || !c.interview.time) ? 'opacity-40 cursor-not-allowed' : ''}`}>
-              <CheckCircle2 size={14} /> {c.interview.scheduled ? 'Update Schedule' : 'Confirm Schedule'}
+              <CheckCircle2 size={14} /> {c.interview.scheduled ? 'Update Schedule & Email' : 'Confirm Schedule & Email'}
             </button>
             <button onClick={() => setOpen(false)} className="btn-ghost">Done</button>
           </div>
@@ -561,7 +609,7 @@ function InterviewCard({ c, onUpdate }) {
   )
 }
 
-function Step4({ candidates, onUpdate }) {
+function Step4({ candidates, requirements, onUpdate }) {
   if (!candidates.length) {
     return (
       <div className="card p-8 text-center fade-up">
@@ -579,7 +627,7 @@ function Step4({ candidates, onUpdate }) {
           {scheduled} of {candidates.length} interview{candidates.length !== 1 ? 's' : ''} scheduled
         </p>
       )}
-      {candidates.map(c => <InterviewCard key={c.id} c={c} onUpdate={onUpdate} />)}
+      {candidates.map(c => <InterviewCard key={c.id} c={c} requirements={requirements} onUpdate={onUpdate} />)}
     </div>
   )
 }
@@ -1046,8 +1094,8 @@ export default function ResumeTrackerPage() {
 
         {/* STEP 2 */}
         <div className={`py-8 border-b border-white/8 fade-up-2 transition-opacity duration-300 ${!reqConfirmed ? 'opacity-40 pointer-events-none select-none' : ''}`}>
-          <StepHeader num="2" title="Upload Resumes & Fetch Details" status={s2}
-            badge={candidates.length > 0 ? `${candidates.length} uploaded` : null} />
+          <StepHeader num="2" title="Applied Candidates" status={s2}
+            badge={candidates.length > 0 ? `${candidates.length} candidates` : null} />
           {!reqConfirmed ? (
             <div className="card p-8 text-center">
               <AlertTriangle size={22} className="text-slate-600 mx-auto mb-2" />
@@ -1057,7 +1105,6 @@ export default function ResumeTrackerPage() {
             <Step2
               candidates={candidates}
               requirements={requirements}
-              onAddFiles={handleAddFiles}
               onUpdate={handleUpdate}
               onRemove={handleRemove}
               onClearAll={handleClearAll}
