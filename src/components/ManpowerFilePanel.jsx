@@ -40,9 +40,20 @@ const QUAL_OPTIONS = [
 
 // ─── DropZone ────────────────────────────────────────────────────────────────
 
-function DropZone({ onFile, compact = false }) {
+function DropZone({ onFile, compact = false, autoOpen = false }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef(null)
+  const hasOpened = useRef(false)
+
+  useEffect(() => {
+    if (autoOpen && inputRef.current && !hasOpened.current) {
+      hasOpened.current = true
+      // Small timeout helps avoid React 18 Strict Mode double-invocation issues
+      setTimeout(() => {
+        inputRef.current?.click()
+      }, 100)
+    }
+  }, [autoOpen])
 
   const handleFiles = (files) => {
     if (files[0]) onFile(files[0])
@@ -144,7 +155,7 @@ function RequirementsForm({ initial, onSave, onCancel }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export default function ManpowerFilePanel({ onRequirementsChange, compact = false }) {
+export default function ManpowerFilePanel({ onRequirementsChange, compact = false, initialFile = null }) {
   const [stored, setStored] = useState(null)       // persisted record
   const [phase, setPhase] = useState('idle')        // idle | confirm | replacing
   const [pendingFile, setPendingFile] = useState(null)
@@ -155,6 +166,14 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
     setStored(rec)
     if (rec) onRequirementsChange?.(rec.requirements)
   }, [])
+
+  // Auto-load initialFile if provided from parent bypass
+  useEffect(() => {
+    if (initialFile) {
+      setPendingFile(initialFile)
+      setPhase('confirm')
+    }
+  }, [initialFile])
 
   // ── File selected ─────────────────────────────────────────────
   const handleFile = useCallback((file) => {
@@ -206,7 +225,7 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
             be saved and remain available across sessions. Upload a new file anytime to replace it automatically.
           </span>
         </div>
-        <DropZone onFile={handleFile} compact={compact} />
+        <DropZone onFile={handleFile} compact={compact} autoOpen={true} />
       </div>
     )
   }

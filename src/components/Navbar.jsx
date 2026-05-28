@@ -32,7 +32,7 @@ export default function Navbar() {
   const navItems = role === 'admin'
     ? [
         { to: '/dashboard',      icon: LayoutDashboard, label: 'All Openings' },
-        { to: '/resume-tracker', icon: ClipboardList,   label: 'Resume Tracker' },
+        { to: '/resume-tracker', icon: ClipboardList,   label: 'Candidate Details' },
       ]
     : [
         { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },

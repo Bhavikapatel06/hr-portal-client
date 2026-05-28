@@ -150,7 +150,7 @@ function JobCard({ mrf, idx, role }) {
                 to={`/resume-tracker?mrfId=${mrf._id || mrf.id}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all duration-150 group/btn"
               >
-                Tracker {mrf.candidateCount > 0 ? `(${mrf.candidateCount})` : ''}
+                Candidate Details {mrf.candidateCount > 0 ? `(${mrf.candidateCount})` : ''}
                 <ArrowRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
               </Link>
             </div>
@@ -237,7 +237,7 @@ export default function HRDashboard() {
             </h1>
             <p className="text-slate-400 text-sm mt-1">
               {role === 'admin'
-                ? 'All active job openings. Click Resume Tracker on any card to manage candidates.'
+                ? 'All active job openings. Click Candidate Details on any card to manage candidates.'
                 : 'All active job openings. Find your matching roles and apply now!'}
             </p>
           </div>

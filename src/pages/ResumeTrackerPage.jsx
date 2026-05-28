@@ -137,6 +137,24 @@ function StepHeader({ num, title, status, badge }) {
 // ─── STEP 1 — Manpower Requirements ──────────────────────────────────────────
 
 function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, onFileReqs, onEdit }) {
+  const hiddenInputRef = useRef(null)
+  const [initialFile, setInitialFile] = useState(null)
+
+  const handleFileClick = () => {
+    hiddenInputRef.current?.click()
+  }
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      // Clear any old draft from localStorage so it doesn't instantly auto-submit!
+      localStorage.removeItem('manpower_file')
+      
+      setInitialFile(e.target.files[0])
+      setInputMode('file')
+    }
+    e.target.value = ''
+  }
+
   if (confirmed && requirements) {
     return (
       <div className="card p-4 border-l-2 border-l-success/50 bg-success/4 flex items-start gap-3 fade-up">
@@ -170,13 +188,26 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
     <div className="space-y-4 fade-up">
       {/* Mode toggle */}
       <div className="flex gap-2 flex-wrap">
+        <input 
+          type="file" 
+          ref={hiddenInputRef} 
+          className="hidden" 
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt,.xlsx,.csv"
+          onChange={handleFileChange}
+        />
         {[
           { id: 'fill', icon: ClipboardList, label: 'Fill MRF Form Manually' },
           { id: 'file', icon: Upload,        label: 'Upload MRF File' },
         ].map(({ id, icon: Icon, label }) => (
           <button
             key={id}
-            onClick={() => setInputMode(id)}
+            onClick={() => {
+              if (id === 'file') {
+                handleFileClick()
+              } else {
+                setInputMode(id)
+              }
+            }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150
               ${inputMode === id
                 ? 'bg-accent text-white border-accent shadow-glow-sm'
@@ -192,9 +223,14 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
         <div className="card p-6">
           <MRFForm showModeToggle={false} onSubmitSuccess={onMrfSubmit} />
         </div>
-      ) : (
+      ) : inputMode === 'file' ? (
         <div className="card p-6">
-          <ManpowerFilePanel onRequirementsChange={onFileReqs} />
+          <ManpowerFilePanel onRequirementsChange={onFileReqs} initialFile={initialFile} />
+        </div>
+      ) : (
+        <div className="card p-8 flex flex-col items-center justify-center text-center gap-3 border-2 border-dashed border-white/10 bg-white/5">
+           <AlertCircle size={24} className="text-slate-500" />
+           <p className="text-slate-400 text-sm">Please select an option above to provide Manpower Requirements</p>
         </div>
       )}
     </div>
@@ -784,7 +820,7 @@ export default function ResumeTrackerPage() {
   const mrfId = searchParams.get('mrfId')
 
   // ── State ──────────────────────────────────────────────────────────────────
-  const [inputMode,    setInputMode]    = useState('fill')
+  const [inputMode,    setInputMode]    = useState(null)
   const [reqConfirmed, setReqConfirmed] = useState(false)
   const [requirements, setRequirements] = useState(null)
   const [mrfTitle,     setMrfTitle]     = useState(null)
@@ -796,8 +832,9 @@ export default function ResumeTrackerPage() {
     if (!mrfId) {
       setRequirements(null)
       setReqConfirmed(false)
-      setMrfTitle(null)
-      setCandidates([])
+      setMrfTitle('All Candidates (Global)')
+      // Fetch all candidates globally
+      candidateApi.list().then(list => setCandidates(list || [])).catch(console.error)
       return
     }
 
@@ -947,15 +984,16 @@ export default function ResumeTrackerPage() {
         on_hold: 'On Hold'
       };
 
+      // Since requirements might be null for global list, use empty string if not available
       return [
         index + 1,
         d.fullName || '',
         d.phone || '',
         d.alternatePhone || '',
         d.email || '',
-        requirements?.designation || '',
-        requirements?.department || '',
-        requirements?.location || '',
+        requirements?.designation || (c.jobOpeningId && c.jobOpeningId.designation) || d.currentTitle || 'N/A',
+        requirements?.department || (c.jobOpeningId && c.jobOpeningId.department) || 'N/A',
+        requirements?.location || (c.jobOpeningId && c.jobOpeningId.location) || d.currentLocation || 'N/A',
         d.highestQual || '',
         d.totalExp || '',
         d.currentLocation || '',
@@ -1032,7 +1070,7 @@ export default function ResumeTrackerPage() {
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <span className="section-tag mb-3">
-              <ClipboardList size={11} /> Resume Tracker
+              <ClipboardList size={11} /> Candidate Details
             </span>
             <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-2">
               {mrfTitle || 'Candidate Pipeline'}
@@ -1042,36 +1080,44 @@ export default function ResumeTrackerPage() {
             </p>
           </div>
 
-          {/* Pipeline counters */}
-          {candidates.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap text-xs">
-              <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300">
-                <span className="text-white font-bold">{candidates.length}</span> candidates
-              </span>
-              {strongCount > 0 && (
-                <span className="px-3 py-1.5 rounded-lg bg-emerald-400/10 border border-emerald-400/25 text-emerald-400">
-                  <span className="font-bold">{strongCount}</span> strong
-                </span>
-              )}
-              {scheduledCount > 0 && (
-                <span className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent">
-                  <span className="font-bold">{scheduledCount}</span> scheduled
-                </span>
-              )}
-              {selectedCount > 0 && (
-                <span className="px-3 py-1.5 rounded-lg bg-success/10 border border-success/25 text-success">
-                  🎉 <span className="font-bold">{selectedCount}</span> selected
-                </span>
-              )}
-              <button
-                onClick={handleDownloadExcel}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-400/10 border border-emerald-400/25 text-emerald-400 font-semibold hover:bg-emerald-400 hover:text-white transition-all cursor-pointer"
-              >
-                <Download size={13} /> Export Excel
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            <button
+              onClick={handleDownloadExcel}
+              disabled={!candidates.length}
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border font-semibold transition-all ${
+                candidates.length 
+                  ? 'bg-emerald-400/10 border-emerald-400/25 text-emerald-400 hover:bg-emerald-400 hover:text-white cursor-pointer' 
+                  : 'bg-white/5 border-white/10 text-slate-500 cursor-not-allowed'
+              }`}
+            >
+              <Download size={14} /> Download All Details
+            </button>
+          </div>
         </div>
+
+        {/* Pipeline counters */}
+        {candidates.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap text-xs mt-4">
+            <span className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+              <span className="text-white font-bold">{candidates.length}</span> candidates
+            </span>
+            {strongCount > 0 && (
+              <span className="px-3 py-1.5 rounded-lg bg-emerald-400/10 border border-emerald-400/25 text-emerald-400">
+                <span className="font-bold">{strongCount}</span> strong
+              </span>
+            )}
+            {scheduledCount > 0 && (
+              <span className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent">
+                <span className="font-bold">{scheduledCount}</span> scheduled
+              </span>
+            )}
+            {selectedCount > 0 && (
+              <span className="px-3 py-1.5 rounded-lg bg-success/10 border border-success/25 text-success">
+                🎉 <span className="font-bold">{selectedCount}</span> selected
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ── Vertical step flow ─────────────────────────────── */}
