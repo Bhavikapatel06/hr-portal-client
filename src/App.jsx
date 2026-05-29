@@ -5,6 +5,7 @@ import HRDashboard      from './pages/HRDashboard.jsx'
 import ResumeTrackerPage from './pages/ResumeTrackerPage.jsx'
 import Login            from './pages/Login.jsx'
 import CandidateApplyPage from './pages/CandidateApplyPage.jsx'
+import CandidateStatusPage from './pages/CandidateStatusPage.jsx'
 
 // Simple role protection wrapper
 function Protected({ children, allowedRoles }) {
@@ -41,6 +42,12 @@ export default function App() {
           <Route path="/apply/:mrfId" element={
             <Protected allowedRoles={['candidate']}>
               <CandidateApplyPage />
+            </Protected>
+          } />
+
+          <Route path="/status" element={
+            <Protected allowedRoles={['candidate']}>
+              <CandidateStatusPage />
             </Protected>
           } />
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList, Menu, X, LogOut } from 'lucide-react'
+import { LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList, Menu, X, LogOut, Activity } from 'lucide-react'
 
 export default function Navbar() {
   const { pathname } = useLocation()
@@ -36,6 +36,7 @@ export default function Navbar() {
       ]
     : [
         { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
+        { to: '/status',         icon: Activity,        label: 'My Applications' },
       ]
 
   // Hide Navbar on Login page

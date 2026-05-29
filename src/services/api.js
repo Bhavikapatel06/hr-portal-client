@@ -142,4 +142,7 @@ export const candidateApi = {
 
   /** Get download URL for ALL candidates across all openings (FIFO order) */
   getGlobalDownloadUrl: () => `${BASE_URL}/candidates/download-all`,
+
+  /** Get all applications/statuses for a candidate by email */
+  getStatusByEmail: (email) => request(`/candidates/status/${encodeURIComponent(email)}`),
 };
