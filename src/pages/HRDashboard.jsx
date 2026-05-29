@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   LayoutDashboard, CheckCircle2, TrendingUp, Users, Target,
   ArrowRight, Plus, MapPin, Briefcase, GraduationCap,
-  AlertTriangle, Clock, Building2, Flame, Filter, Download,
+  AlertTriangle, Clock, Building2, Flame, Filter, Download, FileText,
 } from 'lucide-react'
 import { mrfApi, candidateApi } from '../services/api.js'
 
@@ -136,15 +136,13 @@ function JobCard({ mrf, idx, role }) {
           {role === 'admin' ? (
             <div className="flex items-center gap-2">
               <a
-                href={candidateApi.getDownloadUrl(mrf._id || mrf.id)}
+                href={candidateApi.getMrfDownloadUrl(mrf._id || mrf.id)}
                 download
-                title="Download Excel/CSV pipeline for this opening"
-                className="flex items-center justify-center p-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-150"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
+                title="Download MRF as PDF"
+                className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all duration-150 text-slate-400 hover:text-white"
+                onClick={(e) => e.stopPropagation()}
               >
-                <Download size={13} />
+                <Download size={15} />
               </a>
               <Link
                 to={`/resume-tracker?mrfId=${mrf._id || mrf.id}`}

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react'
 import {
   ClipboardList, CheckCircle2, ChevronDown, Plus, X,
-  Upload, FileText, FileImage, File, AlertCircle, ToggleLeft, ToggleRight
+  Upload, FileText, FileImage, File, AlertCircle, Loader2, Sparkles
 } from 'lucide-react'
+import { mrfApi } from '../services/api.js'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -58,58 +59,44 @@ function SectionHeader({ num, title }) {
 }
 
 // ─── Upload MRF File panel ───────────────────────────────────────────────────
+// Parses the PDF and calls onParsed(prefillData) so parent can prefill the form.
 
-function MRFUpload({ onUploadSuccess }) {
+function MRFUpload({ onParsed }) {
   const [dragging, setDragging] = useState(false)
-  const [files, setFiles] = useState([])
-  const [uploaded, setUploaded] = useState(false)
+  const [file, setFile]         = useState(null)
+  const [parsing, setParsing]   = useState(false)
+  const [error, setError]       = useState('')
   const inputRef = useRef(null)
-
-  const addFiles = useCallback((incoming) => {
-    const arr = Array.from(incoming)
-    setFiles(arr)
-  }, [])
 
   const onDrop = (e) => {
     e.preventDefault(); setDragging(false)
-    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files)
+    const f = e.dataTransfer.files[0]
+    if (f) { setFile(f); setError('') }
   }
 
-  const handleSubmit = () => {
-    if (!files.length) return
-    // TODO: send files to backend via resumeApi / mrfApi
-    setUploaded(true)
-    onUploadSuccess && onUploadSuccess(files)
-  }
-
-  if (uploaded) {
-    return (
-      <div className="card p-10 flex flex-col items-center justify-center gap-4 fade-up">
-        <div
-          className="w-16 h-16 rounded-full bg-success/15 border border-success/30 flex items-center justify-center mb-2"
-          style={{ animation: 'glow-pulse 2s ease infinite' }}
-        >
-          <CheckCircle2 size={32} className="text-success" />
-        </div>
-        <h3 className="font-display font-bold text-xl text-white">MRF Uploaded!</h3>
-        <p className="text-slate-400 text-sm text-center max-w-xs">
-          <span className="text-white font-semibold">{files[0]?.name}</span> has been submitted successfully.
-        </p>
-        <button onClick={() => { setFiles([]); setUploaded(false) }} className="btn-primary mt-2">
-          <Plus size={15} /> Upload Another
-        </button>
-      </div>
-    )
+  const handleParse = async () => {
+    if (!file) return
+    setParsing(true)
+    setError('')
+    try {
+      const parsed = await mrfApi.parseFile(file)
+      onParsed && onParsed(parsed)
+    } catch (err) {
+      setError(err.message || 'Failed to parse MRF file. Please fill the form manually.')
+    } finally {
+      setParsing(false)
+    }
   }
 
   return (
     <div className="space-y-5 fade-up">
       {/* Info banner */}
       <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 text-sm text-slate-300">
-        <AlertCircle size={16} className="text-accent mt-0.5 flex-shrink-0" />
+        <Sparkles size={16} className="text-accent mt-0.5 flex-shrink-0" />
         <span>
-          Already have a filled MRF? Upload it directly here — supported formats are
-          <span className="text-white font-medium"> PDF, Word (.doc/.docx), JPG, PNG</span>.
+          Upload a filled MRF PDF — our AI will extract the fields and prefill the form for you.
+          You can then review, correct, and submit.
+          <span className="text-white font-medium"> PDF, Word (.doc/.docx)</span> supported.
         </span>
       </div>
 
@@ -118,99 +105,122 @@ function MRFUpload({ onUploadSuccess }) {
         onDrop={onDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
-        onClick={() => inputRef.current?.click()}
-        className={`relative rounded-2xl border-2 border-dashed cursor-pointer
+        onClick={() => !parsing && inputRef.current?.click()}
+        className={`relative rounded-2xl border-2 border-dashed
           flex flex-col items-center justify-center gap-3 py-14 px-6 text-center
           transition-all duration-200
+          ${parsing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
           ${dragging
             ? 'border-accent bg-accent/8 scale-[1.01]'
             : 'border-white/15 bg-white/3 hover:border-accent/40 hover:bg-accent/5'
           }`}
       >
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200
-          ${dragging ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
-          <Upload size={24} className={dragging ? 'text-accent' : 'text-slate-400'} />
-        </div>
-        <div>
-          <p className="font-display font-semibold text-white">
-            {dragging ? 'Drop your MRF here' : 'Upload Manpower Request Form'}
-          </p>
-          <p className="text-slate-500 text-sm mt-1">
-            Drag & drop or <span className="text-accent">browse files</span>
-          </p>
-          <p className="text-slate-600 text-xs mt-1">PDF · Word · JPG · PNG</p>
-        </div>
+        {parsing ? (
+          <>
+            <Loader2 size={32} className="text-accent animate-spin" />
+            <p className="font-semibold text-white">Analyzing MRF with AI…</p>
+            <p className="text-slate-500 text-xs">This may take a few seconds</p>
+          </>
+        ) : (
+          <>
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200
+              ${dragging ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
+              <Upload size={24} className={dragging ? 'text-accent' : 'text-slate-400'} />
+            </div>
+            <div>
+              <p className="font-display font-semibold text-white">
+                {file ? file.name : (dragging ? 'Drop MRF here' : 'Upload Manpower Request Form')}
+              </p>
+              <p className="text-slate-500 text-sm mt-1">
+                {file ? formatSize(file.size) : <>Drag & drop or <span className="text-accent">browse files</span></>}
+              </p>
+              <p className="text-slate-600 text-xs mt-1">PDF · Word (.docx / .doc)</p>
+            </div>
+          </>
+        )}
         <input
           ref={inputRef}
           type="file"
-          multiple={false}
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+          accept=".pdf,.doc,.docx"
           className="hidden"
           onChange={(e) => {
-            if (e.target.files.length) { addFiles(e.target.files); e.target.value = '' }
+            if (e.target.files[0]) { setFile(e.target.files[0]); setError('') }
+            e.target.value = ''
           }}
         />
       </div>
 
-      {/* Selected file preview */}
-      {files.length > 0 && (
-        <div className="card p-4 flex items-center gap-3">
-          {(() => {
-            const { icon: Icon, color, bg } = getFileIcon(files[0])
-            return (
-              <div className={`w-10 h-10 rounded-lg border flex items-center justify-center flex-shrink-0 ${bg}`}>
-                <Icon size={18} className={color} />
-              </div>
-            )
-          })()}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{files[0].name}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{formatSize(files[0].size)}</p>
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); setFiles([]) }}
-            className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center
-                       hover:bg-danger/20 hover:border-danger/30 transition-colors text-slate-400 hover:text-danger"
-          >
-            <X size={14} />
-          </button>
+      {/* Error */}
+      {error && (
+        <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/25 text-sm text-red-300">
+          <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Submit */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleSubmit}
-          disabled={!files.length}
-          className={`btn-primary px-8 ${!files.length ? 'opacity-40 cursor-not-allowed' : ''}`}
-        >
-          <ClipboardList size={15} /> Submit MRF File
-        </button>
-      </div>
+      {/* Action row */}
+      {file && !parsing && (
+        <div className="flex items-center gap-3 justify-between">
+          <button onClick={() => { setFile(null); setError('') }} className="btn-ghost text-xs">
+            <X size={13} /> Clear
+          </button>
+          <button onClick={handleParse} className="btn-primary px-8">
+            <Sparkles size={15} /> Extract & Prefill Form
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-export default function MRFForm({ onSubmitSuccess, showModeToggle = true }) {
-  // 'fill' = manual form  |  'upload' = file upload
+export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initialData = null }) {
+  // 'fill' = manual form  |  'upload' = PDF upload + parse → prefill
   const [mode, setMode] = useState('fill')
 
-  const [form, setForm] = useState(INITIAL)
+  const [form, setForm]         = useState(initialData || INITIAL)
   const [submitted, setSubmitted] = useState(false)
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors]     = useState({})
+  const [prefillBanner, setPrefillBanner] = useState(false)
+
+  // Update form if initialData changes (for example, when switching to edit mode)
+  React.useEffect(() => {
+    if (initialData) {
+      setForm(initialData)
+    }
+  }, [initialData])
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
+  // Called when MRFUpload successfully parses the file
+  const handleParsed = (parsed) => {
+    setForm(f => ({
+      ...f,
+      designation:            parsed.designation            || f.designation,
+      department:             parsed.department             || f.department,
+      location:               parsed.location               || f.location,
+      experience:             parsed.experience             || f.experience,
+      noOfPositions:          parsed.noOfPositions          || f.noOfPositions,
+      urgency:                parsed.urgency                || f.urgency,
+      purposeOfJob:           parsed.purposeOfJob           || f.purposeOfJob,
+      otherKeySkills:         parsed.otherKeySkills         || f.otherKeySkills,
+      minimumQualification:   parsed.minimumQualification   || f.minimumQualification,
+      preferredIndustries:    parsed.preferredIndustries    || f.preferredIndustries,
+      rolesAndResponsibilities: parsed.rolesAndResponsibilities || parsed.purposeOfJob || f.rolesAndResponsibilities,
+    }))
+    setPrefillBanner(true)
+    setMode('fill')  // switch to form view so HR can review
+  }
+
   const validate = () => {
     const e = {}
-    if (!form.designation.trim())         e.designation = 'Required'
-    if (!form.department.trim())          e.department = 'Required'
-    if (!form.location.trim())            e.location = 'Required'
-    if (!form.requestType)                e.requestType = 'Required'
-    if (!form.noOfPositions)              e.noOfPositions = 'Required'
-    if (!form.purposeOfJob.trim())        e.purposeOfJob = 'Required'
+    if (!form.designation.trim())          e.designation = 'Required'
+    if (!form.department.trim())           e.department = 'Required'
+    if (!form.location.trim())             e.location = 'Required'
+    if (!form.requestType)                 e.requestType = 'Required'
+    if (!form.noOfPositions)               e.noOfPositions = 'Required'
+    if (!form.purposeOfJob.trim())         e.purposeOfJob = 'Required'
     if (!form.minimumQualification.trim()) e.minimumQualification = 'Required'
     return e
   }
@@ -221,9 +231,7 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true }) {
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     try {
-      if (onSubmitSuccess) {
-        await onSubmitSuccess(form)
-      }
+      if (onSubmitSuccess) await onSubmitSuccess(form)
       setSubmitted(true)
     } catch (err) {
       console.error('Submission failed:', err)
@@ -487,11 +495,11 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true }) {
           <button type="button" onClick={handleReset} className="btn-ghost">
             <X size={15} /> Clear Form
           </button>
-          <button type="submit" className="btn-primary px-8">
-            <ClipboardList size={15} /> Submit MRF
+          <button type="submit" disabled={submitted} className="btn-primary min-w-[200px]">
+            {submitted ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+            {submitted ? 'Saving...' : initialData ? 'Update Job Opening' : 'Create Job Opening'}
           </button>
         </div>
-
       </form>
     </div>
   )

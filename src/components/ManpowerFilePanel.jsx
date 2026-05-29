@@ -41,23 +41,22 @@ const QUAL_OPTIONS = [
 
 // ─── DropZone ────────────────────────────────────────────────────────────────
 
-function DropZone({ onFile, compact = false, autoOpen = false }) {
+function DropZone({ onFile, compact = false }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef(null)
-  const hasOpened = useRef(false)
-
-  useEffect(() => {
-    if (autoOpen && inputRef.current && !hasOpened.current) {
-      hasOpened.current = true
-      // Small timeout helps avoid React 18 Strict Mode double-invocation issues
-      setTimeout(() => {
-        inputRef.current?.click()
-      }, 100)
-    }
-  }, [autoOpen])
 
   const handleFiles = (files) => {
-    if (files[0]) onFile(files[0])
+    const file = files[0]
+    if (file) onFile(file)
+  }
+
+  const handleChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      onFile(file)
+    }
+    // Reset so selecting same file again still triggers onChange
+    e.target.value = ''
   }
 
   return (
@@ -92,7 +91,7 @@ function DropZone({ onFile, compact = false, autoOpen = false }) {
         type="file"
         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt,.xlsx,.csv"
         className="hidden"
-        onChange={(e) => { if (e.target.files[0]) { handleFiles(e.target.files); e.target.value = '' } }}
+        onChange={handleChange}
       />
     </div>
   )
@@ -164,11 +163,23 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
   const [parsedRequirements, setParsedRequirements] = useState(null)
   const [parseError, setParseError] = useState(null)
 
-  // Load on mount
+  // Load on mount — only restore stored state, do NOT fire onRequirementsChange
+  // (firing it here caused duplicate MRF records to be created in the DB on every mount)
   useEffect(() => {
     const rec = getManpowerFile()
+    // Auto-clear junk records (very short designation with no spaces = likely test garbage)
+    if (rec && rec.requirements) {
+      const desig = (rec.requirements.designation || '').trim()
+      const isJunk = desig.length > 0 && desig.length < 5 && !desig.includes(' ')
+      if (isJunk) {
+        clearManpowerFile()
+        setStored(null)
+        return
+      }
+    }
     setStored(rec)
-    if (rec) onRequirementsChange?.(rec.requirements)
+    // NOTE: We intentionally do NOT call onRequirementsChange here.
+    // onRequirementsChange is only called when the user explicitly saves requirements.
   }, [])
 
   // ── File selected ─────────────────────────────────────────────
@@ -240,7 +251,7 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
             be saved and remain available across sessions. Upload a new file anytime to replace it automatically.
           </span>
         </div>
-        <DropZone onFile={handleFile} compact={compact} autoOpen={true} />
+        <DropZone onFile={handleFile} compact={compact} />
       </div>
     )
   }
