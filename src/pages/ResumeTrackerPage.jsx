@@ -136,25 +136,7 @@ function StepHeader({ num, title, status, badge }) {
 
 // ─── STEP 1 — Manpower Requirements ──────────────────────────────────────────
 
-function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, onFileReqs, onEdit }) {
-  const hiddenInputRef = useRef(null)
-  const [initialFile, setInitialFile] = useState(null)
-
-  const handleFileClick = () => {
-    hiddenInputRef.current?.click()
-  }
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      // Clear any old draft from localStorage so it doesn't instantly auto-submit!
-      localStorage.removeItem('manpower_file')
-      
-      setInitialFile(e.target.files[0])
-      setInputMode('file')
-    }
-    e.target.value = ''
-  }
-
+function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, onFileReqs, onEdit, mrfFromDb }) {
   if (confirmed && requirements) {
     return (
       <div className="card p-4 border-l-2 border-l-success/50 bg-success/4 flex items-start gap-3 fade-up">
@@ -188,26 +170,13 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
     <div className="space-y-4 fade-up">
       {/* Mode toggle */}
       <div className="flex gap-2 flex-wrap">
-        <input 
-          type="file" 
-          ref={hiddenInputRef} 
-          className="hidden" 
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt,.xlsx,.csv"
-          onChange={handleFileChange}
-        />
         {[
           { id: 'fill', icon: ClipboardList, label: 'Fill MRF Form Manually' },
           { id: 'file', icon: Upload,        label: 'Upload MRF File' },
         ].map(({ id, icon: Icon, label }) => (
           <button
             key={id}
-            onClick={() => {
-              if (id === 'file') {
-                handleFileClick()
-              } else {
-                setInputMode(id)
-              }
-            }}
+            onClick={() => setInputMode(id)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150
               ${inputMode === id
                 ? 'bg-accent text-white border-accent shadow-glow-sm'
@@ -221,11 +190,11 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
 
       {inputMode === 'fill' ? (
         <div className="card p-6">
-          <MRFForm showModeToggle={false} onSubmitSuccess={onMrfSubmit} />
+          <MRFForm showModeToggle={false} onSubmitSuccess={onMrfSubmit} initialData={requirements} />
         </div>
       ) : inputMode === 'file' ? (
         <div className="card p-6">
-          <ManpowerFilePanel onRequirementsChange={onFileReqs} initialFile={initialFile} />
+          <ManpowerFilePanel onRequirementsChange={onFileReqs} />
         </div>
       ) : (
         <div className="card p-8 flex flex-col items-center justify-center text-center gap-3 border-2 border-dashed border-white/10 bg-white/5">
@@ -435,11 +404,51 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
   )
 }
 
-function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll }) {
+function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll, onAddFiles }) {
   const parsed   = candidates.filter(c => c.parseStatus === 'parsed').length
+  const uploadRef = useRef(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFileInput = async (e) => {
+    const files = e.target.files
+    if (!files || !files.length) return
+    setUploading(true)
+    try {
+      await onAddFiles(files)
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
 
   return (
     <div className="space-y-4 fade-up">
+      {/* Upload button */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          onClick={() => uploadRef.current?.click()}
+          disabled={uploading}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150
+            ${ uploading
+                ? 'bg-accent/10 border-accent/25 text-accent/50 cursor-not-allowed'
+                : 'bg-accent text-white border-accent shadow-glow-sm hover:bg-accent/90'
+            }`}
+        >
+          {uploading
+            ? <><div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" /> Uploading…</>
+            : <><Upload size={14} /> Upload Resumes</>}
+        </button>
+        <input
+          ref={uploadRef}
+          type="file"
+          multiple
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.txt"
+          className="hidden"
+          onChange={handleFileInput}
+        />
+        <p className="text-xs text-slate-500">PDF · Word · JPG · PNG (multiple files allowed)</p>
+      </div>
+
       {/* Stats bar */}
       {candidates.length > 0 && (
         <div className="flex items-center justify-between px-1 text-sm flex-wrap gap-2">
@@ -462,15 +471,20 @@ function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll }) {
       {candidates.length > 0 ? (
         <div className="space-y-3">
           {candidates.map(c => (
-            <CandidateCard key={c.id} c={c} requirements={requirements} onUpdate={onUpdate} onRemove={onRemove} />
+            <CandidateCard key={c._id || c.id} c={c} requirements={requirements} onUpdate={onUpdate} onRemove={onRemove} />
           ))}
         </div>
       ) : (
-        <p className="text-center text-slate-600 text-sm py-4">No resumes uploaded yet.</p>
+        <div className="card p-8 text-center border-2 border-dashed border-white/10 bg-white/3">
+          <Upload size={22} className="text-slate-600 mx-auto mb-2" />
+          <p className="text-slate-500 text-sm">No candidates yet. Upload resumes above to add them.</p>
+          <p className="text-xs text-slate-600 mt-1">Candidates can also apply via the job listing page.</p>
+        </div>
       )}
     </div>
   )
 }
+
 
 // ─── STEP 4 — Interview Scheduling ───────────────────────────────────────────
 
@@ -863,7 +877,14 @@ export default function ResumeTrackerPage() {
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleMrfSubmit = useCallback(async (formData) => {
     try {
-      const saved = await mrfApi.submit(formData)
+      let saved;
+      if (mrfId) {
+        // Update existing MRF
+        saved = await mrfApi.update(mrfId, formData)
+      } else {
+        // Create new MRF
+        saved = await mrfApi.submit(formData)
+      }
       const reqs = extractRequirements(saved)
       setRequirements(reqs)
       setReqConfirmed(true)
@@ -875,9 +896,17 @@ export default function ResumeTrackerPage() {
       setApiError('Failed to save MRF. Make sure the Node/Express backend is running on port 5000 and MongoDB is active.')
       throw err;
     }
-  }, [setSearchParams])
+  }, [setSearchParams, mrfId])
 
   const handleFileReqs = useCallback(async (reqs) => {
+    // Don't create a new MRF if one is already saved (prevents duplicate "hdhfg" records)
+    if (mrfId) {
+      if (reqs) {
+        setRequirements(extractRequirements(reqs))
+        setReqConfirmed(true)
+      }
+      return;
+    }
     if (reqs && hasReqData(reqs)) {
       try {
         const saved = await mrfApi.submit(reqs)
@@ -951,85 +980,17 @@ export default function ResumeTrackerPage() {
 
   const handleDownloadExcel = useCallback(() => {
     if (!candidates.length) return;
-
-    const headers = [
-      'Sr No',
-      'Candidate Name',
-      'Contact No',
-      'Alternet number',
-      'Mail ID',
-      'Current Opening',
-      'Department',
-      'Job Location',
-      'Qualification',
-      'Total Experience',
-      'Current Location',
-      'Current Company',
-      'Current CTC',
-      'Expected CTC',
-      'Notice Period',
-      'Reason For Change',
-      'Candidate Status',
-      'Remarks'
-    ];
-
-    const rows = candidates.map((c, index) => {
-      const d = c.details || {};
-      const statusMap = {
-        new: 'New',
-        shortlisted: 'Shortlisted',
-        scheduled: 'Scheduled',
-        selected: 'Selected',
-        rejected: 'Rejected',
-        on_hold: 'On Hold'
-      };
-
-      // Since requirements might be null for global list, use empty string if not available
-      return [
-        index + 1,
-        d.fullName || '',
-        d.phone || '',
-        d.alternatePhone || '',
-        d.email || '',
-        requirements?.designation || (c.jobOpeningId && c.jobOpeningId.designation) || d.currentTitle || 'N/A',
-        requirements?.department || (c.jobOpeningId && c.jobOpeningId.department) || 'N/A',
-        requirements?.location || (c.jobOpeningId && c.jobOpeningId.location) || d.currentLocation || 'N/A',
-        d.highestQual || '',
-        d.totalExp || '',
-        d.currentLocation || '',
-        d.currentCompany || '',
-        d.currentCtc || '',
-        d.expectedCtc || '',
-        d.noticePeriod || '',
-        d.reasonForChange || '',
-        statusMap[c.overallStatus] || c.overallStatus || 'New',
-        d.notes || ''
-      ];
-    });
-
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => 
-        row.map(val => {
-          const str = String(val).replace(/"/g, '""');
-          return str.includes(',') || str.includes('\n') || str.includes('"') ? `"${str}"` : str;
-        }).join(',')
-      )
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Candidate_Report_${requirements?.designation || 'Candidates'}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Silently export directly to the local folder at Book1.csv
-    candidateApi.exportLocal(mrfId || null).catch(err => console.error('Failed to write to local directory:', err));
-  }, [candidates, requirements, mrfId]);
+    // Use backend streaming endpoint — FIFO order baked in
+    const url = mrfId
+      ? candidateApi.getDownloadUrl(mrfId)
+      : candidateApi.getGlobalDownloadUrl();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, [candidates.length, mrfId]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const ranked        = [...candidates].sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
@@ -1132,7 +1093,7 @@ export default function ResumeTrackerPage() {
             setInputMode={setInputMode}
             onMrfSubmit={handleMrfSubmit}
             onFileReqs={handleFileReqs}
-            onEdit={() => setReqConfirmed(false)}
+            onEdit={() => { setReqConfirmed(false); setInputMode('fill'); }}
           />
         </div>
 
@@ -1146,12 +1107,13 @@ export default function ResumeTrackerPage() {
               <p className="text-slate-600 text-sm">Set manpower requirements in Step 1 first.</p>
             </div>
           ) : (
-            <Step2
+          <Step2
               candidates={candidates}
               requirements={requirements}
               onUpdate={handleUpdate}
               onRemove={handleRemove}
               onClearAll={handleClearAll}
+              onAddFiles={handleAddFiles}
             />
           )}
         </div>
