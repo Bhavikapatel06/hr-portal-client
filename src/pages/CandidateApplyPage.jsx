@@ -303,7 +303,7 @@ export default function CandidateApplyPage() {
       {/* ── Step 1: Upload Resume (Optional) ────────────────────────────────── */}
       <div className="card p-6 space-y-4 fade-up">
         <div className="flex items-center justify-between">
-          <h3 className="font-display font-semibold text-white text-sm">Step 1: Upload Your Resume (Optional)</h3>
+          <h3 className="font-display font-semibold text-white text-sm">Step 1: Upload Your Resume</h3>
           {resumeInfo.fileName && (
             <span className="badge bg-success/12 text-success border border-success/25 text-[11px]">
               <CheckCircle2 size={11} /> Parsed
@@ -356,7 +356,7 @@ export default function CandidateApplyPage() {
       </div>
 
       {/* ── Section: Match Compatibility Score ── */}
-      {matchResult && matchResult.score > 0 && mc && (
+      {(resumeInfo.fileName || form.fullName) && matchResult && matchResult.score > 0 && mc && (
         <div className="card p-5 bg-ink-950/50 flex items-start gap-4 fade-up">
           <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
             <svg className="absolute inset-0 -rotate-90" width="64" height="64" viewBox="0 0 64 64">
@@ -387,7 +387,8 @@ export default function CandidateApplyPage() {
       )}
 
       {/* ── Step 2: Applicant Details Form ──────────────────────────────────── */}
-      <form onSubmit={handleSubmit} className="card p-6 space-y-6 fade-up" noValidate>
+      {resumeInfo.fileName && (
+        <form onSubmit={handleSubmit} className="card p-6 space-y-6 fade-up" noValidate>
 
         {/* Form header */}
         <div className="flex items-center gap-3 pb-4 border-b border-white/8">
@@ -466,6 +467,7 @@ export default function CandidateApplyPage() {
           </button>
         </div>
       </form>
+      )}
 
     </div>
   )
