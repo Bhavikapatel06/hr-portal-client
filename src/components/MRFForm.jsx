@@ -1,11 +1,13 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef } from 'react'
 import {
   ClipboardList, CheckCircle2, ChevronDown, Plus, X,
-  Upload, FileText, FileImage, File, AlertCircle, Loader2, Sparkles
+  Upload, FileText, FileImage, File, AlertCircle, Loader2, Sparkles,
+  Eye, Edit3, MapPin, Briefcase, Users, GraduationCap, Zap, Building2,
+  Calendar, Target, ArrowLeft
 } from 'lucide-react'
 import { mrfApi } from '../services/api.js'
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const INITIAL = {
   designation: '', department: '', function: '', reportsTo: '',
@@ -33,7 +35,7 @@ const getFileIcon = (file) => {
   return { icon: File, color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/20' }
 }
 
-// ─── Sub-components ─────────────────────────────────────────────────────────
+// ─── Sub-components ────────────────────────────────────────────────────────────
 
 function Field({ label, children, required, className = '' }) {
   return (
@@ -58,8 +60,201 @@ function SectionHeader({ num, title }) {
   )
 }
 
-// ─── Upload MRF File panel ───────────────────────────────────────────────────
-// Parses the PDF and calls onParsed(prefillData) so parent can prefill the form.
+// ─── Preview Row Helper ────────────────────────────────────────────────────────
+
+function PreviewRow({ icon: Icon, label, value, color = 'text-accent', full = false }) {
+  if (!value) return null
+  return (
+    <div className={`flex gap-3 py-3 border-b border-white/6 last:border-0 ${full ? 'col-span-2' : ''}`}>
+      <div className="flex-shrink-0 mt-0.5">
+        <Icon size={14} className={color} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-slate-500 mb-0.5">{label}</p>
+        <p className="text-sm text-white leading-relaxed whitespace-pre-line">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Preview Card ──────────────────────────────────────────────────────────────
+
+function MRFPreview({ form, onEdit, onConfirm, submitting }) {
+  const urgencyColor = form.urgency === 'High'
+    ? 'bg-danger/15 text-danger border-danger/30'
+    : form.urgency === 'Medium'
+    ? 'bg-gold/15 text-gold border-gold/30'
+    : 'bg-success/15 text-success border-success/30'
+
+  const salary = form.proposedSalaryMin || form.proposedSalaryMax
+    ? `${form.proposedSalaryMin ? '₹' + form.proposedSalaryMin : ''}${form.proposedSalaryMin && form.proposedSalaryMax ? ' – ' : ''}${form.proposedSalaryMax ? '₹' + form.proposedSalaryMax : ''} LPA`
+    : null
+
+  const ageRange = form.ageMin || form.ageMax
+    ? `${form.ageMin || '?'} – ${form.ageMax || '?'} years`
+    : null
+
+  return (
+    <div className="fade-up space-y-5">
+
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center">
+          <Eye size={16} className="text-accent" />
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-white text-lg">Preview Job Opening</h2>
+          <p className="text-slate-500 text-xs">Review all details before confirming. Once confirmed, the job opening will be created.</p>
+        </div>
+      </div>
+
+      {/* Main preview card */}
+      <div className="card overflow-hidden">
+
+        {/* Top banner */}
+        <div className="bg-accent/8 border-b border-accent/15 px-6 py-4 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="section-tag text-[10px]">
+                <Sparkles size={9} /> Job Opening Preview
+              </span>
+              <span className={`badge border text-[10px] ${urgencyColor}`}>
+                {form.urgency} Priority
+              </span>
+              {form.requestType && (
+                <span className="badge bg-white/8 text-slate-300 border border-white/10 text-[10px]">
+                  {form.requestType}
+                </span>
+              )}
+            </div>
+            <h3 className="font-display font-bold text-xl text-white mt-1">
+              {form.designation || '—'}
+            </h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-slate-400">
+              {form.department && (
+                <span className="flex items-center gap-1">
+                  <Building2 size={11} /> {form.department}
+                </span>
+              )}
+              {form.location && (
+                <span className="flex items-center gap-1">
+                  <MapPin size={11} /> {form.location}
+                </span>
+              )}
+              {form.experience && (
+                <span className="flex items-center gap-1">
+                  <Calendar size={11} /> {form.experience}
+                </span>
+              )}
+              {form.noOfPositions && (
+                <span className="flex items-center gap-1">
+                  <Users size={11} /> {form.noOfPositions} position{form.noOfPositions > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+          {salary && (
+            <div className="text-right flex-shrink-0">
+              <p className="text-xs text-slate-500 uppercase tracking-wide">Proposed Salary</p>
+              <p className="text-sm font-bold text-accent mt-0.5">{salary}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Details grid */}
+        <div className="p-6">
+
+          {/* Section: Position */}
+          <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Position Details</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+            <PreviewRow icon={Briefcase}     label="Reports To"           value={form.reportsTo} />
+            <PreviewRow icon={Users}          label="No. of Positions"     value={form.noOfPositions} />
+            <PreviewRow icon={Target}         label="Replacement For"      value={form.replacementFor} />
+            <PreviewRow icon={Calendar}       label="Gender Preference"    value={form.genderPreference} />
+            <PreviewRow icon={Calendar}       label="Age Range"            value={ageRange} />
+            <PreviewRow icon={Zap}            label="IT Requirements"      value={form.itRequirements} />
+          </div>
+
+          {/* Section: Job Description */}
+          {(form.purposeOfJob || form.rolesAndResponsibilities || form.justification) && (
+            <>
+              <div className="border-t border-white/8 mt-4 pt-4">
+                <p className="text-xs text-teal-400 font-semibold uppercase tracking-widest mb-3">Job Description</p>
+                <div className="space-y-0">
+                  <PreviewRow icon={Target}     label="Purpose of Job"              value={form.purposeOfJob} color="text-teal-400" full />
+                  <PreviewRow icon={ClipboardList} label="Roles & Responsibilities" value={form.rolesAndResponsibilities} color="text-teal-400" full />
+                  <PreviewRow icon={AlertCircle}  label="Justification"             value={form.justification} color="text-teal-400" full />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Section: Qualifications & Skills */}
+          {(form.minimumQualification || form.otherKeySkills || form.preferredIndustries) && (
+            <>
+              <div className="border-t border-white/8 mt-4 pt-4">
+                <p className="text-xs text-emerald-400 font-semibold uppercase tracking-widest mb-3">Qualifications & Skills</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                  <PreviewRow icon={GraduationCap} label="Minimum Qualification"   value={form.minimumQualification} color="text-emerald-400" />
+                  <PreviewRow icon={Briefcase}      label="Preferred Industries"    value={form.preferredIndustries} color="text-emerald-400" />
+                  <PreviewRow icon={Zap}            label="Key Skills Required"     value={form.otherKeySkills} color="text-emerald-400" full />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Skills tags */}
+          {form.otherKeySkills && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {form.otherKeySkills.split(/[,;]/).map(s => s.trim()).filter(Boolean).map((skill, i) => (
+                <span key={i} className="px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-300 text-xs">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Warning note */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-gold/8 border border-gold/20">
+        <AlertCircle size={15} className="text-gold mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-slate-300">
+          Please review all details carefully. Once you click{' '}
+          <span className="text-white font-semibold">Confirm & Create Job Opening</span>,
+          the position will be published and candidates will be able to apply.
+        </p>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="btn-ghost flex items-center gap-2"
+        >
+          <ArrowLeft size={15} />
+          <Edit3 size={14} />
+          Edit Details
+        </button>
+
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={submitting}
+          className="btn-primary min-w-[240px] flex items-center justify-center gap-2"
+        >
+          {submitting
+            ? <><Loader2 size={16} className="animate-spin" /> Creating Job Opening...</>
+            : <><CheckCircle2 size={16} /> Confirm &amp; Create Job Opening</>
+          }
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Upload MRF File panel ────────────────────────────────────────────────────
 
 function MRFUpload({ onParsed }) {
   const [dragging, setDragging] = useState(false)
@@ -90,7 +285,6 @@ function MRFUpload({ onParsed }) {
 
   return (
     <div className="space-y-5 fade-up">
-      {/* Info banner */}
       <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 text-sm text-slate-300">
         <Sparkles size={16} className="text-accent mt-0.5 flex-shrink-0" />
         <span>
@@ -100,7 +294,6 @@ function MRFUpload({ onParsed }) {
         </span>
       </div>
 
-      {/* Drop zone */}
       <div
         onDrop={onDrop}
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
@@ -150,7 +343,6 @@ function MRFUpload({ onParsed }) {
         />
       </div>
 
-      {/* Error */}
       {error && (
         <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/25 text-sm text-red-300">
           <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
@@ -158,7 +350,6 @@ function MRFUpload({ onParsed }) {
         </div>
       )}
 
-      {/* Action row */}
       {file && !parsing && (
         <div className="flex items-center gap-3 justify-between">
           <button onClick={() => { setFile(null); setError('') }} className="btn-ghost text-xs">
@@ -173,44 +364,39 @@ function MRFUpload({ onParsed }) {
   )
 }
 
-// ─── Main export ─────────────────────────────────────────────────────────────
+// ─── Main export ───────────────────────────────────────────────────────────────
 
 export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initialData = null }) {
-  // 'fill' = manual form  |  'upload' = PDF upload + parse → prefill
-  const [mode, setMode] = useState('fill')
-
-  const [form, setForm]         = useState(initialData || INITIAL)
-  const [submitted, setSubmitted] = useState(false)
-  const [errors, setErrors]     = useState({})
+  const [mode, setMode]           = useState('fill')
+  const [step, setStep]           = useState('form')   // 'form' | 'preview' | 'success'
+  const [form, setForm]           = useState(initialData || INITIAL)
+  const [errors, setErrors]       = useState({})
   const [prefillBanner, setPrefillBanner] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  // Update form if initialData changes (for example, when switching to edit mode)
   React.useEffect(() => {
-    if (initialData) {
-      setForm(initialData)
-    }
+    if (initialData) setForm(initialData)
   }, [initialData])
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
-  // Called when MRFUpload successfully parses the file
   const handleParsed = (parsed) => {
     setForm(f => ({
       ...f,
-      designation:            parsed.designation            || f.designation,
-      department:             parsed.department             || f.department,
-      location:               parsed.location               || f.location,
-      experience:             parsed.experience             || f.experience,
-      noOfPositions:          parsed.noOfPositions          || f.noOfPositions,
-      urgency:                parsed.urgency                || f.urgency,
-      purposeOfJob:           parsed.purposeOfJob           || f.purposeOfJob,
-      otherKeySkills:         parsed.otherKeySkills         || f.otherKeySkills,
-      minimumQualification:   parsed.minimumQualification   || f.minimumQualification,
-      preferredIndustries:    parsed.preferredIndustries    || f.preferredIndustries,
+      designation:              parsed.designation            || f.designation,
+      department:               parsed.department             || f.department,
+      location:                 parsed.location               || f.location,
+      experience:               parsed.experience             || f.experience,
+      noOfPositions:            parsed.noOfPositions          || f.noOfPositions,
+      urgency:                  parsed.urgency                || f.urgency,
+      purposeOfJob:             parsed.purposeOfJob           || f.purposeOfJob,
+      otherKeySkills:           parsed.otherKeySkills         || f.otherKeySkills,
+      minimumQualification:     parsed.minimumQualification   || f.minimumQualification,
+      preferredIndustries:      parsed.preferredIndustries    || f.preferredIndustries,
       rolesAndResponsibilities: parsed.rolesAndResponsibilities || parsed.purposeOfJob || f.rolesAndResponsibilities,
     }))
     setPrefillBanner(true)
-    setMode('fill')  // switch to form view so HR can review
+    setMode('fill')
   }
 
   const validate = () => {
@@ -225,30 +411,47 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
     return e
   }
 
-  const handleSubmit = async (e) => {
+  // Step 1: Validate and go to preview
+  const handlePreview = (e) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
+    setStep('preview')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Step 2: Admin confirms → create job opening
+  const handleConfirm = async () => {
+    setSubmitting(true)
     try {
       if (onSubmitSuccess) await onSubmitSuccess(form)
-      setSubmitted(true)
+      setStep('success')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Submission failed:', err)
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const handleReset = () => { setForm(INITIAL); setSubmitted(false); setErrors({}) }
+  const handleReset = () => {
+    setForm(INITIAL)
+    setStep('form')
+    setErrors({})
+    setPrefillBanner(false)
+  }
+
   const fieldClass = (key) => `field ${errors[key] ? '!border-danger/60 !ring-danger/20' : ''}`
 
-  // ── Mode toggle bar ────────────────────────────────────────────────────────
+  // ── Mode toggle ────────────────────────────────────────────────────────────
   const ModeToggle = () => {
     if (!showModeToggle) return null
     return (
       <div className="card p-1 flex gap-1 w-fit mb-6">
         {[
-          { id: 'fill',   label: 'Fill Form',       icon: ClipboardList },
-          { id: 'upload', label: 'Upload MRF File',  icon: Upload },
+          { id: 'fill',   label: 'Fill Form',      icon: ClipboardList },
+          { id: 'upload', label: 'Upload MRF File', icon: Upload },
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -273,14 +476,29 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
     return (
       <div className="fade-up">
         <ModeToggle />
-        <MRFUpload onUploadSuccess={onSubmitSuccess} />
+        <MRFUpload onParsed={handleParsed} />
       </div>
     )
   }
 
-  // ── Success screen (fill mode) ─────────────────────────────────────────────
-  if (submitted) {
-    if (!showModeToggle) return null  // parent controls post-submit state
+  // ── Preview step ───────────────────────────────────────────────────────────
+  if (step === 'preview') {
+    return (
+      <div className="fade-up">
+        {showModeToggle && <ModeToggle />}
+        <MRFPreview
+          form={form}
+          onEdit={() => { setStep('form'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+          onConfirm={handleConfirm}
+          submitting={submitting}
+        />
+      </div>
+    )
+  }
+
+  // ── Success screen ─────────────────────────────────────────────────────────
+  if (step === 'success') {
+    if (!showModeToggle) return null
     return (
       <div className="fade-up">
         <ModeToggle />
@@ -291,11 +509,11 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
           >
             <CheckCircle2 size={32} className="text-success" />
           </div>
-          <h3 className="font-display font-bold text-xl text-white">MRF Submitted!</h3>
+          <h3 className="font-display font-bold text-xl text-white">Job Opening Created!</h3>
           <p className="text-slate-400 text-sm text-center max-w-xs">
-            Manpower Request for{' '}
             <span className="text-white font-semibold">{form.designation}</span> in{' '}
-            <span className="text-white font-semibold">{form.department}</span> has been recorded.
+            <span className="text-white font-semibold">{form.department}</span> has been confirmed and published.
+            Candidates can now apply.
           </p>
           <div className="flex gap-3 mt-2">
             <button onClick={handleReset} className="btn-primary">
@@ -312,7 +530,45 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
     <div className="fade-up">
       <ModeToggle />
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-8">
+      {/* Prefill banner */}
+      {prefillBanner && (
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-success/8 border border-success/20 text-sm text-slate-300 mb-5 fade-up">
+          <CheckCircle2 size={15} className="text-success mt-0.5 flex-shrink-0" />
+          <span>
+            Form prefilled from uploaded MRF file.{' '}
+            <span className="text-white font-medium">Please review and correct any fields before previewing.</span>
+          </span>
+          <button onClick={() => setPrefillBanner(false)} className="ml-auto text-slate-500 hover:text-white">
+            <X size={13} />
+          </button>
+        </div>
+      )}
+
+      {/* Step indicator */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+            <span className="text-white text-xs font-bold">1</span>
+          </div>
+          <span className="text-sm font-semibold text-white">Fill Details</span>
+        </div>
+        <div className="flex-1 h-px bg-white/10 max-w-[60px]" />
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <span className="text-slate-400 text-xs font-bold">2</span>
+          </div>
+          <span className="text-sm text-slate-500">Preview & Confirm</span>
+        </div>
+        <div className="flex-1 h-px bg-white/10 max-w-[60px]" />
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <span className="text-slate-400 text-xs font-bold">3</span>
+          </div>
+          <span className="text-sm text-slate-500">Job Created</span>
+        </div>
+      </div>
+
+      <form onSubmit={handlePreview} noValidate className="space-y-8">
 
         {/* Section 1 */}
         <div className="card p-6 fade-up-1">
@@ -490,16 +746,17 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
           </div>
         </div>
 
-        {/* Submit row */}
+        {/* Submit row — now goes to Preview */}
         <div className="flex items-center justify-between gap-4">
           <button type="button" onClick={handleReset} className="btn-ghost">
             <X size={15} /> Clear Form
           </button>
-          <button type="submit" disabled={submitted} className="btn-primary min-w-[200px]">
-            {submitted ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-            {submitted ? 'Saving...' : initialData ? 'Update Job Opening' : 'Create Job Opening'}
+          <button type="submit" className="btn-primary min-w-[200px] flex items-center justify-center gap-2">
+            <Eye size={16} />
+            {initialData ? 'Preview Changes' : 'Preview Job Opening'}
           </button>
         </div>
+
       </form>
     </div>
   )
