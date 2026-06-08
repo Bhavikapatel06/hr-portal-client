@@ -96,6 +96,15 @@ export const candidateApi = {
   /**
    * Candidate applies to a job opening by submitting their details form
    */
+  previewMatch: (candidateDetails, requirements) =>
+    request('/score-preview', {
+      method: 'POST',
+      body: JSON.stringify({ candidateDetails, requirements }),
+    }),
+
+  /**
+   * Candidate applies to a job opening by submitting their details form
+   */
   applyToJob: (jobOpeningId, formData) =>
     request(`/mrf/${jobOpeningId}/apply`, {
       method: 'POST',
