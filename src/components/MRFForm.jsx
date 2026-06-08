@@ -257,27 +257,54 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
 // ─── Upload MRF File panel ────────────────────────────────────────────────────
 
 function MRFUpload({ onParsed }) {
-  const [dragging, setDragging] = useState(false)
-  const [file, setFile]         = useState(null)
+  const [draggingMrf, setDraggingMrf] = useState(false)
+  const [draggingJd, setDraggingJd] = useState(false)
+  const [mrfFile, setMrfFile] = useState(null)
+  const [jdFile, setJdFile] = useState(null)
   const [parsing, setParsing]   = useState(false)
   const [error, setError]       = useState('')
-  const inputRef = useRef(null)
+  const mrfInputRef = useRef(null)
+  const jdInputRef = useRef(null)
 
-  const onDrop = (e) => {
-    e.preventDefault(); setDragging(false)
+  const onDropMrf = (e) => {
+    e.preventDefault(); setDraggingMrf(false)
     const f = e.dataTransfer.files[0]
-    if (f) { setFile(f); setError('') }
+    if (f) { setMrfFile(f); setError('') }
+  }
+
+  const onDropJd = (e) => {
+    e.preventDefault(); setDraggingJd(false)
+    const f = e.dataTransfer.files[0]
+    if (f) { setJdFile(f); setError('') }
   }
 
   const handleParse = async () => {
-    if (!file) return
+    if (!mrfFile && !jdFile) return
     setParsing(true)
     setError('')
     try {
-      const parsed = await mrfApi.parseFile(file)
-      onParsed && onParsed(parsed)
+      let combinedParsed = {}
+      if (mrfFile) {
+        combinedParsed = await mrfApi.parseFile(mrfFile)
+      }
+      if (jdFile) {
+        const jdParsed = await mrfApi.parseFile(jdFile)
+        // Merge JD data into MRF data
+        for (const key of Object.keys(jdParsed)) {
+          if (jdParsed[key]) {
+            if (combinedParsed[key] && key === 'rolesAndResponsibilities') {
+              combinedParsed[key] = combinedParsed[key] + '\n\n' + jdParsed[key]
+            } else if (combinedParsed[key] && key === 'otherKeySkills') {
+              combinedParsed[key] = combinedParsed[key] + ', ' + jdParsed[key]
+            } else if (!combinedParsed[key]) {
+              combinedParsed[key] = jdParsed[key]
+            }
+          }
+        }
+      }
+      onParsed && onParsed(combinedParsed)
     } catch (err) {
-      setError(err.message || 'Failed to parse MRF file. Please fill the form manually.')
+      setError(err.message || 'Failed to parse file(s). Please fill the form manually.')
     } finally {
       setParsing(false)
     }
@@ -288,59 +315,108 @@ function MRFUpload({ onParsed }) {
       <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 text-sm text-slate-300">
         <Sparkles size={16} className="text-accent mt-0.5 flex-shrink-0" />
         <span>
-          Upload a filled MRF PDF — our AI will extract the fields and prefill the form for you.
+          Upload a filled MRF PDF and/or Job Description (JD) — our AI will extract the fields and prefill the form for you.
           You can then review, correct, and submit.
           <span className="text-white font-medium"> PDF, Word (.doc/.docx)</span> supported.
         </span>
       </div>
 
-      <div
-        onDrop={onDrop}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onClick={() => !parsing && inputRef.current?.click()}
-        className={`relative rounded-2xl border-2 border-dashed
-          flex flex-col items-center justify-center gap-3 py-14 px-6 text-center
-          transition-all duration-200
-          ${parsing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-          ${dragging
-            ? 'border-accent bg-accent/8 scale-[1.01]'
-            : 'border-white/15 bg-white/3 hover:border-accent/40 hover:bg-accent/5'
-          }`}
-      >
-        {parsing ? (
-          <>
-            <Loader2 size={32} className="text-accent animate-spin" />
-            <p className="font-semibold text-white">Analyzing MRF with AI…</p>
-            <p className="text-slate-500 text-xs">This may take a few seconds</p>
-          </>
-        ) : (
-          <>
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200
-              ${dragging ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
-              <Upload size={24} className={dragging ? 'text-accent' : 'text-slate-400'} />
-            </div>
-            <div>
-              <p className="font-display font-semibold text-white">
-                {file ? file.name : (dragging ? 'Drop MRF here' : 'Upload Manpower Request Form')}
-              </p>
-              <p className="text-slate-500 text-sm mt-1">
-                {file ? formatSize(file.size) : <>Drag & drop or <span className="text-accent">browse files</span></>}
-              </p>
-              <p className="text-slate-600 text-xs mt-1">PDF · Word (.docx / .doc)</p>
-            </div>
-          </>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".pdf,.doc,.docx"
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files[0]) { setFile(e.target.files[0]); setError('') }
-            e.target.value = ''
-          }}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* MRF Dropzone */}
+        <div
+          onDrop={onDropMrf}
+          onDragOver={(e) => { e.preventDefault(); setDraggingMrf(true) }}
+          onDragLeave={() => setDraggingMrf(false)}
+          onClick={() => !parsing && mrfInputRef.current?.click()}
+          className={`relative rounded-2xl border-2 border-dashed
+            flex flex-col items-center justify-center gap-3 py-10 px-6 text-center
+            transition-all duration-200
+            ${parsing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+            ${draggingMrf
+              ? 'border-accent bg-accent/8 scale-[1.01]'
+              : 'border-white/15 bg-white/3 hover:border-accent/40 hover:bg-accent/5'
+            }`}
+        >
+          {parsing ? (
+            <>
+              <Loader2 size={32} className="text-accent animate-spin" />
+              <p className="font-semibold text-white">Analyzing MRF…</p>
+            </>
+          ) : (
+            <>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200
+                ${draggingMrf ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
+                <Upload size={20} className={draggingMrf ? 'text-accent' : 'text-slate-400'} />
+              </div>
+              <div>
+                <p className="font-display font-semibold text-white">
+                  {mrfFile ? mrfFile.name : (draggingMrf ? 'Drop MRF here' : 'Upload MRF File')}
+                </p>
+                <p className="text-slate-500 text-sm mt-1">
+                  {mrfFile ? formatSize(mrfFile.size) : <>Required form</>}
+                </p>
+              </div>
+            </>
+          )}
+          <input
+            ref={mrfInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files[0]) { setMrfFile(e.target.files[0]); setError('') }
+              e.target.value = ''
+            }}
+          />
+        </div>
+
+        {/* JD Dropzone */}
+        <div
+          onDrop={onDropJd}
+          onDragOver={(e) => { e.preventDefault(); setDraggingJd(true) }}
+          onDragLeave={() => setDraggingJd(false)}
+          onClick={() => !parsing && jdInputRef.current?.click()}
+          className={`relative rounded-2xl border-2 border-dashed
+            flex flex-col items-center justify-center gap-3 py-10 px-6 text-center
+            transition-all duration-200
+            ${parsing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+            ${draggingJd
+              ? 'border-accent bg-accent/8 scale-[1.01]'
+              : 'border-white/15 bg-white/3 hover:border-accent/40 hover:bg-accent/5'
+            }`}
+        >
+          {parsing ? (
+            <>
+              <Loader2 size={32} className="text-accent animate-spin" />
+              <p className="font-semibold text-white">Analyzing JD…</p>
+            </>
+          ) : (
+            <>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200
+                ${draggingJd ? 'bg-accent/20 border border-accent/40 shadow-glow' : 'bg-white/6 border border-white/10'}`}>
+                <Upload size={20} className={draggingJd ? 'text-accent' : 'text-slate-400'} />
+              </div>
+              <div>
+                <p className="font-display font-semibold text-white">
+                  {jdFile ? jdFile.name : (draggingJd ? 'Drop JD here' : 'Upload JD File')}
+                </p>
+                <p className="text-slate-500 text-sm mt-1">
+                  {jdFile ? formatSize(jdFile.size) : <>Optional description</>}
+                </p>
+              </div>
+            </>
+          )}
+          <input
+            ref={jdInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files[0]) { setJdFile(e.target.files[0]); setError('') }
+              e.target.value = ''
+            }}
+          />
+        </div>
       </div>
 
       {error && (
@@ -350,9 +426,9 @@ function MRFUpload({ onParsed }) {
         </div>
       )}
 
-      {file && !parsing && (
+      {(mrfFile || jdFile) && !parsing && (
         <div className="flex items-center gap-3 justify-between">
-          <button onClick={() => { setFile(null); setError('') }} className="btn-ghost text-xs">
+          <button onClick={() => { setMrfFile(null); setJdFile(null); setError('') }} className="btn-ghost text-xs">
             <X size={13} /> Clear
           </button>
           <button onClick={handleParse} className="btn-primary px-8">

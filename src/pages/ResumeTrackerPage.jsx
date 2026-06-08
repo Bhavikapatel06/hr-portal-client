@@ -9,23 +9,23 @@ import {
   BarChart3, Pencil, Download,
 } from 'lucide-react'
 
-import MRFForm        from '../components/MRFForm.jsx'
+import MRFForm from '../components/MRFForm.jsx'
 import ManpowerFilePanel from '../components/ManpowerFilePanel.jsx'
-import MatchResults   from '../components/MatchResults.jsx'
+import MatchResults from '../components/MatchResults.jsx'
 import { mrfApi, candidateApi } from '../services/api.js'
 import { scoreCandidate, rankCandidates, MATCH_COLORS } from '../utils/matchEngine.js'
 
 const extractRequirements = (mrf) => ({
-  designation:          mrf.designation          || '',
-  department:           mrf.department           || '',
-  location:             mrf.location             || '',
-  experience:           mrf.experience           || '',
+  designation: mrf.designation || '',
+  department: mrf.department || '',
+  location: mrf.location || '',
+  experience: mrf.experience || '',
   minimumQualification: mrf.minimumQualification || '',
-  otherKeySkills:       mrf.otherKeySkills       || '',
-  noOfPositions:        mrf.noOfPositions        || '',
-  urgency:              mrf.urgency              || 'Medium',
-  purposeOfJob:         mrf.purposeOfJob         || '',
-  preferredIndustries:  mrf.preferredIndustries  || '',
+  otherKeySkills: mrf.otherKeySkills || '',
+  noOfPositions: mrf.noOfPositions || '',
+  urgency: mrf.urgency || 'Medium',
+  purposeOfJob: mrf.purposeOfJob || '',
+  preferredIndustries: mrf.preferredIndustries || '',
 })
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -38,12 +38,12 @@ const fmtBytes = (b) => {
 
 const getFileIcon = (type = '', name = '') => {
   if (type.includes('pdf'))
-    return { Icon: FileText,     color: 'text-red-400',   bg: 'bg-red-400/10 border-red-400/25' }
+    return { Icon: FileText, color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/25' }
   if (type.includes('image'))
-    return { Icon: FileImage,    color: 'text-blue-400',  bg: 'bg-blue-400/10 border-blue-400/25' }
+    return { Icon: FileImage, color: 'text-blue-400', bg: 'bg-blue-400/10 border-blue-400/25' }
   if (type.includes('word') || name.endsWith('.docx') || name.endsWith('.doc'))
-    return { Icon: FileText,     color: 'text-accent',    bg: 'bg-accent/10 border-accent/25' }
-  return   { Icon: FileFallback, color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25' }
+    return { Icon: FileText, color: 'text-accent', bg: 'bg-accent/10 border-accent/25' }
+  return { Icon: FileFallback, color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25' }
 }
 
 // Attempt to extract a human name from a filename
@@ -65,40 +65,40 @@ let _nextId = Date.now()
 const mkId = () => ++_nextId
 
 const mkCandidate = (file) => ({
-  id:          mkId(),
+  id: mkId(),
   file,
   parseStatus: 'pending',
   details: {
-    fullName:     guessName(file.name),
-    email:        '',
-    phone:        '',
+    fullName: guessName(file.name),
+    email: '',
+    phone: '',
     currentTitle: '',
-    totalExp:     '',
-    highestQual:  '',
-    skills:       '',
-    notes:        '',
-    _fileName:    file.name,
-    _fileSize:    file.size,
+    totalExp: '',
+    highestQual: '',
+    skills: '',
+    notes: '',
+    _fileName: file.name,
+    _fileSize: file.size,
   },
-  matchScore:      null,
-  matchLevel:      null,
-  matchBreakdown:  {},
-  overallStatus:   'new',     // 'new' | 'shortlisted' | 'rejected' | 'selected' | 'on_hold'
+  matchScore: null,
+  matchLevel: null,
+  matchBreakdown: {},
+  overallStatus: 'new',     // 'new' | 'shortlisted' | 'rejected' | 'selected' | 'on_hold'
   interview: {
     scheduled: false,
-    date:      '',
-    time:      '',
-    mode:      'online',      // 'online' | 'offline'
-    type:      'Technical',   // 'Initial' | 'Technical' | 'HR' | 'Final'
-    link:      '',
-    venue:     '',
-    notes:     '',
+    date: '',
+    time: '',
+    mode: 'online',      // 'online' | 'offline'
+    type: 'Technical',   // 'Initial' | 'Technical' | 'HR' | 'Final'
+    link: '',
+    venue: '',
+    notes: '',
   },
   feedback: {
-    given:     false,
-    decision:  '',            // 'shortlisted' | 'selected' | 'rejected' | 'on_hold'
-    rating:    0,
-    notes:     '',
+    given: false,
+    decision: '',            // 'shortlisted' | 'selected' | 'rejected' | 'on_hold'
+    rating: 0,
+    notes: '',
     decidedAt: '',
   },
 })
@@ -115,8 +115,8 @@ const rescore = (candidate, requirements) => {
 
 function StepHeader({ num, title, status, badge }) {
   const cfg = {
-    done:   { ring: 'bg-success/15 border-success/40 text-success',  text: 'text-white' },
-    active: { ring: 'bg-accent/15  border-accent/40  text-accent',   text: 'text-white' },
+    done: { ring: 'bg-success/15 border-success/40 text-success', text: 'text-white' },
+    active: { ring: 'bg-accent/15  border-accent/40  text-accent', text: 'text-white' },
     locked: { ring: 'bg-white/6    border-white/12   text-slate-600', text: 'text-slate-500' },
   }[status] || { ring: 'bg-white/6 border-white/12 text-slate-600', text: 'text-slate-500' }
 
@@ -150,10 +150,10 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
             </p>
           )}
           <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-slate-400">
-            {requirements.location           && <span>📍 {requirements.location}</span>}
-            {requirements.experience         && <span>🕐 {requirements.experience}</span>}
+            {requirements.location && <span>📍 {requirements.location}</span>}
+            {requirements.experience && <span>🕐 {requirements.experience}</span>}
             {requirements.minimumQualification && <span>🎓 {requirements.minimumQualification}</span>}
-            {requirements.noOfPositions      && <span>👥 {requirements.noOfPositions} position{requirements.noOfPositions != 1 ? 's' : ''}</span>}
+            {requirements.noOfPositions && <span>👥 {requirements.noOfPositions} position{requirements.noOfPositions != 1 ? 's' : ''}</span>}
           </div>
           {requirements.otherKeySkills && (
             <p className="text-xs text-slate-500">Skills: {requirements.otherKeySkills}</p>
@@ -168,40 +168,9 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
 
   return (
     <div className="space-y-4 fade-up">
-      {/* Mode toggle */}
-      <div className="flex gap-2 flex-wrap">
-        {[
-          { id: 'fill', icon: ClipboardList, label: 'Fill MRF Form Manually' },
-          { id: 'file', icon: Upload,        label: 'Upload MRF File' },
-        ].map(({ id, icon: Icon, label }) => (
-          <button
-            key={id}
-            onClick={() => setInputMode(id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150
-              ${inputMode === id
-                ? 'bg-accent text-white border-accent shadow-glow-sm'
-                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/8'
-              }`}
-          >
-            <Icon size={14} /> {label}
-          </button>
-        ))}
+      <div className="card p-6">
+        <MRFForm showModeToggle={true} onSubmitSuccess={onMrfSubmit} initialData={requirements} />
       </div>
-
-      {inputMode === 'fill' ? (
-        <div className="card p-6">
-          <MRFForm showModeToggle={false} onSubmitSuccess={onMrfSubmit} initialData={requirements} />
-        </div>
-      ) : inputMode === 'file' ? (
-        <div className="card p-6">
-          <ManpowerFilePanel onRequirementsChange={onFileReqs} />
-        </div>
-      ) : (
-        <div className="card p-8 flex flex-col items-center justify-center text-center gap-3 border-2 border-dashed border-white/10 bg-white/5">
-           <AlertCircle size={24} className="text-slate-500" />
-           <p className="text-slate-400 text-sm">Please select an option above to provide Manpower Requirements</p>
-        </div>
-      )}
     </div>
   )
 }
@@ -209,29 +178,29 @@ function Step1({ requirements, confirmed, inputMode, setInputMode, onMrfSubmit, 
 // ─── STEP 2 — Resume Upload + Candidate Detail Entry ─────────────────────────
 
 const DETAIL_FIELDS = [
-  { key: 'fullName',        Icon: User,          label: 'Full Name',            ph: 'Candidate full name' },
-  { key: 'email',           Icon: Mail,          label: 'Email',                ph: 'Email address' },
-  { key: 'phone',           Icon: Phone,         label: 'Phone',                ph: 'Phone number' },
-  { key: 'alternatePhone',  Icon: Phone,         label: 'Alternate Phone',      ph: 'Alternate contact number' },
-  { key: 'currentTitle',    Icon: Briefcase,     label: 'Current / Last Title', ph: 'e.g. Software Engineer' },
-  { key: 'totalExp',        Icon: Briefcase,     label: 'Experience',           ph: 'e.g. 4 years' },
-  { key: 'highestQual',     Icon: GraduationCap, label: 'Qualification',        ph: 'e.g. B.Tech' },
-  { key: 'skills',          Icon: Zap,           label: 'Key Skills',           ph: 'React, Node.js, SQL…' },
-  { key: 'currentLocation', Icon: MapPin,        label: 'Current Location',     ph: 'e.g. Ahmedabad' },
-  { key: 'currentCompany',  Icon: Briefcase,     label: 'Current Company',      ph: 'e.g. XYZ Pvt Ltd' },
-  { key: 'currentCtc',      Icon: Zap,           label: 'Current CTC',          ph: 'e.g. 4.5 LPA' },
-  { key: 'expectedCtc',     Icon: Zap,           label: 'Expected CTC',         ph: 'e.g. 6.5 LPA' },
-  { key: 'noticePeriod',    Icon: Calendar,      label: 'Notice Period',        ph: 'e.g. 1 Month' },
-  { key: 'reasonForChange', Icon: FileText,      label: 'Reason for Change',    ph: 'e.g. Better Growth' },
+  { key: 'fullName', Icon: User, label: 'Full Name', ph: 'Candidate full name' },
+  { key: 'email', Icon: Mail, label: 'Email', ph: 'Email address' },
+  { key: 'phone', Icon: Phone, label: 'Phone', ph: 'Phone number' },
+  { key: 'alternatePhone', Icon: Phone, label: 'Alternate Phone', ph: 'Alternate contact number' },
+  { key: 'currentTitle', Icon: Briefcase, label: 'Current / Last Title', ph: 'e.g. Software Engineer' },
+  { key: 'totalExp', Icon: Briefcase, label: 'Experience', ph: 'e.g. 4 years' },
+  { key: 'highestQual', Icon: GraduationCap, label: 'Qualification', ph: 'e.g. B.Tech' },
+  { key: 'skills', Icon: Zap, label: 'Key Skills', ph: 'React, Node.js, SQL…' },
+  { key: 'currentLocation', Icon: MapPin, label: 'Current Location', ph: 'e.g. Ahmedabad' },
+  { key: 'currentCompany', Icon: Briefcase, label: 'Current Company', ph: 'e.g. XYZ Pvt Ltd' },
+  { key: 'currentCtc', Icon: Zap, label: 'Current CTC', ph: 'e.g. 4.5 LPA' },
+  { key: 'expectedCtc', Icon: Zap, label: 'Expected CTC', ph: 'e.g. 6.5 LPA' },
+  { key: 'noticePeriod', Icon: Calendar, label: 'Notice Period', ph: 'e.g. 1 Month' },
+  { key: 'reasonForChange', Icon: FileText, label: 'Reason for Change', ph: 'e.g. Better Growth' },
 ]
 
 const STATUS_CFG = {
-  new:         { label: 'New',         color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/20' },
-  shortlisted: { label: 'Shortlisted', color: 'text-accent',      bg: 'bg-accent/10 border-accent/20' },
-  scheduled:   { label: 'Scheduled',   color: 'text-gold',        bg: 'bg-gold/10 border-gold/20' },
-  selected:    { label: 'Selected ✓',  color: 'text-success',     bg: 'bg-success/10 border-success/20' },
-  rejected:    { label: 'Rejected',    color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/20' },
-  on_hold:     { label: 'On Hold',     color: 'text-gold',        bg: 'bg-gold/10 border-gold/20' },
+  new: { label: 'New', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/20' },
+  shortlisted: { label: 'Shortlisted', color: 'text-accent', bg: 'bg-accent/10 border-accent/20' },
+  scheduled: { label: 'Scheduled', color: 'text-gold', bg: 'bg-gold/10 border-gold/20' },
+  selected: { label: 'Selected ✓', color: 'text-success', bg: 'bg-success/10 border-success/20' },
+  rejected: { label: 'Rejected', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/20' },
+  on_hold: { label: 'On Hold', color: 'text-gold', bg: 'bg-gold/10 border-gold/20' },
 }
 
 function CandidateCard({ c, requirements, onUpdate, onRemove }) {
@@ -244,8 +213,8 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
   }, [c.details])
 
   const { Icon, color, bg } = getFileIcon(c.file?.type || '', c.details._fileName)
-  const mc  = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
-  const sc  = STATUS_CFG[c.overallStatus] || STATUS_CFG.new
+  const mc = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
+  const sc = STATUS_CFG[c.overallStatus] || STATUS_CFG.new
 
   const updateDetail = (key, val) => {
     setLocalDetails(prev => ({ ...prev, [key]: val }))
@@ -382,9 +351,9 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
                   <div className="grid grid-cols-4 gap-2">
                     {[
                       ['Skills', liveScore.breakdown.skills],
-                      ['Exp',    liveScore.breakdown.experience],
-                      ['Qual',   liveScore.breakdown.qualification],
-                      ['Title',  liveScore.breakdown.jobTitle],
+                      ['Exp', liveScore.breakdown.experience],
+                      ['Qual', liveScore.breakdown.qualification],
+                      ['Title', liveScore.breakdown.jobTitle],
                     ].map(([lbl, val]) => (
                       <div key={lbl} className="text-center">
                         <div className="h-1 bg-white/8 rounded-full overflow-hidden mb-1">
@@ -405,7 +374,7 @@ function CandidateCard({ c, requirements, onUpdate, onRemove }) {
 }
 
 function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll, onAddFiles }) {
-  const parsed   = candidates.filter(c => c.parseStatus === 'parsed').length
+  const parsed = candidates.filter(c => c.parseStatus === 'parsed').length
   const uploadRef = useRef(null)
   const [uploading, setUploading] = useState(false)
 
@@ -429,9 +398,9 @@ function Step2({ candidates, requirements, onUpdate, onRemove, onClearAll, onAdd
           onClick={() => uploadRef.current?.click()}
           disabled={uploading}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-150
-            ${ uploading
-                ? 'bg-accent/10 border-accent/25 text-accent/50 cursor-not-allowed'
-                : 'bg-accent text-white border-accent shadow-glow-sm hover:bg-accent/90'
+            ${uploading
+              ? 'bg-accent/10 border-accent/25 text-accent/50 cursor-not-allowed'
+              : 'bg-accent text-white border-accent shadow-glow-sm hover:bg-accent/90'
             }`}
         >
           {uploading
@@ -601,7 +570,7 @@ HR Team`;
             <label className="label">Interview Mode</label>
             <div className="flex gap-2">
               {[
-                { id: 'online',  Icon: Video,  label: 'Online' },
+                { id: 'online', Icon: Video, label: 'Online' },
                 { id: 'offline', Icon: MapPin, label: 'Offline / In-Person' },
               ].map(({ id, Icon, label }) => (
                 <button key={id} type="button" onClick={() => setIv('mode', id)}
@@ -685,15 +654,15 @@ function Step4({ candidates, requirements, onUpdate }) {
 // ─── STEP 5 — Interview Feedback ─────────────────────────────────────────────
 
 const DECISIONS = [
-  { id: 'shortlisted', label: 'Shortlist', Icon: Circle,       color: 'text-accent',   bg: 'bg-accent/15 border-accent/35' },
-  { id: 'selected',    label: 'Select',    Icon: CheckSquare,  color: 'text-success',  bg: 'bg-success/15 border-success/35' },
-  { id: 'rejected',    label: 'Reject',    Icon: XSquare,      color: 'text-red-400',  bg: 'bg-red-400/15 border-red-400/35' },
-  { id: 'on_hold',     label: 'On Hold',   Icon: PauseCircle,  color: 'text-gold',     bg: 'bg-gold/15 border-gold/35' },
+  { id: 'shortlisted', label: 'Shortlist', Icon: Circle, color: 'text-accent', bg: 'bg-accent/15 border-accent/35' },
+  { id: 'selected', label: 'Select', Icon: CheckSquare, color: 'text-success', bg: 'bg-success/15 border-success/35' },
+  { id: 'rejected', label: 'Reject', Icon: XSquare, color: 'text-red-400', bg: 'bg-red-400/15 border-red-400/35' },
+  { id: 'on_hold', label: 'On Hold', Icon: PauseCircle, color: 'text-gold', bg: 'bg-gold/15 border-gold/35' },
 ]
 
 function FeedbackCard({ c, onUpdate }) {
   const [open, setOpen] = useState(false)
-  const mc  = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
+  const mc = MATCH_COLORS[c.matchLevel] || MATCH_COLORS.Low
   const dec = DECISIONS.find(d => d.id === c.feedback.decision)
 
   const setFb = (key, val) => onUpdate(c.id, 'feedback', { ...c.feedback, [key]: val })
@@ -709,8 +678,8 @@ function FeedbackCard({ c, onUpdate }) {
     <div className={`card overflow-hidden transition-all duration-200
       ${c.feedback.given
         ? c.feedback.decision === 'selected' ? 'border-success/25 bg-success/3'
-        : c.feedback.decision === 'rejected' ? 'border-red-400/20 bg-red-400/3'
-        : 'border-accent/20'
+          : c.feedback.decision === 'rejected' ? 'border-red-400/20 bg-red-400/3'
+            : 'border-accent/20'
         : ''}`}>
       {/* Row */}
       <div className="flex items-center gap-3 p-4">
@@ -814,7 +783,7 @@ function Step5({ candidates, onUpdate }) {
       </div>
     )
   }
-  const decided  = scheduled.filter(c => c.feedback.given).length
+  const decided = scheduled.filter(c => c.feedback.given).length
   const selected = scheduled.filter(c => c.feedback.decision === 'selected').length
   return (
     <div className="space-y-3 fade-up">
@@ -834,12 +803,12 @@ export default function ResumeTrackerPage() {
   const mrfId = searchParams.get('mrfId')
 
   // ── State ──────────────────────────────────────────────────────────────────
-  const [inputMode,    setInputMode]    = useState(null)
+  const [inputMode, setInputMode] = useState(null)
   const [reqConfirmed, setReqConfirmed] = useState(false)
   const [requirements, setRequirements] = useState(null)
-  const [mrfTitle,     setMrfTitle]     = useState(null)
-  const [candidates,   setCandidates]   = useState([])
-  const [apiError,     setApiError]     = useState(null)
+  const [mrfTitle, setMrfTitle] = useState(null)
+  const [candidates, setCandidates] = useState([])
+  const [apiError, setApiError] = useState(null)
 
   // ── Load on mount ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -860,7 +829,7 @@ export default function ResumeTrackerPage() {
           setRequirements(reqs)
           setReqConfirmed(true)
           setMrfTitle(mrf.designation)
-          
+
           // Load candidates for this job opening from backend
           const candidatesList = await candidateApi.listByJob(mrfId)
           setCandidates(candidatesList || [])
@@ -993,16 +962,16 @@ export default function ResumeTrackerPage() {
   }, [candidates.length, mrfId]);
 
   // ── Derived ────────────────────────────────────────────────────────────────
-  const ranked        = [...candidates].sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
+  const ranked = [...candidates].sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
   const scheduledCount = candidates.filter(c => c.interview.scheduled).length
-  const selectedCount  = candidates.filter(c => c.feedback.decision === 'selected').length
-  const strongCount    = candidates.filter(c => c.matchLevel === 'Strong').length
+  const selectedCount = candidates.filter(c => c.feedback.decision === 'selected').length
+  const strongCount = candidates.filter(c => c.matchLevel === 'Strong').length
 
-  const s1 = reqConfirmed                              ? 'done'   : 'active'
+  const s1 = reqConfirmed ? 'done' : 'active'
   const s2 = reqConfirmed ? (candidates.length > 0 ? 'done' : 'active') : 'locked'
-  const s3 = candidates.length && requirements         ? 'active'  : 'locked'
-  const s4 = candidates.length                         ? (scheduledCount ? 'done' : 'active') : 'locked'
-  const s5 = scheduledCount                            ? (selectedCount  ? 'done' : 'active') : 'locked'
+  const s3 = candidates.length && requirements ? 'active' : 'locked'
+  const s4 = candidates.length ? (scheduledCount ? 'done' : 'active') : 'locked'
+  const s5 = scheduledCount ? (selectedCount ? 'done' : 'active') : 'locked'
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -1043,11 +1012,10 @@ export default function ResumeTrackerPage() {
             <button
               onClick={handleDownloadExcel}
               disabled={!candidates.length}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border font-semibold transition-all ${
-                candidates.length 
-                  ? 'bg-emerald-400/10 border-emerald-400/25 text-emerald-400 hover:bg-emerald-400 hover:text-white cursor-pointer' 
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border font-semibold transition-all ${candidates.length
+                  ? 'bg-emerald-400/10 border-emerald-400/25 text-emerald-400 hover:bg-emerald-400 hover:text-white cursor-pointer'
                   : 'bg-white/5 border-white/10 text-slate-500 cursor-not-allowed'
-              }`}
+                }`}
             >
               <Download size={14} /> Download All Details
             </button>
@@ -1107,7 +1075,7 @@ export default function ResumeTrackerPage() {
               <p className="text-slate-600 text-sm">Set manpower requirements in Step 1 first.</p>
             </div>
           ) : (
-          <Step2
+            <Step2
               candidates={candidates}
               requirements={requirements}
               onUpdate={handleUpdate}
