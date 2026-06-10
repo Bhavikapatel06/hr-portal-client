@@ -98,9 +98,20 @@ export default function CandidateApplyPage() {
         filePath: parsed.filePath || '',
         fileSize: parsed.fileSize || files[0].size,
       })
+
+      if (parsed.parseStatus === 'failed') {
+        setErrorMsg('Failed to parse resume automatically. Please enter details manually below.')
+      }
     } catch (err) {
       console.error('Resume parsing failed:', err)
       setErrorMsg('Failed to parse resume automatically. Please enter details manually below.')
+      
+      // Fallback so candidate can still fill form and submit even if upload endpoint fails entirely
+      setResumeInfo({
+        fileName: files[0].name,
+        filePath: '',
+        fileSize: files[0].size,
+      })
     } finally {
       setUploading(false)
     }

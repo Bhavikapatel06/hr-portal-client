@@ -69,6 +69,12 @@ body {
 
 .field:hover { border-color: rgba(79,142,247,0.35); }
 
+/* Prevent invisible option text in dark mode */
+select option {
+  background-color: var(--ink-900);
+  color: #e2e8f8;
+}
+
 /* Label */
 .label {
   @apply block text-xs font-medium text-slate-400 mb-1.5 tracking-wide uppercase;

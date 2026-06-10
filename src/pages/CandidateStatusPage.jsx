@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { candidateApi } from '../services/api';
 import { Briefcase, Clock, CheckCircle, XCircle, Calendar, AlertCircle, Search, Activity, Mail } from 'lucide-react';
-import { relativeDate } from './HRDashboard.jsx';
+import { relativeDate } from './OverviewDashboard.jsx';
 
 const STATUS_MAP = {
   new: { label: 'Application Submitted', color: 'text-blue-400', badge: 'bg-blue-400/10 border-blue-400/20 text-blue-400', icon: Clock },

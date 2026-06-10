@@ -192,26 +192,24 @@ export default function Login() {
               <div className="mt-4 p-3 rounded-xl bg-white/3 border border-white/8">
                 <p className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">Demo Credentials</p>
                 <div className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => setLoginForm({ email: 'admin@hrportal.com', password: 'admin123' })}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-left"
-                  >
-                    <ShieldCheck size={13} className="text-purple-400 flex-shrink-0" />
-                    <span className="text-xs text-slate-400">
-                      HR Admin — <span className="text-white">admin@hrportal.com</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLoginForm({ email: 'candidate@hrportal.com', password: 'candidate123' })}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-left"
-                  >
-                    <UserCircle2 size={13} className="text-accent flex-shrink-0" />
-                    <span className="text-xs text-slate-400">
-                      Candidate — <span className="text-white">candidate@hrportal.com</span>
-                    </span>
-                  </button>
+                  {[
+                    { email: 'admin@hrportal.com',    password: 'admin123',     label: 'HR Admin',       icon: ShieldCheck, color: 'text-purple-400' },
+                    { email: 'depthead@hrportal.com', password: 'depthead123',  label: 'Dept. Head',     icon: UserCircle2, color: 'text-orange-400' },
+                    { email: 'hr@hrportal.com',       password: 'hr123456',     label: 'HR Manager',     icon: UserCircle2, color: 'text-accent' },
+                    { email: 'candidate@hrportal.com',password: 'candidate123', label: 'Candidate',      icon: UserCircle2, color: 'text-slate-400' },
+                  ].map(({ email, password, label, icon: Icon, color }) => (
+                    <button
+                      key={email}
+                      type="button"
+                      onClick={() => setLoginForm({ email, password })}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-left"
+                    >
+                      <Icon size={13} className={`${color} flex-shrink-0`} />
+                      <span className="text-xs text-slate-400">
+                        {label} — <span className="text-white">{email}</span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </form>
@@ -307,37 +305,30 @@ export default function Login() {
                 <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
                   I am a...
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRegForm(f => ({ ...f, role: 'candidate' }))}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-150 ${
-                      regForm.role === 'candidate'
-                        ? 'bg-accent/15 border-accent/40 text-accent'
-                        : 'bg-white/3 border-white/10 text-slate-400 hover:bg-white/6'
-                    }`}
-                  >
-                    <UserCircle2 size={22} />
-                    <div className="text-center">
-                      <p className="text-xs font-semibold">Candidate</p>
-                      <p className="text-[10px] opacity-70 mt-0.5">Looking for jobs</p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRegForm(f => ({ ...f, role: 'admin' }))}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-150 ${
-                      regForm.role === 'admin'
-                        ? 'bg-purple-500/15 border-purple-500/40 text-purple-400'
-                        : 'bg-white/3 border-white/10 text-slate-400 hover:bg-white/6'
-                    }`}
-                  >
-                    <ShieldCheck size={22} />
-                    <div className="text-center">
-                      <p className="text-xs font-semibold">HR Admin</p>
-                      <p className="text-[10px] opacity-70 mt-0.5">Manage hiring</p>
-                    </div>
-                  </button>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { role: 'candidate',       label: 'Candidate',     sub: 'Looking for jobs',    icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
+                    { role: 'department_head', label: 'Dept. Head',    sub: 'Submit MRF requests',  icon: ShieldCheck, active: 'bg-orange-500/15 border-orange-500/40 text-orange-400' },
+                    { role: 'hr',              label: 'HR Manager',    sub: 'Manage recruitment',   icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
+                    { role: 'admin',           label: 'HR Admin',      sub: 'Full access',          icon: ShieldCheck, active: 'bg-purple-500/15 border-purple-500/40 text-purple-400' },
+                  ].map(({ role: r, label, sub, icon: Icon, active }) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setRegForm(f => ({ ...f, role: r }))}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-150 ${
+                        regForm.role === r
+                          ? active
+                          : 'bg-white/3 border-white/10 text-slate-400 hover:bg-white/6'
+                      }`}
+                    >
+                      <Icon size={18} />
+                      <div className="text-center">
+                        <p className="text-xs font-semibold">{label}</p>
+                        <p className="text-[10px] opacity-70 mt-0.5">{sub}</p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
 
