@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList,
-  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown,
-  BarChart3, FileSpreadsheet, Settings, Users
+  Menu, X, LogOut, Activity, User, ShieldCheck
 } from 'lucide-react'
+import ThemeToggle from '../context/ThemeToggle.jsx'
 
 export default function Navbar() {
   const { pathname } = useLocation()
@@ -35,29 +35,14 @@ export default function Navbar() {
 
   const navItems = role === 'admin'
     ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
-        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
-        { to: '/settings',       icon: Settings,        label: 'Settings' },
-      ]
-    : role === 'department_head'
-    ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
-        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
-      ]
-    : role === 'hr'
-    ? [
-        { to: '/recruitment',  icon: Users,           label: 'Recruitment' },
-        { to: '/my-mrfs',      icon: ClipboardList,   label: 'MRF Postings' },
-        { to: '/analytics',    icon: BarChart3,       label: 'Reports & Analytics' },
+        { to: '/dashboard',      icon: LayoutDashboard, label: 'All Openings' },
+        { to: '/resume-tracker', icon: ClipboardList,   label: 'Candidate Details' },
       ]
     : [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Job Openings' },
-        { to: '/status',    icon: Activity,        label: 'My Applications' },
+        { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
+        { to: '/status',         icon: Activity,        label: 'My Applications' },
       ]
 
-  // Hide Navbar on Login page
   if (pathname === '/login') return null
 
   const initials = user?.name
@@ -65,7 +50,7 @@ export default function Navbar() {
     : '?'
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ink-950/90 backdrop-blur-xl">
+    <header className="navbar-bg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
 
         {/* Brand */}
@@ -74,7 +59,7 @@ export default function Navbar() {
             <BriefcaseBusiness size={16} className="text-white" />
           </div>
           <div className="leading-none">
-            <span className="font-display font-bold text-white text-base tracking-tight">HR</span>
+            <span className="font-display font-bold text-base tracking-tight" style={{ color: 'var(--text-primary)' }}>HR</span>
             <span className="font-display font-bold text-accent text-base tracking-tight">Portal</span>
           </div>
         </Link>
@@ -86,7 +71,12 @@ export default function Navbar() {
             return (
               <Link key={to} to={to}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
-                  ${active ? 'bg-accent/15 text-accent border border-accent/25' : 'text-slate-400 hover:text-white hover:bg-white/6'}`}>
+                  ${active
+                    ? 'bg-accent/15 text-accent border border-accent/25'
+                    : 'hover:bg-white/6'
+                  }`}
+                style={{ color: active ? undefined : 'var(--text-secondary)' }}
+              >
                 <Icon size={15} /> {label}
               </Link>
             )
@@ -94,40 +84,43 @@ export default function Navbar() {
         </nav>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Role badge */}
-          {(() => {
-            const ROLE_CONFIG = {
-              admin:           { label: 'HR Admin',       color: 'bg-purple-500/10 border-purple-500/20 text-purple-400', icon: ShieldCheck },
-              department_head: { label: 'Dept. Head',     color: 'bg-orange-500/10 border-orange-500/20 text-orange-400', icon: User },
-              hr:              { label: 'HR Manager',     color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
-              candidate:       { label: 'Candidate',      color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
-            }
-            const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.candidate
-            const Icon = cfg.icon
-            return (
-              <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${cfg.color}`}>
-                <Icon size={12} /> {cfg.label}
-              </div>
-            )
-          })()}
+          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
+            role === 'admin'
+              ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+              : 'bg-accent/10 border-accent/20 text-accent'
+          }`}>
+            {role === 'admin' ? <ShieldCheck size={12} /> : <User size={12} />}
+            {role === 'admin' ? 'HR Admin' : 'Candidate'}
+          </div>
 
           {/* Notification bell */}
-          <button className="relative w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors hidden sm:flex">
-            <Bell size={15} className="text-slate-400" />
+          <button
+            className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+          >
+            <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
           </button>
 
-          {/* User avatar + name */}
+          {/* User avatar */}
           {user && (
-            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg"
+              style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+            >
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${
                 role === 'admin' ? 'bg-purple-500' : 'bg-accent'
               }`}>
                 {initials}
               </div>
-              <span className="text-xs text-white font-medium max-w-[80px] truncate">{user.name}</span>
+              <span className="text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-primary)' }}>
+                {user.name}
+              </span>
             </div>
           )}
 
@@ -135,14 +128,17 @@ export default function Navbar() {
           <button
             onClick={handleLogout}
             title="Log out"
-            className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors text-slate-400 hover:text-red-400"
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
           >
             <LogOut size={15} />
           </button>
 
           {/* Mobile burger */}
           <button onClick={() => setMobile(o => !o)}
-            className="md:hidden w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-400">
+            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+          >
             {mobile ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
@@ -150,31 +146,44 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobile && (
-        <div className="md:hidden border-t border-white/10 bg-ink-950/98 px-4 py-3 space-y-1">
-          {/* User info on mobile */}
+        <div className="md:hidden border-t px-4 py-3 space-y-1"
+          style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-primary)' }}
+        >
           {user && (
-            <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b border-white/8">
+            <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b"
+              style={{ borderColor: 'var(--border-color)' }}
+            >
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
                 role === 'admin' ? 'bg-purple-500' : 'bg-accent'
               }`}>
                 {initials}
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">{user.name}</p>
-                <p className="text-xs text-slate-500">{user.email}</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
               </div>
             </div>
           )}
+
+          {/* Theme toggle on mobile */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Theme</span>
+            <ThemeToggle />
+          </div>
+
           {navItems.map(({ to, icon: Icon, label }) => {
             const active = pathname === to || pathname.startsWith(to + '/')
             return (
               <Link key={to} to={to} onClick={() => setMobile(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
-                  ${active ? 'bg-accent/15 text-accent border border-accent/20' : 'text-slate-400 hover:text-white hover:bg-white/6'}`}>
+                  ${active ? 'bg-accent/15 text-accent border border-accent/20' : ''}`}
+                style={{ color: active ? undefined : 'var(--text-secondary)' }}
+              >
                 <Icon size={16} /> {label}
               </Link>
             )
           })}
+
           <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all mt-2">
             <LogOut size={16} /> Logout
