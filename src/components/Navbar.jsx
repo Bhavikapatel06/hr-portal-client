@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList,
-  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown
+  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown,
+  BarChart3, FileSpreadsheet, Settings, Users
 } from 'lucide-react'
 
 export default function Navbar() {
@@ -34,12 +35,26 @@ export default function Navbar() {
 
   const navItems = role === 'admin'
     ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'All Openings' },
-        { to: '/resume-tracker', icon: ClipboardList,   label: 'Candidate Details' },
+        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
+        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
+        { to: '/settings',       icon: Settings,        label: 'Settings' },
+      ]
+    : role === 'department_head'
+    ? [
+        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
+        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
+      ]
+    : role === 'hr'
+    ? [
+        { to: '/recruitment',  icon: Users,           label: 'Recruitment' },
+        { to: '/my-mrfs',      icon: ClipboardList,   label: 'MRF Postings' },
+        { to: '/analytics',    icon: BarChart3,       label: 'Reports & Analytics' },
       ]
     : [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
-        { to: '/status',         icon: Activity,        label: 'My Applications' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Job Openings' },
+        { to: '/status',    icon: Activity,        label: 'My Applications' },
       ]
 
   // Hide Navbar on Login page
@@ -82,17 +97,21 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
 
           {/* Role badge */}
-          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
-            role === 'admin'
-              ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-              : 'bg-accent/10 border-accent/20 text-accent'
-          }`}>
-            {role === 'admin'
-              ? <ShieldCheck size={12} />
-              : <User size={12} />
+          {(() => {
+            const ROLE_CONFIG = {
+              admin:           { label: 'HR Admin',       color: 'bg-purple-500/10 border-purple-500/20 text-purple-400', icon: ShieldCheck },
+              department_head: { label: 'Dept. Head',     color: 'bg-orange-500/10 border-orange-500/20 text-orange-400', icon: User },
+              hr:              { label: 'HR Manager',     color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
+              candidate:       { label: 'Candidate',      color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
             }
-            {role === 'admin' ? 'HR Admin' : 'Candidate'}
-          </div>
+            const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.candidate
+            const Icon = cfg.icon
+            return (
+              <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${cfg.color}`}>
+                <Icon size={12} /> {cfg.label}
+              </div>
+            )
+          })()}
 
           {/* Notification bell */}
           <button className="relative w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors hidden sm:flex">

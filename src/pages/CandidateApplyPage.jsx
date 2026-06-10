@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, CheckCircle2, AlertTriangle, User, Mail, Phone,
   Briefcase, GraduationCap, Zap, MapPin, Calendar, FileText,
-  Sparkles, Building2, Clock, ChevronRight, Send, Upload, X,
+  Sparkles, Building2, Clock, ChevronRight, Send, Upload, X, Target,
 } from 'lucide-react'
 import { mrfApi, candidateApi } from '../services/api.js'
 import { scoreCandidate, MATCH_COLORS } from '../utils/matchEngine.js'
@@ -41,6 +41,10 @@ export default function CandidateApplyPage() {
   const [success,    setSuccess]    = useState(false)
   const [errorMsg,   setErrorMsg]   = useState(null)
   const [errors,     setErrors]     = useState({})
+
+  // AI Matching state
+  const [matchResult, setMatchResult] = useState(null)
+  const [isScoring, setIsScoring] = useState(false)
 
   const [form, setForm] = useState({
     fullName: '', phone: '', alternatePhone: '', email: '',
@@ -94,9 +98,20 @@ export default function CandidateApplyPage() {
         filePath: parsed.filePath || '',
         fileSize: parsed.fileSize || files[0].size,
       })
+
+      if (parsed.parseStatus === 'failed') {
+        setErrorMsg('Failed to parse resume automatically. Please enter details manually below.')
+      }
     } catch (err) {
       console.error('Resume parsing failed:', err)
       setErrorMsg('Failed to parse resume automatically. Please enter details manually below.')
+      
+      // Fallback so candidate can still fill form and submit even if upload endpoint fails entirely
+      setResumeInfo({
+        fileName: files[0].name,
+        filePath: '',
+        fileSize: files[0].size,
+      })
     } finally {
       setUploading(false)
     }
@@ -132,19 +147,35 @@ export default function CandidateApplyPage() {
     }
   }
 
-  // Live match score calculation
-  const matchResult = opening
-    ? scoreCandidate(
-        { ...form, currentTitle: opening.designation, notes: `${form.skills || ''} ${form.notes || ''}` },
-        {
+  // Live match score calculation via AI
+  useEffect(() => {
+    if (!opening || !resumeInfo.fileName) return
+    
+    // Check if the form actually has any data worth scoring
+    if (!form.skills && !form.totalExp && !form.highestQual && !form.currentCompany) return
+
+    setIsScoring(true)
+    const timer = setTimeout(async () => {
+      try {
+        const candidateDetails = { ...form, currentTitle: form.currentCompany, notes: `${form.skills || ''} ${form.notes || ''}` }
+        const requirements = {
           designation:          opening.designation,
           department:           opening.department,
           experience:           opening.experience,
           minimumQualification: opening.minimumQualification,
           otherKeySkills:       opening.otherKeySkills,
         }
-      )
-    : null
+        const result = await candidateApi.previewMatch(candidateDetails, requirements)
+        setMatchResult(result)
+      } catch (err) {
+        console.error('Failed to get AI match preview:', err)
+      } finally {
+        setIsScoring(false)
+      }
+    }, 1200)
+
+    return () => clearTimeout(timer)
+  }, [form, opening, resumeInfo.fileName])
 
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
@@ -356,31 +387,48 @@ export default function CandidateApplyPage() {
       </div>
 
       {/* ── Section: Match Compatibility Score ── */}
-      {(resumeInfo.fileName || form.fullName) && matchResult && matchResult.score > 0 && mc && (
+      {(resumeInfo.fileName || form.fullName) && (
         <div className="card p-5 bg-ink-950/50 flex items-start gap-4 fade-up">
-          <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
-            <svg className="absolute inset-0 -rotate-90" width="64" height="64" viewBox="0 0 64 64">
-              <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-              <circle
-                cx="32" cy="32" r="26"
-                fill="none"
-                stroke={mc.ring}
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeDasharray={2 * Math.PI * 26}
-                strokeDashoffset={2 * Math.PI * 26 - (matchResult.score / 100) * (2 * Math.PI * 26)}
-                style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-              />
-            </svg>
-            <span className="text-white font-bold text-sm font-mono">{matchResult.score}%</span>
-          </div>
+          {isScoring ? (
+            <div className="w-16 h-16 flex flex-col items-center justify-center flex-shrink-0">
+              <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
+              <span className="text-[9px] text-accent mt-2 uppercase tracking-wider font-semibold">AI Scoring</span>
+            </div>
+          ) : matchResult && matchResult.score > 0 && mc ? (
+            <div className="relative w-16 h-16 flex items-center justify-center flex-shrink-0">
+              <svg className="absolute inset-0 -rotate-90" width="64" height="64" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+                <circle
+                  cx="32" cy="32" r="26"
+                  fill="none"
+                  stroke={mc.ring}
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 26}
+                  strokeDashoffset={2 * Math.PI * 26 - (matchResult.score / 100) * (2 * Math.PI * 26)}
+                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                />
+              </svg>
+              <span className="text-white font-bold text-sm font-mono">{matchResult.score}%</span>
+            </div>
+          ) : (
+             <div className="w-16 h-16 flex items-center justify-center flex-shrink-0 rounded-full border-2 border-dashed border-white/10 text-slate-500">
+               <Target size={20} />
+             </div>
+          )}
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-500">Resume Match Level:</span>
-              <span className={`badge ${mc.bg} ${mc.text} ${mc.border} border text-[10px]`}>{matchResult.matchLevel}</span>
+              {isScoring ? (
+                 <span className="badge border border-white/10 text-[10px] text-slate-400">Analyzing...</span>
+              ) : matchResult ? (
+                 <span className={`badge ${mc.bg} ${mc.text} ${mc.border} border text-[10px]`}>{matchResult.matchLevel}</span>
+              ) : (
+                 <span className="badge border border-white/10 text-[10px] text-slate-400">Waiting for details</span>
+              )}
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mt-1">
-              Based on our automated matching engine, your skills and qualifications align with this role's profile. You can review and adjust your profile details below.
+              Based on our <span className="text-accent font-medium">AI Matching Engine</span>, your skills and qualifications align with this role's profile. You can review and adjust your profile details below to recalculate.
             </p>
           </div>
         </div>
