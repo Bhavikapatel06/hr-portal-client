@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -29,6 +30,7 @@ export default {
       },
       boxShadow: {
         'card': '0 4px 24px rgba(0,0,0,0.35)',
+        'card-light': '0 4px 24px rgba(0,0,0,0.08)',
         'glow': '0 0 20px rgba(79,142,247,0.25)',
         'glow-sm': '0 0 10px rgba(79,142,247,0.15)',
       },
