@@ -1410,14 +1410,22 @@ export default function MyMRFsPage() {
                       </span>
                     )}
 
-                    {/* Admin: View MRF button */}
+                    {/* Admin: View MRF button and Delete */}
                     {role === 'admin' && (
-                      <button
-                        onClick={() => setViewingMrf(mrf)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
-                      >
-                        <Eye size={12} /> View MRF
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setViewingMrf(mrf)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
+                        >
+                          <Eye size={12} /> View MRF
+                        </button>
+                        <button
+                          onClick={() => handleDelete(mrf._id)}
+                          className="flex items-center p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all ml-1"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </>
                     )}
 
                     {/* HR: Post as Job */}

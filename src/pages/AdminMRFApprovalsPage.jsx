@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import {
   ClipboardList, Clock, CheckCircle2, XCircle, Eye, FileText,
   Loader2, AlertCircle, Search, Filter, MessageSquare, Calendar,
-  MapPin, Building2, Users, User, Hash
+  MapPin, Building2, Users, User, Hash, Trash2
 } from 'lucide-react'
 import { mrfApi } from '../services/api.js'
 
@@ -304,6 +304,17 @@ export default function AdminMRFApprovalsPage() {
     finally { setActioning(false) }
   }
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this MRF completely? This action cannot be undone.')) return
+    setActioning(true)
+    try {
+      await mrfApi.delete(id)
+      showToast('MRF deleted.')
+      loadMRFs()
+    } catch (e) { showToast(e.message, 'error') }
+    finally { setActioning(false) }
+  }
+
   // ── Stats ──────────────────────────────────────────────────────────────
   const pending   = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval').length
   const approved  = mrfs.filter(m => m.mrfStatus === 'Approved').length
@@ -545,6 +556,13 @@ export default function AdminMRFApprovalsPage() {
                       </button>
                     </>
                   )}
+
+                  <button
+                    onClick={() => handleDelete(mrf._id)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold hover:bg-red-500 hover:text-white transition-all ml-1"
+                  >
+                    <Trash2 size={13} /> Delete
+                  </button>
 
                   <span className="ml-auto text-[10px] text-slate-600">
                     {mrf.mrfStatus === 'Approved' && '✓ Visible to HR Team'}
