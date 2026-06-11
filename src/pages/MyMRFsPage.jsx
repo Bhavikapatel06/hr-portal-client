@@ -411,20 +411,16 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex gap-3 justify-end flex-shrink-0">
+        {/* Footer — only Edit option; user must click Submit Request at the bottom of the form */}
+        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center gap-3 flex-shrink-0">
+          <div className="flex-1 text-xs text-slate-500">
+            <span className="text-amber-400 font-semibold">📋 Review complete?</span>&nbsp; Close this preview and click <strong className="text-white">Submit Request</strong> at the bottom when both MRF &amp; JD are ready.
+          </div>
           <button
             onClick={onEditCancel}
-            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-bold hover:bg-white/10 hover:text-white transition-all"
+            className="px-5 py-2.5 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-bold hover:bg-accent hover:text-white transition-all flex items-center gap-1.5"
           >
-            Edit / Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-glow-sm shadow-emerald-500/10"
-          >
-            <Send size={13} />
-            Confirm &amp; Submit
+            <Edit3 size={13} /> Edit Details &amp; Close
           </button>
         </div>
 
@@ -532,22 +528,21 @@ export default function MyMRFsPage() {
     try {
       const res = await mrfApi.uploadAttachment(file)
       try {
-        // Try to parse the PDF for AI-extracted details
         const parsed = await mrfApi.parseFile(file)
+        // Show preview popup — do NOT submit yet
         setExtractedDetails({
           ...parsed,
           fileType: 'MRF',
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('MRF Document uploaded and parsed successfully! ✓')
+        showToast('MRF uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
-        // Parse failed (e.g. scanned/image PDF, unsupported format)
-        // Fall back: just set the file and let user fill details manually
-        console.warn('MRF parse unavailable, skipping modal:', parseErr.message)
+        console.warn('MRF parse unavailable:', parseErr.message)
+        // No popup needed — just mark file ready
         setMrfFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, mrfFileName: res.fileName, mrfFilePath: res.filePath }))
-        showToast('File uploaded. AI parsing was unavailable — please fill details manually.', 'error')
+        showToast('MRF file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('MRF upload error:', err)
@@ -565,21 +560,20 @@ export default function MyMRFsPage() {
     try {
       const res = await mrfApi.uploadAttachment(file)
       try {
-        // Try to parse the PDF for AI-extracted details
         const parsed = await mrfApi.parseFile(file)
+        // Show preview popup — do NOT submit yet
         setExtractedDetails({
           ...parsed,
           fileType: 'JD',
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('JD Document uploaded and parsed successfully! ✓')
+        showToast('JD uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
-        // Parse failed — fall back to file-only mode
-        console.warn('JD parse unavailable, skipping modal:', parseErr.message)
+        console.warn('JD parse unavailable:', parseErr.message)
         setJdFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, jdFileName: res.fileName, jdFilePath: res.filePath }))
-        showToast('File uploaded. AI parsing was unavailable — please fill details manually.', 'error')
+        showToast('JD file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('JD upload error:', err)
@@ -590,70 +584,12 @@ export default function MyMRFsPage() {
     }
   }
 
-  const handleConfirmAndSubmit = async (details) => {
-    setSubmitting(true)
-    setExtractedDetails(null)
-    try {
-      const updatedForm = {
-        ...form,
-        designation: details.designation || form.designation,
-        department: details.department || form.department || 'Attached Requisition',
-        location: details.location || form.location,
-        experience: details.experience || form.experience,
-        minimumQualification: details.minimumQualification || form.minimumQualification,
-        otherKeySkills: details.otherKeySkills || form.otherKeySkills,
-        noOfPositions: parseInt(details.noOfPositions) || form.noOfPositions || 1,
-        levelOfUrgency: ['High', 'Medium', 'Low'].includes(details.urgency) ? details.urgency : 'Medium',
-        purposeOfJob: details.purposeOfJob || form.purposeOfJob,
-        rolesResponsibilities: details.rolesAndResponsibilities || form.rolesResponsibilities,
-        preferredIndustries: details.preferredIndustries || form.preferredIndustries,
-      }
+  // handleConfirmAndSubmit is REMOVED — upload popup no longer triggers submit.
+  // Instead, "Edit Details & Close" loads parsed data into the form for review.
+  // The actual submit only happens via the bottom "Submit Request" button.
 
-      let fileDetails = {}
-      if (details.fileType === 'MRF') {
-        fileDetails = {
-          mrfFileName: details.fileName,
-          mrfFilePath: details.filePath,
-        }
-        setMrfFile({ name: details.fileName, path: details.filePath })
-      } else if (details.fileType === 'JD') {
-        fileDetails = {
-          jdFileName: details.fileName,
-          jdFilePath: details.filePath,
-        }
-        setJdFile({ name: details.fileName, path: details.filePath })
-      }
-
-      const payload = {
-        ...updatedForm,
-        ...fileDetails,
-      }
-
-      if (editingId) {
-        await mrfApi.update(editingId, { ...payload, mrfStatus: 'Pending Owner Approval' })
-        await mrfApi.submitDraft(editingId)
-        showToast('MRF updated and submitted! ✓')
-      } else {
-        await mrfApi.submit({ ...payload, mrfStatus: 'Pending Owner Approval' })
-        showToast('MRF submitted for approval! ✓')
-      }
-
-      setShowForm(false)
-      setIsCreating(false)
-      setForm(EMPTY_FORM)
-      setEditingId(null)
-      setMrfFile(null)
-      setJdFile(null)
-      setMrfMethod('manual')
-      setJdMethod('manual')
-      loadMRFs()
-    } catch (e) {
-      showToast(e.message, 'error')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
+  // "Edit Details & Close" in the upload preview popup — merges parsed data into form,
+  // marks the file as ready, and dismisses the popup so user can review inline.
   const handleEditCancel = (details) => {
     setExtractedDetails(null)
     setForm(prev => {
@@ -683,12 +619,13 @@ export default function MyMRFsPage() {
 
     if (details.fileType === 'MRF') {
       setMrfFile({ name: details.fileName, path: details.filePath })
+      // Switch to manual so user can review/edit extracted fields inline
       setMrfMethod('manual')
     } else if (details.fileType === 'JD') {
       setJdFile({ name: details.fileName, path: details.filePath })
       setJdMethod('manual')
     }
-    showToast('Extracted details loaded. You can verify and submit.')
+    showToast('Details loaded — review and edit if needed, then click Submit Request.')
   }
 
   const handleSaveDraft = async () => {
@@ -778,11 +715,20 @@ export default function MyMRFsPage() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this MRF?')) return
     try {
+      setMrfs(prev => prev.filter(m => m._id !== id))
       await mrfApi.delete(id)
       showToast('MRF deleted.')
-      loadMRFs()
+      const all = await mrfApi.list()
+      if (role === 'department_head') {
+        setMrfs(all.filter(m => m.submittedBy === userName || !m.submittedBy))
+      } else if (role === 'admin') {
+        setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
+      } else {
+        setMrfs(all.filter(m => m.mrfStatus === 'Approved'))
+      }
     } catch (e) {
       showToast(e.message, 'error')
+      loadMRFs()
     }
   }
 
@@ -854,11 +800,11 @@ export default function MyMRFsPage() {
         </div>
       )}
 
-      {/* Upload parsing confirmation modal */}
+      {/* Upload preview popup — shows extracted details, user edits inline, then submits via bottom button */}
       {extractedDetails && (
         <UploadConfirmationModal
           details={extractedDetails}
-          onConfirm={() => handleConfirmAndSubmit(extractedDetails)}
+          onConfirm={null}
           onEditCancel={() => handleEditCancel(extractedDetails)}
         />
       )}
@@ -1256,36 +1202,73 @@ export default function MyMRFsPage() {
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-3 pt-6 border-t border-white/10 mt-8 animate-fadeIn">
-            <button
-              type="button"
-              onClick={handleCloseForm}
-              className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white text-xs font-semibold transition-colors"
-            >
-              Cancel &amp; Close
-            </button>
-            <div className="flex gap-3 ml-auto">
-              <button
-                id="save-draft-btn"
-                onClick={handleSaveDraft}
-                disabled={saving || submitting}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/6 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 transition-all disabled:opacity-50"
-              >
-                {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                {editingId ? 'Update Draft' : 'Save Draft'}
-              </button>
-              <button
-                id="submit-mrf-btn"
-                onClick={handleSubmit}
-                disabled={submitting || saving}
-                className="btn-primary flex items-center gap-2 text-xs"
-              >
-                {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-                {editingId ? 'Update & Submit' : 'Submit for Approval'}
-              </button>
-            </div>
-          </div>
+          {/* ── Readiness Checklist ────────────────────────────────────── */}
+          {(() => {
+            const mrfDone = mrfMethod === 'upload' ? !!mrfFile : !!form.designation?.trim()
+            const jdDone  = jdMethod  === 'upload' ? !!jdFile  : !!form.purposeOfJob?.trim() || !!form.rolesResponsibilities?.trim() || !!form.otherKeySkills?.trim()
+            const bothReady = mrfDone && jdDone
+            return (
+              <div className="pt-6 border-t border-white/10 mt-8 space-y-5 animate-fadeIn">
+
+                {/* Status row */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <div className="flex gap-3 flex-1 flex-wrap">
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                      mrfDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                    }`}>
+                      {mrfDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                      MRF {mrfDone ? 'Ready' : 'Incomplete'}
+                    </div>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                      jdDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                    }`}>
+                      {jdDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                      JD {jdDone ? 'Ready' : 'Incomplete'}
+                    </div>
+                    {!bothReady && (
+                      <p className="text-xs text-slate-500 self-center">Complete both MRF and JD sections to enable submission.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCloseForm}
+                    className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white text-xs font-semibold transition-colors"
+                  >
+                    Cancel &amp; Close
+                  </button>
+                  <div className="flex gap-3 ml-auto">
+                    <button
+                      id="save-draft-btn"
+                      onClick={handleSaveDraft}
+                      disabled={saving || submitting}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/6 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 transition-all disabled:opacity-50"
+                    >
+                      {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                      {editingId ? 'Update Draft' : 'Save Draft'}
+                    </button>
+                    <button
+                      id="submit-mrf-btn"
+                      onClick={handleSubmit}
+                      disabled={submitting || saving || !bothReady}
+                      title={!bothReady ? 'Complete both MRF and JD before submitting' : ''}
+                      className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        bothReady
+                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-glow-sm shadow-emerald-500/20 cursor-pointer'
+                          : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
+                      }`}
+                    >
+                      {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                      {editingId ? 'Update &amp; Submit Request' : 'Submit Request'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 

@@ -6,6 +6,7 @@ import {
   BarChart3, FileSpreadsheet, Settings, Users, Check, Trash2
 } from 'lucide-react'
 import { notificationApi } from '../services/api'
+import ThemeToggle from '../context/ThemeToggle.jsx'
 
 export default function Navbar() {
   const { pathname } = useLocation()
@@ -66,31 +67,76 @@ export default function Navbar() {
     navigate('/login')
   }
 
-  const navItems = role === 'admin'
-    ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
-        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
-        { to: '/settings',       icon: Settings,        label: 'Settings' },
-      ]
-    : role === 'department_head'
-    ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
-        { to: '/analytics',      icon: BarChart3,       label: 'Reports & Analytics' },
-      ]
-    : role === 'hr'
-    ? [
-        { to: '/recruitment',  icon: Users,           label: 'Recruitment' },
-        { to: '/my-mrfs',      icon: ClipboardList,   label: 'MRF Postings' },
-        { to: '/analytics',    icon: BarChart3,       label: 'Reports & Analytics' },
-      ]
-    : [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Job Openings' },
-        { to: '/status',    icon: Activity,        label: 'My Applications' },
-      ]
+  const getNavItems = () => {
+    switch (role) {
+      case 'admin':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+          { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'department_head':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'hr':
+        return [
+          { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'MRF Posting' },
+          { to: '/vacancy-tracker', icon: LayoutDashboard, label: 'Vacancy Tracker' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'candidate':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
+          { to: '/status',         icon: Activity,        label: 'My Applications' },
+        ]
+      default:
+        return []
+    }
+  }
 
-  // Hide Navbar on Login page
+  const navItems = getNavItems()
+
+  const getRoleDetails = () => {
+    switch (role) {
+      case 'admin':
+        return {
+          label: 'HR Admin',
+          badgeCls: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
+          avatarCls: 'bg-purple-500',
+          icon: ShieldCheck
+        }
+      case 'department_head':
+        return {
+          label: 'Dept Head',
+          badgeCls: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+          avatarCls: 'bg-amber-500',
+          icon: User
+        }
+      case 'hr':
+        return {
+          label: 'HR Manager',
+          badgeCls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+          avatarCls: 'bg-emerald-500',
+          icon: User
+        }
+      case 'candidate':
+      default:
+        return {
+          label: 'Candidate',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
+          icon: User
+        }
+    }
+  }
+
+  const roleDetails = getRoleDetails()
+  const RoleIcon = roleDetails.icon
+
   if (pathname === '/login') return null
 
   const initials = user?.name
@@ -98,7 +144,7 @@ export default function Navbar() {
     : '?'
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ink-950/90 backdrop-blur-xl">
+    <header className="navbar-bg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
 
         {/* Brand */}
@@ -107,7 +153,7 @@ export default function Navbar() {
             <BriefcaseBusiness size={16} className="text-white" />
           </div>
           <div className="leading-none">
-            <span className="font-display font-bold text-white text-base tracking-tight">HR</span>
+            <span className="font-display font-bold text-base tracking-tight" style={{ color: 'var(--text-primary)' }}>HR</span>
             <span className="font-display font-bold text-accent text-base tracking-tight">Portal</span>
           </div>
         </Link>
@@ -119,7 +165,12 @@ export default function Navbar() {
             return (
               <Link key={to} to={to}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
-                  ${active ? 'bg-accent/15 text-accent border border-accent/25' : 'text-slate-400 hover:text-white hover:bg-white/6'}`}>
+                  ${active
+                    ? 'bg-accent/15 text-accent border border-accent/25'
+                    : 'hover:bg-white/6'
+                  }`}
+                style={{ color: active ? undefined : 'var(--text-secondary)' }}
+              >
                 <Icon size={15} /> {label}
               </Link>
             )
@@ -127,35 +178,29 @@ export default function Navbar() {
         </nav>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Role badge */}
-          {(() => {
-            const ROLE_CONFIG = {
-              admin:           { label: 'HR Admin',       color: 'bg-purple-500/10 border-purple-500/20 text-purple-400', icon: ShieldCheck },
-              department_head: { label: 'Dept. Head',     color: 'bg-orange-500/10 border-orange-500/20 text-orange-400', icon: User },
-              hr:              { label: 'HR Manager',     color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
-              candidate:       { label: 'Candidate',      color: 'bg-accent/10 border-accent/20 text-accent',             icon: User },
-            }
-            const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.candidate
-            const Icon = cfg.icon
-            return (
-              <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${cfg.color}`}>
-                <Icon size={12} /> {cfg.label}
-              </div>
-            )
-          })()}
+          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${roleDetails.badgeCls}`}>
+            <RoleIcon size={12} />
+            {roleDetails.label}
+          </div>
 
           {/* Notification bell */}
           <div className="relative">
-            <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors hidden sm:flex">
-              <Bell size={15} className="text-slate-400" />
-              {notifications.some(n => !n.isRead) && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
-              )}
-            </button>
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+            >
+            <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
+            {notifications.some(n => !n.isRead) && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+          )}
+          </button>
             
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
@@ -187,15 +232,17 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* User avatar + name */}
+          {/* User avatar */}
           {user && (
-            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg bg-white/5 border border-white/10">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg"
+              style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+            >
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
-              <span className="text-xs text-white font-medium max-w-[80px] truncate">{user.name}</span>
+              <span className="text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-primary)' }}>
+                {user.name}
+              </span>
             </div>
           )}
 
@@ -203,14 +250,17 @@ export default function Navbar() {
           <button
             onClick={handleLogout}
             title="Log out"
-            className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors text-slate-400 hover:text-red-400"
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
           >
             <LogOut size={15} />
           </button>
 
           {/* Mobile burger */}
           <button onClick={() => setMobile(o => !o)}
-            className="md:hidden w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-slate-400">
+            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+          >
             {mobile ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
@@ -218,31 +268,42 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobile && (
-        <div className="md:hidden border-t border-white/10 bg-ink-950/98 px-4 py-3 space-y-1">
-          {/* User info on mobile */}
+        <div className="md:hidden border-t px-4 py-3 space-y-1"
+          style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-primary)' }}
+        >
           {user && (
-            <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b border-white/8">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+            <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b"
+              style={{ borderColor: 'var(--border-color)' }}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">{user.name}</p>
-                <p className="text-xs text-slate-500">{user.email}</p>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
               </div>
             </div>
           )}
+
+          {/* Theme toggle on mobile */}
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Theme</span>
+            <ThemeToggle />
+          </div>
+
           {navItems.map(({ to, icon: Icon, label }) => {
             const active = pathname === to || pathname.startsWith(to + '/')
             return (
               <Link key={to} to={to} onClick={() => setMobile(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all
-                  ${active ? 'bg-accent/15 text-accent border border-accent/20' : 'text-slate-400 hover:text-white hover:bg-white/6'}`}>
+                  ${active ? 'bg-accent/15 text-accent border border-accent/20' : ''}`}
+                style={{ color: active ? undefined : 'var(--text-secondary)' }}
+              >
                 <Icon size={16} /> {label}
               </Link>
             )
           })}
+
           <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all mt-2">
             <LogOut size={16} /> Logout
