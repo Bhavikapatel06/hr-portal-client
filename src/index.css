@@ -5,58 +5,62 @@
 /* ─── Theme Variables ──────────────────────────────────────────────────────── */
 :root {
   /* Dark theme (default) */
-  --bg-primary:     #0A0E1A;
-  --bg-secondary:   #0F1629;
-  --bg-card:        #1A2040;
-  --bg-card-hover:  #1F2650;
-  --bg-input:       #0F1629;
-  --border-color:   rgba(255,255,255,0.08);
-  --border-hover:   rgba(79,142,247,0.35);
-  --text-primary:   #E2E8F8;
-  --text-secondary: #94A3B8;
-  --text-muted:     #64748B;
+  --bg-primary:       #0A0E1A;
+  --bg-secondary:     #0F1629;
+  --bg-card:          #1A2040;
+  --bg-card-hover:    #1F2650;
+  --bg-input:         #0F1629;
+  --border-color:     rgba(255,255,255,0.08);
+  --border-hover:     rgba(79,142,247,0.35);
+  --text-primary:     #E2E8F8;
+  --text-secondary:   #94A3B8;
+  --text-muted:       #64748B;
   --text-placeholder: #475569;
-  --accent:         #4F8EF7;
-  --accent-light:   #7AAEFF;
-  --accent-glow:    rgba(79,142,247,0.18);
-  --gold:           #F5A623;
-  --success:        #22D3A5;
-  --danger:         #F75F5F;
-  --scrollbar-track: #0F1629;
-  --scrollbar-thumb: #2A3560;
-  --grid-line:      rgba(79,142,247,0.04);
-  --shadow-card:    0 4px 24px rgba(0,0,0,0.35);
-  --navbar-bg:      rgba(10,14,26,0.92);
-  --select-bg:      #0F1629;
-  --select-color:   #E2E8F8;
+  --accent:           #4F8EF7;
+  --accent-light:     #7AAEFF;
+  --accent-glow:      rgba(79,142,247,0.18);
+  --gold:             #F5A623;
+  --success:          #22D3A5;
+  --danger:           #F75F5F;
+  --scrollbar-track:  #0F1629;
+  --scrollbar-thumb:  #2A3560;
+  --grid-line:        rgba(79,142,247,0.04);
+  --shadow-card:      0 4px 24px rgba(0,0,0,0.35);
+  --navbar-bg:        rgba(10,14,26,0.95);
+  --select-bg:        #0F1629;
+  --select-color:     #E2E8F8;
 }
 
-/* ─── Light Theme ──────────────────────────────────────────────────────────── */
+/* ─── Light Theme — Professional HR Software Style ─────────────────────────── */
 html.light {
-  --bg-primary:     #F1F5FB;
-  --bg-secondary:   #FFFFFF;
-  --bg-card:        #FFFFFF;
-  --bg-card-hover:  #F8FAFF;
-  --bg-input:       #FFFFFF;
-  --border-color:   rgba(0,0,0,0.09);
-  --border-hover:   rgba(79,142,247,0.5);
-  --text-primary:   #0F172A;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
-  --text-placeholder: #94A3B8;
-  --accent:         #4F8EF7;
-  --accent-light:   #3B7EF0;
-  --accent-glow:    rgba(79,142,247,0.12);
-  --gold:           #D97706;
-  --success:        #0D9488;
-  --danger:         #DC2626;
-  --scrollbar-track: #E2E8F0;
-  --scrollbar-thumb: #CBD5E1;
-  --grid-line:      rgba(79,142,247,0.05);
-  --shadow-card:    0 2px 16px rgba(0,0,0,0.07);
-  --navbar-bg:      rgba(255,255,255,0.95);
-  --select-bg:      #FFFFFF;
-  --select-color:   #0F172A;
+  --bg-primary:       #F0F2F5;
+  --bg-secondary:     #FFFFFF;
+  --bg-card:          #FFFFFF;
+  --bg-card-hover:    #F7F9FC;
+  --bg-input:         #FFFFFF;
+  --border-color:     #D9DEE8;
+  --border-hover:     #4F8EF7;
+
+  --text-primary:     #111827;
+  --text-secondary:   #374151;
+  --text-muted:       #6B7280;
+  --text-placeholder: #9CA3AF;
+
+  --accent:           #2563EB;
+  --accent-light:     #1D4ED8;
+  --accent-glow:      rgba(37,99,235,0.10);
+
+  --gold:             #D97706;
+  --success:          #059669;
+  --danger:           #DC2626;
+
+  --scrollbar-track:  #E5E7EB;
+  --scrollbar-thumb:  #9CA3AF;
+  --grid-line:        rgba(0,0,0,0.0);
+  --shadow-card:      0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --navbar-bg:        #FFFFFF;
+  --select-bg:        #FFFFFF;
+  --select-color:     #111827;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
@@ -73,7 +77,7 @@ body {
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────────────────────── */
@@ -113,17 +117,17 @@ body {
 /* Input */
 .field {
   @apply w-full rounded-lg px-3.5 py-2.5 text-sm transition-all duration-200
-         focus:outline-none focus:ring-1;
+         focus:outline-none;
   background-color: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  box-shadow: var(--shadow-card);
 }
 .field::placeholder { color: var(--text-placeholder); }
 .field:hover  { border-color: var(--border-hover); }
 .field:focus  {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
+  outline: none;
 }
 
 /* Select options */
@@ -135,7 +139,7 @@ select option {
 /* Label */
 .label {
   @apply block text-xs font-medium mb-1.5 tracking-wide uppercase;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 /* Card */
@@ -144,7 +148,7 @@ select option {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-card);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 /* Navbar */
@@ -152,7 +156,7 @@ select option {
   background-color: var(--navbar-bg);
   border-bottom: 1px solid var(--border-color);
   backdrop-filter: blur(16px);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 /* Section tag */
@@ -160,7 +164,7 @@ select option {
   @apply inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase rounded-full px-3 py-1;
   color: var(--accent);
   background-color: var(--accent-glow);
-  border: 1px solid rgba(79,142,247,0.2);
+  border: 1px solid var(--accent-glow);
 }
 
 /* Btn primary */
@@ -169,22 +173,25 @@ select option {
          font-semibold text-sm text-white
          active:scale-95 transition-all duration-150;
   background-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent-glow);
+  box-shadow: 0 2px 8px var(--accent-glow);
 }
-.btn-primary:hover { background-color: var(--accent-light); }
+.btn-primary:hover {
+  background-color: var(--accent-light);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
 
 /* Btn ghost */
 .btn-ghost {
   @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl
          text-sm font-medium active:scale-95 transition-all duration-150;
-  background-color: var(--border-color);
+  background-color: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
 }
 .btn-ghost:hover {
   background-color: var(--bg-card-hover);
-  border-color: var(--border-hover);
-  color: var(--text-primary);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Divider */
@@ -198,37 +205,113 @@ select option {
   @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
 }
 
-/* Light theme overrides for ink- colors used in JSX */
+/* ─── Light theme overrides ────────────────────────────────────────────────── */
+
+/* Backgrounds */
+html.light .bg-ink-950,
 html.light .bg-ink-950\/80,
-html.light .bg-ink-950\/90,
-html.light .bg-ink-950 { background-color: var(--bg-primary) !important; }
+html.light .bg-ink-950\/90  { background-color: #F0F2F5 !important; }
 
 html.light .bg-ink-900,
 html.light .bg-ink-900\/50,
-html.light .bg-ink-900\/98 { background-color: var(--bg-secondary) !important; }
+html.light .bg-ink-900\/98  { background-color: #FFFFFF !important; }
 
-html.light .bg-ink-800 { background-color: var(--bg-card) !important; }
-
-html.light .text-white { color: var(--text-primary) !important; }
-html.light .text-slate-400 { color: var(--text-secondary) !important; }
-html.light .text-slate-500 { color: var(--text-muted) !important; }
-html.light .text-slate-600 { color: var(--text-muted) !important; }
-html.light .text-slate-300 { color: var(--text-secondary) !important; }
-html.light .text-slate-200 { color: var(--text-primary) !important; }
-
-html.light .border-white\/8,
-html.light .border-white\/10,
-html.light .border-white\/15,
-html.light .border-white\/20 { border-color: var(--border-color) !important; }
+html.light .bg-ink-800,
+html.light .bg-ink-800\/50  { background-color: #FFFFFF !important; }
 
 html.light .bg-white\/3,
+html.light .bg-white\/4,
 html.light .bg-white\/5,
 html.light .bg-white\/6,
 html.light .bg-white\/8,
-html.light .bg-white\/10 { background-color: rgba(0,0,0,0.04) !important; }
+html.light .bg-white\/10    { background-color: #F3F4F6 !important; }
 
 html.light .hover\:bg-white\/6:hover,
-html.light .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
+html.light .hover\:bg-white\/8:hover,
+html.light .hover\:bg-white\/10:hover { background-color: #E9EBF0 !important; }
 
-html.light .bg-ink-950\/8 { background-color: rgba(79,142,247,0.06) !important; }
-html.light .bg-ink-800\/50 { background-color: rgba(255,255,255,0.8) !important; }
+html.light .bg-ink-950\/8   { background-color: rgba(37,99,235,0.05) !important; }
+
+/* Text */
+html.light .text-white      { color: #111827 !important; }
+html.light .text-slate-200  { color: #1F2937 !important; }
+html.light .text-slate-300  { color: #374151 !important; }
+html.light .text-slate-400  { color: #4B5563 !important; }
+html.light .text-slate-500  { color: #6B7280 !important; }
+html.light .text-slate-600  { color: #6B7280 !important; }
+
+/* Borders */
+html.light .border-white\/6,
+html.light .border-white\/8,
+html.light .border-white\/10,
+html.light .border-white\/12,
+html.light .border-white\/15,
+html.light .border-white\/20 { border-color: #D9DEE8 !important; }
+
+/* Accent */
+html.light .bg-accent\/4,
+html.light .bg-accent\/5,
+html.light .bg-accent\/8,
+html.light .bg-accent\/10,
+html.light .bg-accent\/15   { background-color: rgba(37,99,235,0.07) !important; }
+
+html.light .border-accent\/20,
+html.light .border-accent\/25,
+html.light .border-accent\/30 { border-color: rgba(37,99,235,0.25) !important; }
+
+html.light .text-accent      { color: #2563EB !important; }
+html.light .bg-accent\/15.text-accent { color: #2563EB !important; }
+
+/* Active nav item */
+html.light .bg-accent\/15   { background-color: rgba(37,99,235,0.07) !important; }
+
+/* Success */
+html.light .bg-success\/8,
+html.light .bg-success\/10,
+html.light .bg-success\/15  { background-color: rgba(5,150,105,0.07) !important; }
+html.light .text-success     { color: #059669 !important; }
+html.light .border-success\/20,
+html.light .border-success\/25,
+html.light .border-success\/30 { border-color: rgba(5,150,105,0.25) !important; }
+
+/* Danger */
+html.light .bg-danger\/8,
+html.light .bg-danger\/10,
+html.light .bg-danger\/15   { background-color: rgba(220,38,38,0.07) !important; }
+html.light .text-danger      { color: #DC2626 !important; }
+html.light .border-danger\/20,
+html.light .border-danger\/25,
+html.light .border-danger\/30 { border-color: rgba(220,38,38,0.25) !important; }
+
+/* Gold */
+html.light .bg-gold\/8,
+html.light .bg-gold\/10,
+html.light .bg-gold\/15     { background-color: rgba(217,119,6,0.07) !important; }
+html.light .text-gold        { color: #D97706 !important; }
+html.light .border-gold\/20,
+html.light .border-gold\/25,
+html.light .border-gold\/30  { border-color: rgba(217,119,6,0.25) !important; }
+
+/* Purple */
+html.light .bg-purple-500\/10 { background-color: rgba(139,92,246,0.07) !important; }
+html.light .border-purple-500\/20,
+html.light .border-purple-500\/25 { border-color: rgba(139,92,246,0.25) !important; }
+
+/* Red hover for logout */
+html.light .hover\:bg-red-500\/15:hover  { background-color: rgba(220,38,38,0.08) !important; }
+html.light .hover\:border-red-500\/30:hover { border-color: rgba(220,38,38,0.3) !important; }
+html.light .hover\:text-red-400:hover    { color: #DC2626 !important; }
+
+/* Shadows */
+html.light .shadow-card  { box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06) !important; }
+html.light .shadow-glow  { box-shadow: 0 2px 8px rgba(37,99,235,0.15) !important; }
+html.light .shadow-glow-sm { box-shadow: 0 1px 4px rgba(37,99,235,0.12) !important; }
+
+/* Navbar light border bottom */
+html.light header { border-bottom-color: #D9DEE8 !important; }
+
+/* Fix section header divider line */
+html.light .flex-1.h-px.bg-white\/10 { background-color: #E5E7EB !important; }
+
+/* Backdrop blur areas */
+html.light .backdrop-blur-xl { backdrop-filter: blur(16px); }
