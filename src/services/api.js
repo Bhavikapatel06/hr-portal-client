@@ -181,6 +181,9 @@ export const candidateApi = {
       body: JSON.stringify(formData),
     }),
 
+  /** Get single candidate details by ID */
+  get: (candidateId) => request(`/candidates/${candidateId}`),
+
   /** Get all candidates globally */
   list: () => request('/candidates'),
 

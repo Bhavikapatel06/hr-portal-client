@@ -570,28 +570,15 @@ export default function AdminReportsPage() {
   const currentReport = REPORTS.find(r => r.key === selectedReport) || REPORTS[0]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-8 space-y-6">
 
-      {/* Header */}
-      <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-white/5 pb-6">
-        <div>
-          <span className="section-tag mb-2">
-            <BarChart3 size={11} /> {roleLabel}
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-            Reports &amp; Analytics
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Select a report type to load relevant charts and metrics.
-          </p>
-        </div>
-
-        {isDummy && (
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold flex-shrink-0">
+      {isDummy && (
+        <div className="fade-up flex justify-end">
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
             <Info size={12} className="animate-pulse" /> Showing Sample Data — Connect Google Sheet for live data
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Report Selector Dropdown */}
       <div className="fade-up-1 relative z-20 max-w-sm">
@@ -633,12 +620,6 @@ export default function AdminReportsPage() {
         </div>
       ) : (
         <div className="fade-up-2">
-          {/* Report title */}
-          <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-white/5">
-            <currentReport.icon size={18} className={currentReport.color} />
-            <h2 className="font-display font-bold text-white text-xl">{currentReport.label}</h2>
-          </div>
-
           {RENDERERS[selectedReport]?.(mrfs, records)}
         </div>
       )}

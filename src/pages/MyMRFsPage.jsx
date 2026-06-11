@@ -844,64 +844,49 @@ export default function MyMRFsPage() {
         />
       )}
 
-      {/* Header */}
-      <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="section-tag mb-2.5">
-            <Briefcase size={11} /> Requisition Operations
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white">
-            {role === 'department_head' ? 'My MRFs' : role === 'admin' ? 'MRF Review & Approvals' : 'Approved MRF Postings'}
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {role === 'department_head'
-              ? 'Draft, edit, and submit your manpower requests for approval.'
-              : role === 'admin'
-              ? 'Review submitted MRFs from department heads. Click View MRF to see full details, then Approve or Reject.'
-              : 'All approved MRFs ready for job posting. Click "Post as Job" to publish for candidates.'}
-          </p>
+      {/* Filter Tabs & Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 fade-up-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
+                ${filter === f
+                  ? 'bg-accent text-white border-accent shadow-glow-sm'
+                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
+            >
+              {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
+              {f !== 'All' && (
+                <span className="ml-1 opacity-60">
+                  ({mrfs.filter(m => m.mrfStatus === f).length})
+                </span>
+              )}
+            </button>
+          ))}
         </div>
-        {role === 'department_head' && !isCreating && (
-          <button
-            id="new-mrf-btn"
-            onClick={() => {
-              setEditingId(null)
-              setForm(EMPTY_FORM)
-              setMrfMethod(null)
-              setJdMethod(null)
-              setMrfFile(null)
-              setJdFile(null)
-              setActiveStep(1)
-              setIsCreating(true)
-              setShowForm(true)
-            }}
-            className="btn-primary"
-          >
-            <Plus size={15} /> Create MRF Request
-          </button>
-        )}
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 flex-wrap fade-up-1">
-        {FILTERS.map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
-              ${filter === f
-                ? 'bg-accent text-white border-accent shadow-glow-sm'
-                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
-          >
-            {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
-            {f !== 'All' && (
-              <span className="ml-1 opacity-60">
-                ({mrfs.filter(m => m.mrfStatus === f).length})
-              </span>
-            )}
-          </button>
-        ))}
-        <span className="ml-auto text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
+        <div className="flex items-center gap-3 ml-auto sm:ml-0 flex-shrink-0">
+          <span className="text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
+          {role === 'department_head' && !isCreating && (
+            <button
+              id="new-mrf-btn"
+              onClick={() => {
+                setEditingId(null)
+                setForm(EMPTY_FORM)
+                setMrfMethod(null)
+                setJdMethod(null)
+                setMrfFile(null)
+                setJdFile(null)
+                setActiveStep(1)
+                setIsCreating(true)
+                setShowForm(true)
+              }}
+              className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
+            >
+              <Plus size={13} /> Create MRF Request
+            </button>
+          )}
+        </div>
       </div>
 
       {/* HOD: Direct Unified Requisition Form */}

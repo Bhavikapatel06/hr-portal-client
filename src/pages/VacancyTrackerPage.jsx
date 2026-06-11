@@ -57,18 +57,7 @@ export default function VacancyTrackerPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      {/* Header */}
-      <div className="fade-up">
-        <span className="section-tag mb-2.5">
-          <FileSpreadsheet size={11} className="text-success" /> Google Sheet Sync Ledger
-        </span>
-        <h1 className="font-display font-bold text-2xl sm:text-3xl text-white">
-          Vacancy Operational Tracker
-        </h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Search, filter, and audit live open positions synced with the Google Sheet.
-        </p>
-      </div>
+
 
       {/* Control Panel: Filters */}
       <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4 fade-up-1">

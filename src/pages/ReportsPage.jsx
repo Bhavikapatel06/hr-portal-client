@@ -637,28 +637,14 @@ export default function ReportsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      {/* Header */}
-      <div className="fade-up flex justify-between items-center border-b border-white/5 pb-3">
-        <div>
-          <span className="section-tag mb-2">
-            <BarChart3 size={11} /> Analytics Workspace
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-            Reports & Analytics Dashboard
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Auditing status, pipelines, department splits, and exit replacements trends.
-          </p>
-        </div>
-
-        {/* Fallback indicator */}
-        {isDummy && (
+      {isDummy && (
+        <div className="flex justify-end fade-up">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
             <Info size={12} className="animate-pulse" />
             Showing Sample Data
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="card p-24 flex items-center justify-center">
