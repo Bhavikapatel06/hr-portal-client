@@ -52,6 +52,10 @@ export const mrfApi = {
   createJob: (id, extras = {}) =>
     request(`/mrf/${id}/create-job`, { method: 'PATCH', body: JSON.stringify(extras) }),
 
+  /** HR manually closes an active job opening */
+  closeJob: (id) =>
+    request(`/mrf/${id}/close`, { method: 'PATCH' }),
+
   /** HR records offer details (offeredCandidateName, CTC, DOJ, etc.) */
   recordOffer: (id, data) =>
     request(`/mrf/${id}/offer`, { method: 'PATCH', body: JSON.stringify(data) }),

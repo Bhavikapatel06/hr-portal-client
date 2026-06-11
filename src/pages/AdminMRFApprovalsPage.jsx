@@ -237,16 +237,21 @@ function Cell({ label, value, bold, tall }) {
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, bg, sub }) {
+function StatCard({ label, value, icon: Icon, color, activeStyle, inactiveStyle, sub, isActive, onClick }) {
   return (
-    <div className={`card p-5 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 ${bg}`}>
+    <div 
+      onClick={onClick}
+      className={`kpi-card card p-5 border flex flex-col justify-between cursor-pointer transition-all duration-200 ${
+        isActive ? activeStyle : inactiveStyle
+      }`}
+    >
       <div className="flex justify-between items-start">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider leading-snug">{label}</span>
-        <Icon size={16} className={color} />
+        <span className={`text-xs font-bold uppercase tracking-wider leading-snug ${isActive ? color : 'text-slate-500'}`}>{label}</span>
+        <Icon size={16} className={isActive ? color : 'text-slate-500'} />
       </div>
       <div className="mt-4">
-        <p className={`font-display font-bold text-3xl ${color}`}>{value}</p>
-        {sub && <p className="text-[10px] text-slate-500 font-semibold mt-1">{sub}</p>}
+        <p className={`font-display font-bold text-3xl ${isActive ? color : 'text-white'}`}>{value}</p>
+        {sub && <p className={`text-[10px] font-semibold mt-1 ${isActive ? 'text-slate-300' : 'text-slate-500'}`}>{sub}</p>}
       </div>
     </div>
   )
@@ -308,21 +313,23 @@ export default function AdminMRFApprovalsPage() {
   const pending   = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval').length
   const approved  = mrfs.filter(m => m.mrfStatus === 'Approved').length
   const rejected  = mrfs.filter(m => m.mrfStatus === 'Rejected').length
-  const openVacs  = mrfs.filter(m => m.mrfStatus === 'Approved' && (m.positionStatus === 'Open' || m.positionStatus === 'In Progress'))
-                       .reduce((s, m) => s + (parseInt(m.noOfPositions) || 0), 0)
-  const filled    = mrfs.filter(m => m.offerStatus === 'Joined' || m.offerStatus === 'Accepted').length
-  const exits     = mrfs.filter(m => m.reasonForRequest === 'Retirement' || m.reasonForRequest === 'Resignation' || (m.employeeName && m.employeeName !== 'None')).length
 
-  // ── Filters + Search ───────────────────────────────────────────────────
   const FILTER_TABS = [
-    { key: 'All',                    label: 'All',              count: mrfs.length },
-    { key: 'Pending Owner Approval', label: 'Pending Review',   count: pending },
-    { key: 'Approved',               label: 'Approved',         count: approved },
-    { key: 'Rejected',               label: 'Rejected',         count: rejected },
+    { key: 'All',                    label: 'All',              count: mrfs.length, icon: ClipboardList, color: 'text-accent' },
+    { key: 'Pending Owner Approval', label: 'Pending Review',   count: pending,     icon: Clock,         color: 'text-amber-400' },
+    { key: 'Approved',               label: 'Approved',         count: approved,    icon: CheckCircle2,  color: 'text-emerald-400' },
+    { key: 'Rejected',               label: 'Rejected',         count: rejected,    icon: XCircle,       color: 'text-red-400' },
   ]
 
+  // ── Filters + Search ───────────────────────────────────────────────────
   const filtered = mrfs
-    .filter(m => filter === 'All' || m.mrfStatus === filter)
+    .filter(m => {
+      if (filter === 'All') return true
+      if (filter === 'Pending Owner Approval' || filter === 'Approved' || filter === 'Rejected') {
+        return m.mrfStatus === filter
+      }
+      return true
+    })
     .filter(m => {
       if (!search.trim()) return true
       const q = search.toLowerCase()
@@ -335,7 +342,7 @@ export default function AdminMRFApprovalsPage() {
     })
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
       {/* Toast */}
       {toast && (
@@ -369,46 +376,56 @@ export default function AdminMRFApprovalsPage() {
         </p>
       </div>
 
-      {/* KPI Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
-        <StatCard label="Pending Review"  value={pending}  icon={Clock}         color="text-amber-400"   bg="bg-amber-500/10 border-amber-500/20"   sub="Awaiting decision" />
-        <StatCard label="Approved MRFs"   value={approved} icon={CheckCircle2}  color="text-emerald-400" bg="bg-emerald-500/10 border-emerald-500/20" sub="Cleared for HR" />
-        <StatCard label="Rejected MRFs"   value={rejected} icon={XCircle}       color="text-red-400"     bg="bg-red-500/10 border-red-500/20"         sub="Returned to HOD" />
-        <StatCard label="Active Vacancies" value={openVacs} icon={Users}        color="text-cyan-400"    bg="bg-cyan-500/10 border-cyan-500/20"        sub="Open headcount" />
-        <StatCard label="Filled Positions" value={filled}  icon={CheckCircle2}  color="text-indigo-400"  bg="bg-indigo-500/10 border-indigo-500/20"    sub="Joined/Accepted" />
-        <StatCard label="Upcoming Exits"   value={exits}   icon={AlertCircle}   color="text-pink-400"    bg="bg-pink-500/10 border-pink-500/20"         sub="Retirement/Resign" />
-      </div>
-
-      {/* Filter tabs + Search bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 fade-up-2">
+      {/* Tabs Filter + Search bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 fade-up-1 pt-2">
         <div className="flex items-center gap-2 flex-wrap">
-          {FILTER_TABS.map(({ key, label, count }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
-                ${filter === key
-                  ? 'bg-accent text-white border-accent shadow-glow-sm'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
-            >
-              {label}
-              <span className="ml-1.5 opacity-60">({count})</span>
-            </button>
-          ))}
+          {FILTER_TABS.map(({ key, label, count, icon: Icon, color }) => {
+            const isActive = filter === key
+            return (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all duration-200 active:scale-95 flex items-center gap-2
+                  ${isActive
+                    ? 'bg-accent text-white border-accent shadow-glow-sm shadow-[0_0_15px_rgba(79,142,247,0.3)]'
+                    : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
+              >
+                <Icon size={12} className={isActive ? 'text-white' : color} />
+                {label}
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-slate-500'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
-        {/* Search */}
-        <div className="relative ml-auto flex-shrink-0">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search designation, dept, location..."
-            className="pl-8 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent/40 w-64"
-          />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {filter !== 'All' && (
+            <button
+              onClick={() => setFilter('All')}
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all shadow-glow-sm"
+            >
+              <Filter size={11} /> Clear Filter <XCircle size={11} />
+            </button>
+          )}
+
+          {/* Search */}
+          <div className="relative flex-shrink-0">
+            <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search designation, dept, location..."
+              className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent/40 w-full sm:w-64"
+            />
+          </div>
+          <span className="text-xs text-slate-600 flex-shrink-0 text-right sm:text-left">{filtered.length} MRF(s)</span>
         </div>
-        <span className="text-xs text-slate-600 flex-shrink-0">{filtered.length} MRF(s)</span>
       </div>
+
 
       {/* MRF List */}
       {loading ? (
