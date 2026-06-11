@@ -33,15 +33,75 @@ export default function Navbar() {
     navigate('/login')
   }
 
-  const navItems = role === 'admin'
-    ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'All Openings' },
-        { to: '/resume-tracker', icon: ClipboardList,   label: 'Candidate Details' },
-      ]
-    : [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
-        { to: '/status',         icon: Activity,        label: 'My Applications' },
-      ]
+  const getNavItems = () => {
+    switch (role) {
+      case 'admin':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+          { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'department_head':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'hr':
+        return [
+          { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'MRF Posting' },
+          { to: '/vacancy-tracker', icon: LayoutDashboard, label: 'Vacancy Tracker' },
+          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+        ]
+      case 'candidate':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
+          { to: '/status',         icon: Activity,        label: 'My Applications' },
+        ]
+      default:
+        return []
+    }
+  }
+
+  const navItems = getNavItems()
+
+  const getRoleDetails = () => {
+    switch (role) {
+      case 'admin':
+        return {
+          label: 'HR Admin',
+          badgeCls: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
+          avatarCls: 'bg-purple-500',
+          icon: ShieldCheck
+        }
+      case 'department_head':
+        return {
+          label: 'Dept Head',
+          badgeCls: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+          avatarCls: 'bg-amber-500',
+          icon: User
+        }
+      case 'hr':
+        return {
+          label: 'HR Manager',
+          badgeCls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+          avatarCls: 'bg-emerald-500',
+          icon: User
+        }
+      case 'candidate':
+      default:
+        return {
+          label: 'Candidate',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
+          icon: User
+        }
+    }
+  }
+
+  const roleDetails = getRoleDetails()
+  const RoleIcon = roleDetails.icon
 
   if (pathname === '/login') return null
 
@@ -90,13 +150,9 @@ export default function Navbar() {
           <ThemeToggle />
 
           {/* Role badge */}
-          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
-            role === 'admin'
-              ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-              : 'bg-accent/10 border-accent/20 text-accent'
-          }`}>
-            {role === 'admin' ? <ShieldCheck size={12} /> : <User size={12} />}
-            {role === 'admin' ? 'HR Admin' : 'Candidate'}
+          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${roleDetails.badgeCls}`}>
+            <RoleIcon size={12} />
+            {roleDetails.label}
           </div>
 
           {/* Notification bell */}
@@ -113,9 +169,7 @@ export default function Navbar() {
             <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg"
               style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
               <span className="text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-primary)' }}>
@@ -153,9 +207,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b"
               style={{ borderColor: 'var(--border-color)' }}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
               <div>
