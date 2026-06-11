@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList,
-  Menu, X, LogOut, Activity, User, ShieldCheck
+  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown,
+  BarChart3, FileSpreadsheet, Settings, Users, Check, Trash2
 } from 'lucide-react'
+import { notificationApi } from '../services/api'
 import ThemeToggle from '../context/ThemeToggle.jsx'
 
 export default function Navbar() {
@@ -15,14 +17,46 @@ export default function Navbar() {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
 
+  const [notifications, setNotifications] = useState([])
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  const loadNotifications = async () => {
+    if (!user) return
+    try {
+      const data = await notificationApi.list()
+      setNotifications(data)
+    } catch (e) {
+      console.error('Failed to load notifications', e)
+    }
+  }
+
   useEffect(() => {
     const handleStorageChange = () => {
       setRole(localStorage.getItem('hr_role') || '')
       try { setUser(JSON.parse(localStorage.getItem('hr_user'))) } catch { setUser(null) }
     }
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+    loadNotifications()
+    const intv = setInterval(loadNotifications, 30000)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(intv)
+    }
+  }, [user?.email])
+
+  const handleMarkRead = async (id) => {
+    try {
+      await notificationApi.markRead(id)
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n))
+    } catch (e) { console.error(e) }
+  }
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationApi.markAllRead()
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+    } catch (e) { console.error(e) }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('hr_token')
@@ -156,13 +190,47 @@ export default function Navbar() {
           </div>
 
           {/* Notification bell */}
-          <button
+          <div className="relative">
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)}
             className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
             style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
-          >
+            >
             <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
+            {notifications.some(n => !n.isRead) && (
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+          )}
           </button>
+            
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+                <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+                  <h3 className="text-sm font-semibold text-white">Notifications</h3>
+                  {notifications.some(n => !n.isRead) && (
+                    <button onClick={handleMarkAllRead} className="text-xs text-accent hover:text-accent-light">Mark all as read</button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-slate-400">No notifications</div>
+                  ) : (
+                    notifications.map(n => (
+                      <div key={n._id} onClick={() => { handleMarkRead(n._id); if (n.link) navigate(n.link); setShowNotifications(false); }}
+                           className={`p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${!n.isRead ? 'bg-white/5 border-l-2 border-l-accent' : ''}`}>
+                        <div className="flex justify-between items-start mb-1">
+                          <p className={`text-sm font-medium ${!n.isRead ? 'text-white' : 'text-slate-300'}`}>{n.title}</p>
+                          <span className="text-[10px] text-slate-500 whitespace-nowrap ml-2">
+                            {new Date(n.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 line-clamp-2">{n.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* User avatar */}
           {user && (
