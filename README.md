@@ -1,85 +1,107 @@
-# HR Portal — Manpower Management
+# HR Portal — End-to-End Recruitment & Applicant Tracking System (ATS)
 
-A clean, production-grade HR dashboard built with **React + Vite + Tailwind CSS**.
-
-## Features
-- **MRF Form** — full 4-section Manpower Request Form (Position, Reason, JD, Qualifications)
-- **Resume Upload** — drag-and-drop multi-file upload with candidate detail expansion
-- **Tabbed Dashboard** with live stats
-- **Dark theme** with professional design
-- **Validation** with inline error messages
-- **API service layer** ready to wire to Node/Express backend
+A premium, production-grade Applicant Tracking System (ATS) and Recruitment Portal designed to manage the entire hiring lifecycle. Built with **React + Vite + Tailwind CSS** on the frontend, and connected to a Node.js/Express/MongoDB backend.
 
 ---
 
-## Folder Structure
+## 📋 Recruitment Workflow & Process Flow
+
+The system is built around the complete, end-to-end recruitment process:
+
+```mermaid
+graph TD
+    A[HOD: Create MRF Requisition] --> B[HOD: Submit MRF]
+    B --> C[Admin: Review & Approvals Page]
+    C -- Reject with Notes --> A
+    C -- Approve MRF --> D[HR Manager: Awaiting Posting]
+    D --> E[HR Manager: Create Job Opening & Go Live]
+    E --> F[HR Manager: Upload Resumes & Parse Candidates]
+    F --> G[Recruiter: Screen & Move Candidates through Pipeline]
+    G -- Hired & Joined --> H[System: Auto-Fulfill & Close Job Opening]
+```
+
+### 1. Requisition Creation (MRF Submission)
+- **HOD Dashboard**: Department Heads (HODs) can draft and submit detailed Manpower Request Forms (MRFs).
+- **Physical Form Compliance**: A comprehensive 4-section digital requisition form covering:
+  - **Position Details** (Designation, Location, Reports To, Proposed Salary)
+  - **Reason for Request** (New Position / Replacement For, Vacancy count)
+  - **Job Description** (Purpose of the job, Roles & Responsibilities)
+  - **Qualification & Criteria** (Specializations, Qualification level, Preferred industries, IT requirements)
+
+### 2. Requisition Approvals
+- **HR Admin Approvals**: Admins review pending manpower requests through a dedicated list.
+- **Digital Paper View**: Admins can open the paper-formatted MRF template, inspect the details, and either **Approve** (which makes the request available to HR for posting) or **Reject** (with comments sent back to the HOD for correction).
+
+### 3. Resume Management & Candidate Ingestion
+- **Resumes Upload**: HR Managers can select an approved job requisition and drag-and-drop multiple resume files.
+- **Ingestion Details**: Input candidates' basic profiles, experience details, and keep links to uploaded files.
+
+### 4. Recruiter ATS Split-Pane Pipeline
+- **Recruitment Dashboard**: Built like a modern ATS with 4 status-based category boards:
+  - **Awaiting Posting** (Approved MRFs awaiting HR to launch recruitment)
+  - **Active Live Jobs** (Requisitions currently actively receiving candidates)
+  - **Closed Jobs** (Manually closed positions or cancelled requisitions)
+  - **Filled Positions** (Successfully hired roles)
+- **Split-Pane Workspace**: Selecting a job opening loads a side-by-side view showing the jobs list on the left and the interactive candidate pipeline list on the right.
+- **Pipeline Stage Management**: Drag or update candidate stages from *New*, *Screening*, *Shortlisted*, *Interview Scheduled*, *Offered*, *Joined*, to *Rejected*.
+
+### 5. Fulfillment & Auto-Closure
+- **Hiring Completion**: Moving a candidate's status to **Joined** prompts for their Date of Joining (DOJ) and marks the candidate as successfully placed.
+- **Auto-Fulfill**: Once the target vacancy count is reached, the backend automatically sets the Job Opening status to `Fulfilled` (Closed), registers the closure date, and moves it to the **Filled Positions** section.
+
+---
+
+## 📁 Folder Structure
 
 ```
-hr-portal/
+hr-portal-client/
 ├── index.html
 ├── package.json
 ├── vite.config.js
 ├── tailwind.config.js
-├── postcss.config.js
 └── src/
     ├── main.jsx              ← Entry point
-    ├── App.jsx               ← Routes
-    ├── index.css             ← Global styles + Tailwind
+    ├── App.jsx               ← Routes & Protected views
+    ├── index.css             ← Global styles, custom scrollbars, animations, & themes
     ├── components/
-    │   ├── Navbar.jsx        ← Top navigation bar
-    │   ├── MRFForm.jsx       ← Manpower Request Form (4 sections)
-    │   └── ResumeUpload.jsx  ← File upload + candidate detail entry
+    │   ├── Navbar.jsx        ← Dynamic navigation header (role-based)
+    │   ├── MRFForm.jsx       ← 4-section Manpower Request Form
+    │   └── ResumeUpload.jsx  ← Candidate ingestion workspace
+    ├── context/
+    │   └── ThemeContext.jsx  ← Light/Dark mode state management
     ├── pages/
-    │   └── HRDashboard.jsx   ← Main dashboard page with tabs & stats
+    │   ├── Login.jsx                 ← HR Portal Role-based Login
+    │   ├── OverviewDashboard.jsx     ← Analytics dashboard
+    │   ├── MyMRFsPage.jsx            ← HOD self-service center (optimistic updates)
+    │   ├── AdminMRFApprovalsPage.jsx ← HR Admin approvals center (interactive tabs)
+    │   └── HRManagerPage.jsx         ← Recruiter ATS workspace (split-pane pipeline)
     └── services/
-        └── api.js            ← API layer (connect to your backend here)
+        └── api.js                    ← Axios integration layer with credentials
 ```
 
 ---
 
-## Installation & Run
+## 🛠️ Installation & Running Dev Server
 
 ```bash
-# 1. Install dependencies
+# 1. Install packages
 npm install
 
-# 2. Start dev server
+# 2. Run local server in dev mode
 npm run dev
 
-# 3. Open in browser
-# http://localhost:5173
+# 3. Open local portal
+# URL: http://localhost:5173
 ```
 
-## Build for Production
-
-```bash
-npm run build
-npm run preview
+### Setup API Endpoint
+To point the client to a custom backend API server, update `.env` or use the default local address:
+```env
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ---
 
-## Connecting to Backend
-
-Edit `src/services/api.js` or create `.env`:
-
-```
-VITE_API_URL=http://your-backend.com/api
-```
-
-The `api.js` service file has ready-to-use functions for:
-- `mrfApi.submit(data)` — POST /mrf
-- `mrfApi.list()` — GET /mrf
-- `resumeApi.upload(files, mrfId)` — POST /resumes/upload (multipart)
-- `resumeApi.list()` — GET /resumes
-- `resumeApi.updateDetails(id, data)` — PATCH /resumes/:id
-
----
-
-## Next Steps (per the Flow diagram)
-1. ✅ Upload MRF
-2. ✅ Upload Resumes
-3. ⬜ Auto-fetch basic details from resumes (integrate AI/OCR API)
-4. ✅ Manual other details entry
-5. ⬜ Interview schedule (date, time, online/offline)
-6. ⬜ Interview feedback (Shortlisted / Reject / Select)
+## 🎨 Theme & Accessibility
+- **Light & Dark Themes**: Fully supports both light and dark UI preferences with a global state context. Toggle the switch in the navbar to change modes instantly.
+- **Scrollbars & Highlights**: Customized custom-scrollbar classes inside split panels for scrolling efficiency, along with glow-border states.
