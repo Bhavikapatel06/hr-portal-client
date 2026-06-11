@@ -12,6 +12,7 @@ import HRManagerPage             from './pages/HRManagerPage.jsx'
 import Login                     from './pages/Login.jsx'
 import CandidateApplyPage        from './pages/CandidateApplyPage.jsx'
 import CandidateStatusPage       from './pages/CandidateStatusPage.jsx'
+import CandidateDetailsPage      from './pages/CandidateDetailsPage.jsx'
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 const isLoggedIn = () => !!localStorage.getItem('hr_token')
 const getRole    = () => localStorage.getItem('hr_role') || ''
@@ -75,6 +76,18 @@ export default function App() {
           <Route path="/recruitment" element={
             <Protected allowedRoles={['hr']}>
               <HRManagerPage />
+            </Protected>
+          } />
+
+          <Route path="/recruitment/job/:jobId" element={
+            <Protected allowedRoles={['hr']}>
+              <HRManagerPage />
+            </Protected>
+          } />
+
+          <Route path="/recruitment/candidate/:candidateId" element={
+            <Protected allowedRoles={['hr', 'admin', 'department_head']}>
+              <CandidateDetailsPage />
             </Protected>
           } />
 
