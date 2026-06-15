@@ -175,7 +175,7 @@ export default function OverviewDashboard() {
           setMrfs(mrfList.value || [])
         }
         if (sheetRows.status === 'fulfilled') {
-          setSheetData(sheetRows.value || [])
+          setSheetData(sheetRows.value?.recruitmentTracker || [])
         }
       } catch (err) {
         console.error('Error loading overview data:', err)

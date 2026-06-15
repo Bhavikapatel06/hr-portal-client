@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BarChart3, PieChart, TrendingUp, Calendar, ChevronDown, Info, Loader2, AlertCircle } from 'lucide-react'
 import { mrfApi, sheetApi } from '../services/api.js'
 
-// ── Dummy fallback data (5 sample records) ─────────────────────────────────
-const DUMMY_SHEET = [
-  { 'Location': 'Mumbai', 'Designation': 'Senior Software Engineer', 'Department': 'Engineering', 'Number of Vacancies': '2', 'Position Status': 'In Progress', 'Requirement Status': 'In Progress', 'Offer Status': 'Offered', 'Source of Hiring': 'Naukri', 'Tentative Date of Joining (DOJ)': '2026-06-15', 'Actual DOJ': '2026-06-12', 'TAT (Turnaround Time)': '25', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Suresh Mehta', 'Position Start Date': '2026-05-01', 'Offered CTC': '1600000', 'Last CTC': '1200000' },
-  { 'Location': 'Bangalore', 'Designation': 'Product Manager', 'Department': 'Product Management', 'Number of Vacancies': '1', 'Position Status': 'Open', 'Requirement Status': 'In Progress', 'Offer Status': 'Joined', 'Source of Hiring': 'LinkedIn', 'Tentative Date of Joining (DOJ)': '2026-05-10', 'Actual DOJ': '2026-05-10', 'TAT (Turnaround Time)': '35', 'Employee Name (Retirement/Resignation/Transfer Out)': 'None', 'Position Start Date': '2026-04-01', 'Offered CTC': '2400000', 'Last CTC': '1800000' },
-  { 'Location': 'Delhi', 'Designation': 'HR Executive', 'Department': 'Human Resources', 'Number of Vacancies': '1', 'Position Status': 'Closed', 'Requirement Status': 'Fulfilled', 'Offer Status': 'Joined', 'Source of Hiring': 'Campus Drive', 'Tentative Date of Joining (DOJ)': '2026-06-01', 'Actual DOJ': '2026-06-01', 'TAT (Turnaround Time)': '20', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Priya Patel', 'Position Start Date': '2026-04-20', 'Offered CTC': '600000', 'Last CTC': '350000' },
-  { 'Location': 'Hyderabad', 'Designation': 'DevOps Engineer', 'Department': 'Engineering', 'Number of Vacancies': '1', 'Position Status': 'In Progress', 'Requirement Status': 'In Progress', 'Offer Status': 'Accepted', 'Source of Hiring': 'Referral', 'Tentative Date of Joining (DOJ)': '2026-06-25', 'Actual DOJ': '', 'TAT (Turnaround Time)': '40', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Amit Saxena', 'Position Start Date': '2026-03-05', 'Offered CTC': '1900000', 'Last CTC': '1400000' },
-  { 'Location': 'Pune', 'Designation': 'QA Lead', 'Department': 'Quality Assurance', 'Number of Vacancies': '1', 'Position Status': 'On Hold', 'Requirement Status': 'On Hold', 'Offer Status': 'Declined', 'Source of Hiring': 'Consultant', 'Tentative Date of Joining (DOJ)': '2026-05-15', 'Actual DOJ': '', 'TAT (Turnaround Time)': '45', 'Employee Name (Retirement/Resignation/Transfer Out)': 'None', 'Position Start Date': '2026-02-15', 'Offered CTC': '2000000', 'Last CTC': '1500000' },
-]
+
 
 // ── Color palettes ─────────────────────────────────────────────────────────
 const PALETTE = ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
@@ -561,8 +554,10 @@ export default function AdminReportsPage() {
     load()
   }, [])
 
-  const isDummy = sheetData.length === 0 || !sheetData.some(r => r['Designation'] || r['Location'])
-  const records = isDummy ? DUMMY_SHEET : sheetData
+  const records = (sheetData && sheetData.recruitmentTracker && sheetData.recruitmentTracker.length > 0)
+    ? sheetData.recruitmentTracker
+    : []
+  const hasData = records.length > 0
 
   const role = localStorage.getItem('hr_role') || ''
   const roleLabel = role === 'admin' ? 'HR Admin Analytics' : role === 'hr' ? 'HR Manager Reports' : 'Department Reports'
@@ -572,56 +567,63 @@ export default function AdminReportsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-8 space-y-6">
 
-      {isDummy && (
-        <div className="fade-up flex justify-end">
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
-            <Info size={12} className="animate-pulse" /> Showing Sample Data — Connect Google Sheet for live data
+      {!hasData && !loading && (
+        <div className="fade-up flex justify-center py-24">
+          <div className="text-center space-y-3">
+            <AlertCircle size={36} className="text-slate-600 mx-auto" />
+            <p className="text-slate-400 font-semibold">No Google Sheet data available</p>
+            <p className="text-slate-600 text-xs">Connect your Google Sheet to see live analytics & charts.</p>
           </div>
         </div>
       )}
 
-      {/* Report Selector Dropdown */}
-      <div className="fade-up-1 relative z-20 max-w-sm">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Select Report</label>
-        <button
-          onClick={() => setDropdownOpen(o => !o)}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white font-semibold text-sm hover:bg-white/8 hover:border-accent/30 transition-all"
-        >
-          <div className="flex items-center gap-2.5">
-            <currentReport.icon size={15} className={currentReport.color} />
-            {currentReport.label}
-          </div>
-          <ChevronDown size={15} className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
-        </button>
+      {/* Report Selector + Content — only when sheet data is available */}
+      {hasData && (
+        <>
+          {/* Report Selector Dropdown */}
+          <div className="fade-up-1 relative z-20 max-w-sm">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Select Report</label>
+            <button
+              onClick={() => setDropdownOpen(o => !o)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white font-semibold text-sm hover:bg-white/8 hover:border-accent/30 transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <currentReport.icon size={15} className={currentReport.color} />
+                {currentReport.label}
+              </div>
+              <ChevronDown size={15} className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-        {dropdownOpen && (
-          <div className="absolute top-full mt-1 w-full bg-ink-950 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-            {REPORTS.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => { setSelectedReport(r.key); setDropdownOpen(false) }}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all
-                  ${selectedReport === r.key
-                    ? 'bg-accent/15 text-accent font-semibold'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-              >
-                <r.icon size={14} className={r.color} />
-                {r.label}
-              </button>
-            ))}
+            {dropdownOpen && (
+              <div className="absolute top-full mt-1 w-full bg-ink-950 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                {REPORTS.map((r) => (
+                  <button
+                    key={r.key}
+                    onClick={() => { setSelectedReport(r.key); setDropdownOpen(false) }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all
+                      ${selectedReport === r.key
+                        ? 'bg-accent/15 text-accent font-semibold'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <r.icon size={14} className={r.color} />
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Report content */}
-      {loading ? (
-        <div className="card p-24 flex items-center justify-center">
-          <Loader2 size={24} className="animate-spin text-accent" />
-        </div>
-      ) : (
-        <div className="fade-up-2">
-          {RENDERERS[selectedReport]?.(mrfs, records)}
-        </div>
+          {/* Report content */}
+          {loading ? (
+            <div className="card p-24 flex items-center justify-center">
+              <Loader2 size={24} className="animate-spin text-accent" />
+            </div>
+          ) : (
+            <div className="fade-up-2">
+              {RENDERERS[selectedReport]?.(mrfs, records)}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

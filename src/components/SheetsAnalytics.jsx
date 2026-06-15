@@ -428,71 +428,74 @@ export default function SheetsAnalytics({ data }) {
 
   // Iterate over records to extract stats
   records.forEach((row, idx) => {
+    // Graceful support for both Recruitment Tracker sheet columns and DUMMY_DATA keys
+    const getVal = (dummyKey, sheetKey) => row[sheetKey] !== undefined ? row[sheetKey] : row[dummyKey]
+
     // 1. Requisitions
-    const vacs = parseNum(row['Number of Vacancies']) || 1
+    const vacs = parseNum(getVal('Number of Vacancies', 'Number of Vacancies')) || 1
     totalPositions += vacs
 
-    const posStat = (row['Position Status'] || 'Open').trim()
+    const posStat = (getVal('Position Status', 'Position Status') || 'Open').trim()
     positionStatusMap[posStat] = (positionStatusMap[posStat] || 0) + 1
 
-    const reqStat = (row['Requirement Status'] || 'In Progress').trim()
+    const reqStat = (getVal('Requirement Status', 'Requirement Status') || 'In Progress').trim()
     requirementStatusMap[reqStat] = (requirementStatusMap[reqStat] || 0) + 1
 
-    const reqType = (row['Requirement Type (Lateral/Campus)'] || 'Lateral').trim()
+    const reqType = (getVal('Requirement Type (Lateral/Campus)', 'Requirement Type') || 'Lateral').trim()
     reqTypeMap[reqType] = (reqTypeMap[reqType] || 0) + 1
 
-    const compName = (row['Company Name'] || 'AIA').trim()
+    const compName = (getVal('Company Name', 'Company Name') || 'AIA').trim()
     companyMap[compName] = (companyMap[compName] || 0) + 1
 
     // 2. Demographics
-    const loc = (row['Location'] || 'Unspecified').trim()
+    const loc = (getVal('Location', 'Vacancy Location') || 'Unspecified').trim()
     locationMap[loc] = (locationMap[loc] || 0) + vacs
 
-    const cLoc = (row['Location (Candidate)'] || loc).trim()
+    const cLoc = (getVal('Location (Candidate)', 'Last Location') || loc).trim()
     candidateLocMap[cLoc] = (candidateLocMap[cLoc] || 0) + 1
 
-    const dept = (row['Department'] || 'General').trim()
+    const dept = (getVal('Department', 'Department') || 'General').trim()
     deptMap[dept] = (deptMap[dept] || 0) + vacs
 
-    const sect = (row['Section'] || 'N/A').trim()
+    const sect = (getVal('Section', 'Section') || 'N/A').trim()
     if (sect && sect !== 'N/A') {
       sectionMap[sect] = (sectionMap[sect] || 0) + 1
     }
 
-    const desig = (row['Designation'] || 'General Role').trim()
+    const desig = (getVal('Designation', 'Designation') || 'General Role').trim()
     desigMap[desig] = (desigMap[desig] || 0) + vacs
 
-    const owner = (row['Process Owner Name'] || 'N/A').trim()
+    const owner = (getVal('Process Owner Name', 'Process Owner Name') || 'N/A').trim()
     ownerMap[owner] = (ownerMap[owner] || 0) + 1
 
     // 3. Offer & Sourcing
-    const offerStat = (row['Offer Status'] || 'Pending').trim()
+    const offerStat = (getVal('Offer Status', 'Offer Status') || 'Pending').trim()
     offerStatusMap[offerStat] = (offerStatusMap[offerStat] || 0) + 1
 
-    const medStat = (row['Pre-Employment Medical Status'] || 'Pending').trim()
+    const medStat = (getVal('Pre-Employment Medical Status', 'pre employee medical status') || 'Pending').trim()
     medicalStatusMap[medStat] = (medicalStatusMap[medStat] || 0) + 1
 
-    const src = (row['Source of Hiring'] || 'Direct').trim()
+    const src = (getVal('Source of Hiring', 'Source of Hiring') || 'Direct').trim()
     sourceMap[src] = (sourceMap[src] || 0) + 1
 
-    const ref = (row['Internal Reference Name'] || 'None').trim()
+    const ref = (getVal('Internal Reference Name', 'Internal Reference Name') || 'None').trim()
     if (ref && ref !== 'None' && ref !== 'N/A') {
       refMap[ref] = (refMap[ref] || 0) + 1
     }
 
-    const qual = (row['Qualification'] || 'Degree').trim()
+    const qual = (getVal('Qualification', 'Qualification') || 'Degree').trim()
     qualMap[qual] = (qualMap[qual] || 0) + 1
 
     // 4. CTC Financials
-    const lastCTC = parseNum(row['Last CTC']) || 0
-    const offeredCTC = parseNum(row['Offered CTC']) || 0
-    const coc = parseNum(row['Cost of Company (COC)']) || offeredCTC
+    const lastCTC = parseNum(getVal('Last CTC', 'Last CTC (LPA)')) || 0
+    const offeredCTC = parseNum(getVal('Offered CTC', 'Offered CTC (LPA)')) || 0
+    const coc = parseNum(getVal('Cost of Company (COC)', 'COC (LPA)')) || offeredCTC
 
     if (offeredCTC > 0) {
-      const diffAmt = parseNum(row['CTC Difference Amount']) || (offeredCTC - lastCTC)
+      const diffAmt = parseNum(getVal('CTC Difference Amount', 'CTC Difference Amount')) || (offeredCTC - lastCTC)
       totalHikeAmt += diffAmt
 
-      let diffPct = parseFloat(String(row['CTC Difference (%)']).replace(/[^0-9.]/g, ''))
+      let diffPct = parseFloat(String(getVal('CTC Difference (%)', 'CTC Difference (%)')).replace(/[^0-9.]/g, ''))
       if (isNaN(diffPct)) {
         diffPct = lastCTC > 0 ? (diffAmt / lastCTC) * 100 : 0
       }
@@ -503,56 +506,56 @@ export default function SheetsAnalytics({ data }) {
       }
 
       candidateSalaries.push({
-        candidate: row['Offered Candidate Name'] || `Cand ${idx + 1}`,
+        candidate: getVal('Offered Candidate Name', 'Offered Candidate Name') || `Cand ${idx + 1}`,
         lastCTC,
         offeredCTC,
         coc
       })
     }
 
-    const lastOrg = (row['Last Organization'] || 'N/A').trim()
+    const lastOrg = (getVal('Last Organization', 'Last Organization') || 'N/A').trim()
     if (lastOrg && lastOrg !== 'N/A' && lastOrg !== 'None') {
       lastOrgMap[lastOrg] = (lastOrgMap[lastOrg] || 0) + 1
     }
 
     // 5. Onboarding & TAT
-    const tat = parseNum(row['TAT (Turnaround Time)'])
+    const tat = parseNum(getVal('TAT (Turnaround Time)', 'TAT (Days)'))
     if (tat > 0) {
       totalTAT += tat
       tatCount++
     }
 
-    const offeredName = row['Offered Candidate Name']
+    const offeredName = getVal('Offered Candidate Name', 'Offered Candidate Name')
     if (offeredName) {
       joinTimelines.push({
         name: offeredName,
-        offerDate: row['Offer Date'],
-        tentativeDOJ: row['Tentative Date of Joining (DOJ)'],
-        actualDOJ: row['Actual DOJ'],
-        status: row['Offer Status']
+        offerDate: getVal('Offer Date', 'Offer Date'),
+        tentativeDOJ: getVal('Tentative Date of Joining (DOJ)', 'Tentative DOJ'),
+        actualDOJ: getVal('Actual DOJ', 'Actual DOJ'),
+        status: getVal('Offer Status', 'Offer Status')
       })
     }
 
     // 6. Exits & Remarks
-    const exitName = row['Employee Name (Retirement/Resignation/Transfer Out)']
+    const exitName = getVal('Employee Name (Retirement/Resignation/Transfer Out)', 'Exit Employee Name')
     if (exitName && exitName !== 'None' && exitName !== 'N/A' && exitName !== '') {
       exitReplacements.push({
         name: exitName,
-        designation: row['Employee Designation'] || 'Developer',
-        reason: row['Reason for Request'] || 'Exit Replacement',
-        start: row['Position Start Date'] || '—'
+        designation: getVal('Employee Designation', 'Exit Employee Designation') || 'Developer',
+        reason: getVal('Reason for Request', 'Reason for Request') || 'Exit Replacement',
+        start: getVal('Position Start Date', 'Exit Date') || '—'
       })
     }
 
     const remarks = [
-      { type: 'Vacancy', txt: row['Vacancy Remarks'] },
-      { type: 'Recruitment', txt: row['Recruitment Remarks'] },
-      { type: 'Additional', txt: row['Additional Remarks'] }
+      { type: 'Vacancy', txt: getVal('Vacancy Remarks', 'Vacancy Remarks') },
+      { type: 'Recruitment', txt: getVal('Recruitment Remarks', 'Recruitment Remarks') },
+      { type: 'Additional', txt: getVal('Additional Remarks', 'Additional Remarks') }
     ].filter(r => r.txt && r.txt !== 'None' && r.txt !== 'N/A' && r.txt !== '')
     if (remarks.length > 0) {
       remarksList.push({
-        designation: row['Designation'] || 'Role',
-        candidate: row['Offered Candidate Name'] || '—',
+        designation: desig,
+        candidate: offeredName || '—',
         remarks
       })
     }
