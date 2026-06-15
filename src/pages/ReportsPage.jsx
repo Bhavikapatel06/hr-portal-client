@@ -16,8 +16,8 @@ function DonutChart({ data, size = 200 }) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-8 justify-center p-4">
       <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-        <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
-          <circle cx="80" cy="80" r={radius} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
+        <svg viewBox="0 0 200 200" className="w-full h-full transform -rotate-90">
+          <circle cx="100" cy="100" r={radius} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
           {data.map((item, idx) => {
             const pct = (item.value / total) * 100
             const strokeDashoffset = circ - (pct / 100) * circ
@@ -26,14 +26,14 @@ function DonutChart({ data, size = 200 }) {
 
             // Calculate center angle of the slice for percentage text placement
             const midAngle = ((rotate + (pct / 2) * 3.6) * Math.PI) / 180
-            const textX = 80 + Math.cos(midAngle) * (radius + 20)
-            const textY = 80 + Math.sin(midAngle) * (radius + 20)
+            const textX = 100 + Math.cos(midAngle) * (radius + 20)
+            const textY = 100 + Math.sin(midAngle) * (radius + 20)
 
             return (
               <g key={idx}>
                 <circle
-                  cx="80"
-                  cy="80"
+                  cx="100"
+                  cy="100"
                   r={radius}
                   fill="transparent"
                   stroke={item.color}
@@ -41,7 +41,7 @@ function DonutChart({ data, size = 200 }) {
                   strokeDasharray={circ}
                   strokeDashoffset={strokeDashoffset}
                   className="transition-all duration-700 ease-out"
-                  transform={`rotate(${rotate} 80 80)`}
+                  transform={`rotate(${rotate} 100 100)`}
                 />
                 {pct > 5 && (
                   <g className="transform rotate-90" style={{ transformOrigin: `${textX}px ${textY}px` }}>
