@@ -346,7 +346,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
   return (
     <div 
       onClick={() => onViewCandidates(mrf)}
-      className={`card card-interactive p-5 border ${selectClass} ${
+      className={`card card-interactive p-5 border flex flex-col h-full ${selectClass} ${
         isSelected ? '' : 'border-white/5 bg-ink-950/40'
       }`}
     >
@@ -456,7 +456,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
       )}
 
       {/* Actions */}
-      <div className="mt-4 pt-3 border-t border-white/6 flex items-center gap-2">
+      <div className="mt-auto pt-3 border-t border-white/6 flex items-center gap-2">
         {isAwaiting && (
           <button 
             onClick={(e) => {
