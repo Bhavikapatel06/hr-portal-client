@@ -50,7 +50,7 @@ function JobCard({ mrf, idx }) {
   const extraSkills   = skills.length - 3
 
   return (
-    <div className={`card flex flex-col overflow-hidden border-l-2 ${urgency.ring} hover:border-l-4 hover:-translate-y-0.5 transition-all duration-200 group`}>
+    <div className={`card flex flex-col h-full overflow-hidden border-l-2 ${urgency.ring} hover:border-l-4 hover:-translate-y-0.5 transition-all duration-200 group`}>
       <div className={`h-1.5 bg-gradient-to-r ${gradient} w-full`} />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start justify-between gap-2">
@@ -305,7 +305,7 @@ export default function OverviewDashboard() {
             <Loader2 size={24} className="animate-spin text-accent" />
           </div>
         ) : filteredCandidatesJobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 fade-up-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-4 fade-up-2">
             {filteredCandidatesJobs.map((mrf, idx) => (
               <JobCard key={mrf._id} mrf={mrf} idx={idx} />
             ))}
