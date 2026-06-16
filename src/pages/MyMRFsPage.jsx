@@ -1034,9 +1034,9 @@ export default function MyMRFsPage() {
                     <input name="processOwnerName" value={form.processOwnerName} onChange={handleFormChange} placeholder="Reporting manager name" className={inputCls} />
                   </FormField>
                   <FormField label="Level of Urgency">
-                    <select name="levelOfUrgency" value={form.levelOfUrgency} onChange={handleFormChange} className={selectCls}>
-                      <option>High</option>
+                    <select name="levelOfUrgency" value={form.levelOfUrgency || 'Medium'} onChange={handleFormChange} className={selectCls}>
                       <option>Medium</option>
+                      <option>High</option>
                       <option>Low</option>
                     </select>
                   </FormField>
