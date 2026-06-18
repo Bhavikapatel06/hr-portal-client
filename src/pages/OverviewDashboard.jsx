@@ -50,7 +50,7 @@ function JobCard({ mrf, idx }) {
   const extraSkills   = skills.length - 3
 
   return (
-    <div className={`card flex flex-col overflow-hidden border-l-2 ${urgency.ring} hover:border-l-4 hover:-translate-y-0.5 transition-all duration-200 group`}>
+    <div className={`card flex flex-col h-full overflow-hidden border-l-2 ${urgency.ring} hover:border-l-4 hover:-translate-y-0.5 transition-all duration-200 group`}>
       <div className={`h-1.5 bg-gradient-to-r ${gradient} w-full`} />
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div className="flex items-start justify-between gap-2">
@@ -146,6 +146,7 @@ function JobCard({ mrf, idx }) {
 export default function OverviewDashboard() {
   const navigate = useNavigate()
   const [mrfs, setMrfs] = useState([])
+  const [candidates, setCandidates] = useState([])
   const [sheetData, setSheetData] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('All')
@@ -153,6 +154,7 @@ export default function OverviewDashboard() {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -162,29 +164,60 @@ export default function OverviewDashboard() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      setLoading(true)
-      try {
-        const [mrfList, sheetRows] = await Promise.allSettled([
-          mrfApi.list(),
-          sheetApi.fetchAll()
-        ])
-        
-        if (mrfList.status === 'fulfilled') {
-          setMrfs(mrfList.value || [])
-        }
-        if (sheetRows.status === 'fulfilled') {
-          setSheetData(sheetRows.value?.recruitmentTracker || [])
-        }
-      } catch (err) {
-        console.error('Error loading overview data:', err)
-      } finally {
-        setLoading(false)
+  const loadDashboardData = async () => {
+    setLoading(true)
+    try {
+      const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
+        mrfApi.list(),
+        sheetApi.fetchAll(),
+        candidateApi.list()
+      ])
+      
+      if (mrfList.status === 'fulfilled') {
+        setMrfs(mrfList.value || [])
       }
+      if (sheetRows.status === 'fulfilled') {
+        setSheetData(sheetRows.value?.recruitmentTracker || [])
+      }
+      if (candidateList.status === 'fulfilled') {
+        setCandidates(candidateList.value || [])
+      }
+    } catch (err) {
+      console.error('Error loading overview data:', err)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     loadDashboardData()
   }, [])
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 4500)
+  }
+
+  const handleApproveCandidate = async (candidateId) => {
+    try {
+      await candidateApi.updateDetails(candidateId, { stage: 'Approved by Head' })
+      showToast('Candidate approved successfully! ✓')
+      await loadDashboardData()
+    } catch (err) {
+      showToast('Action failed: ' + err.message, 'error')
+    }
+  }
+
+  const handleRejectCandidate = async (candidateId) => {
+    if (!window.confirm('Are you sure you want to reject this candidate?')) return
+    try {
+      await candidateApi.updateDetails(candidateId, { stage: 'Rejected' })
+      showToast('Candidate rejected. ✓')
+      await loadDashboardData()
+    } catch (err) {
+      showToast('Action failed: ' + err.message, 'error')
+    }
+  }
 
   // ── FILTER OPTIONS & LOGIC FOR CANDIDATE VIEW ─────────────────────────────────
   const FILTER_OPTIONS = ['All', 'High', 'Medium', 'Low', 'Open', 'In Progress', 'Closed']
@@ -305,7 +338,7 @@ export default function OverviewDashboard() {
             <Loader2 size={24} className="animate-spin text-accent" />
           </div>
         ) : filteredCandidatesJobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 fade-up-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-4 fade-up-2">
             {filteredCandidatesJobs.map((mrf, idx) => (
               <JobCard key={mrf._id} mrf={mrf} idx={idx} />
             ))}
@@ -488,8 +521,26 @@ export default function OverviewDashboard() {
   // Posted jobs with candidate counts (from approved MRFs)
   const postedJobs = myMrfs.filter(m => m.mrfStatus === 'Approved' && (m.positionStatus === 'Open' || m.positionStatus === 'In Progress'))
 
+  const pendingCandidates = role === 'department_head'
+    ? candidates.filter(c => {
+        const stage = c.stage || c.overallStatus;
+        if (stage !== 'Pending Head Approval') return false;
+        const jo = c.jobOpeningId || {};
+        const joId = typeof jo === 'object' ? jo._id : jo;
+        return myMrfs.some(m => m._id === joId);
+      })
+    : [];
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      {/* Toast Alert */}
+      {toast && (
+        <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up max-w-sm
+          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+          {toast.msg}
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="fade-up flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -541,6 +592,74 @@ export default function OverviewDashboard() {
               </div>
             ))}
           </div>
+
+          {/* Candidates Awaiting My Approval section */}
+          {role === 'department_head' && pendingCandidates.length > 0 && (
+            <div className="card p-6 space-y-5 border border-amber-500/15 bg-amber-500/3 fade-up-1.5">
+              <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                <h3 className="font-display font-bold text-white text-lg flex items-center gap-2">
+                  <Clock size={18} className="text-amber-400 animate-pulse" />
+                  Candidates Awaiting My Approval
+                </h3>
+                <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 shadow-glow-sm">
+                  {pendingCandidates.length} Pending review
+                </span>
+              </div>
+
+              <div className="divide-y divide-white/5">
+                {pendingCandidates.map(c => {
+                  const jo = c.jobOpeningId || {}
+                  const score = c.matchScore || c.score || 0
+                  return (
+                    <div key={c._id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5">
+                          <Link 
+                            to={`/recruitment/candidate/${c._id}`} 
+                            className="font-semibold text-white text-base hover:text-accent hover:underline truncate"
+                          >
+                            {c.details?.fullName || c.name || 'Unknown Candidate'}
+                          </Link>
+                          <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded border ${
+                            score >= 80 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                            score >= 60 ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' :
+                            'bg-red-500/10 border-red-500/20 text-red-400'
+                          }`}>
+                            {score}% Match
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">
+                          Applied for: <strong className="text-slate-300">{jo.designation || '—'}</strong> · Experience: {c.details?.totalExp || '—'} · Current Location: {c.details?.currentLocation || '—'}
+                        </p>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2.5 flex-shrink-0">
+                        <Link 
+                          to={`/recruitment/candidate/${c._id}`}
+                          className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 text-xs font-semibold transition-colors"
+                        >
+                          View Profile
+                        </Link>
+                        <button
+                          onClick={() => handleApproveCandidate(c._id)}
+                          className="px-3.5 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 text-xs font-bold transition-all shadow-glow-sm"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleRejectCandidate(c._id)}
+                          className="px-3.5 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white text-xs font-bold transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* My MRF Tracker — full width, larger text */}
           <div className="card p-6 space-y-5 border border-white/5 bg-ink-950/40 fade-up-2">

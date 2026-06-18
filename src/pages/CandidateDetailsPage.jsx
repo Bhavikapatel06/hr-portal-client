@@ -31,6 +31,8 @@ const scoreLabel = (s) => {
 const STAGE_CONFIG = {
   'Applied':        { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
   'Screening':      { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
+  'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
+  'Approved by Head':      { color: 'text-emerald-400', bg: 'bg-emerald-555/10 border-emerald-500/25', icon: CheckCircle2 },
   'Interview':      { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
   'Offer':          { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
   'Joined':         { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',icon: UserCheck },
@@ -256,6 +258,7 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
 export default function CandidateDetailsPage() {
   const { candidateId } = useParams()
   const navigate = useNavigate()
+  const role = localStorage.getItem('hr_role') || ''
 
   const [candidate, setCandidate] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -413,14 +416,16 @@ export default function CandidateDetailsPage() {
           </p>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
-          <button onClick={() => setShowEditModal(true)} className="btn-ghost flex items-center gap-1.5 text-xs py-2">
-            <Edit3 size={13} /> Edit Profile
-          </button>
-          <button onClick={handleDeleteCandidate} disabled={deleting} className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 disabled:opacity-55">
-            {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />} Delete Candidate
-          </button>
-        </div>
+        {(role === 'hr' || role === 'admin') && (
+          <div className="flex gap-2 flex-wrap">
+            <button onClick={() => setShowEditModal(true)} className="btn-ghost flex items-center gap-1.5 text-xs py-2">
+              <Edit3 size={13} /> Edit Profile
+            </button>
+            <button onClick={handleDeleteCandidate} disabled={deleting} className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 disabled:opacity-55">
+              {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />} Delete Candidate
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Page Dual Layout Grid ─────────────────────────────────────────── */}
@@ -462,39 +467,68 @@ export default function CandidateDetailsPage() {
               </span>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-xs font-semibold text-slate-400">Advance Candidate Stage:</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {Object.keys(STAGE_CONFIG).map(s => {
-                  const isActive = candidate.stage === s
-                  const cfg = STAGE_CONFIG[s]
-                  return (
+            {role === 'department_head' ? (
+              candidate.stage === 'Pending Head Approval' ? (
+                <div className="space-y-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">Awaiting Your Approval</p>
+                  <p className="text-xs text-slate-400">Review the profile and resume of this candidate to approve or reject them for the next hiring steps.</p>
+                  <div className="flex gap-2.5 pt-2">
                     <button
-                      key={s}
-                      onClick={() => handleStageChange(s)}
-                      disabled={isActive}
-                      className={`px-3 py-2 rounded-xl border text-[11px] font-bold transition-all flex items-center justify-center gap-1
-                        ${isActive 
-                          ? `${cfg.bg} ${cfg.color} cursor-default opacity-100` 
-                          : 'border-white/5 bg-ink-950/40 text-slate-400 hover:border-white/10 hover:text-white hover:bg-white/3'
-                        }`}
+                      onClick={() => handleStageChange('Approved by Head')}
+                      className="flex-1 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 active:scale-95 transition-all shadow-glow-sm"
                     >
-                      {s}
+                      Approve Candidate
                     </button>
-                  )
-                })}
-              </div>
-            </div>
+                    <button
+                      onClick={() => handleStageChange('Rejected')}
+                      className="flex-1 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
+                    >
+                      Reject Candidate
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center text-xs text-slate-400">
+                  Current Status: <strong className="text-white">{candidate.stage}</strong>
+                </div>
+              )
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-slate-400">Advance Candidate Stage:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {Object.keys(STAGE_CONFIG).map(s => {
+                      const isActive = candidate.stage === s
+                      const cfg = STAGE_CONFIG[s]
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => handleStageChange(s)}
+                          disabled={isActive}
+                          className={`px-3 py-2 rounded-xl border text-[11px] font-bold transition-all flex items-center justify-center gap-1
+                            ${isActive 
+                              ? `${cfg.bg} ${cfg.color} cursor-default opacity-100` 
+                              : 'border-white/5 bg-ink-950/40 text-slate-400 hover:border-white/10 hover:text-white hover:bg-white/3'
+                            }`}
+                        >
+                          {s}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
 
-            {/* Quick Modals Triggers */}
-            <div className="pt-4 border-t border-white/5 flex gap-3">
-              <button 
-                onClick={() => setShowInterviewModal(true)} 
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all shadow-glow-sm"
-              >
-                <Calendar size={13} /> Schedule Interview
-              </button>
-            </div>
+                {/* Quick Modals Triggers */}
+                <div className="pt-4 border-t border-white/5 flex gap-3">
+                  <button 
+                    onClick={() => setShowInterviewModal(true)} 
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all shadow-glow-sm"
+                  >
+                    <Calendar size={13} /> Schedule Interview
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Section 3: Interview History/Schedule Display */}

@@ -23,21 +23,21 @@ function DonutChart({ data, size = 180, title }) {
       {title && <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
       <div className="flex flex-col sm:flex-row items-center gap-6">
         <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-          <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
-            <circle cx="80" cy="80" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
+          <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
+            <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
             {data.map((item, i) => {
               const pct = item.value / total
               const dashOffset = circ - pct * circ
               const rot = (acc / total) * 360
               acc += item.value
               const midAngle = (rot + pct * 180) * Math.PI / 180
-              const tx = 80 + Math.cos(midAngle) * (r + 22)
-              const ty = 80 + Math.sin(midAngle) * (r + 22)
+              const tx = 100 + Math.cos(midAngle) * (r + 22)
+              const ty = 100 + Math.sin(midAngle) * (r + 22)
               return (
                 <g key={i}>
-                  <circle cx="80" cy="80" r={r} fill="transparent" stroke={item.color}
+                  <circle cx="100" cy="100" r={r} fill="transparent" stroke={item.color}
                     strokeWidth="16" strokeDasharray={circ} strokeDashoffset={dashOffset}
-                    transform={`rotate(${rot} 80 80)`} className="transition-all duration-700" />
+                    transform={`rotate(${rot} 100 100)`} className="transition-all duration-700" />
                   {pct > 0.06 && (
                     <g style={{ transform: `rotate(90deg)`, transformOrigin: `${tx}px ${ty}px` }}>
                       <text x={tx} y={ty} fill={item.color} fontSize="9" fontWeight="bold"

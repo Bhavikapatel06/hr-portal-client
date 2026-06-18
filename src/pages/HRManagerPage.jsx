@@ -32,6 +32,8 @@ const scoreLabel = (s) => {
 const STAGE_CONFIG = {
   'Applied':        { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
   'Screening':      { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
+  'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
+  'Approved by Head':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
   'Interview':      { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
   'Offer':          { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
   'Joined':         { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',icon: UserCheck },
@@ -346,7 +348,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
   return (
     <div 
       onClick={() => onViewCandidates(mrf)}
-      className={`card card-interactive p-5 border ${selectClass} ${
+      className={`card card-interactive p-5 border flex flex-col h-full ${selectClass} ${
         isSelected ? '' : 'border-white/5 bg-ink-950/40'
       }`}
     >
@@ -456,7 +458,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
       )}
 
       {/* Actions */}
-      <div className="mt-4 pt-3 border-t border-white/6 flex items-center gap-2">
+      <div className="mt-auto pt-3 border-t border-white/6 flex items-center gap-2">
         {isAwaiting && (
           <button 
             onClick={(e) => {
@@ -1093,7 +1095,7 @@ export default function HRManagerPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6">
                   {activeTabMRFs.map(m => (
                     <JobCard 
                       key={m._id} 
