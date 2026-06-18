@@ -85,7 +85,6 @@ export default function Navbar() {
         return [
           { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
           { to: '/my-mrfs',        icon: ClipboardList,   label: 'MRF Posting' },
-          { to: '/vacancy-tracker', icon: LayoutDashboard, label: 'Vacancy Tracker' },
           { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'candidate':

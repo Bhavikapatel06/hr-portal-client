@@ -32,6 +32,8 @@ const scoreLabel = (s) => {
 const STAGE_CONFIG = {
   'Applied':        { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
   'Screening':      { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
+  'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
+  'Approved by Head':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
   'Interview':      { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
   'Offer':          { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
   'Joined':         { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',icon: UserCheck },
