@@ -28,6 +28,14 @@ const EMPTY_FORM = {
   levelOfUrgency: 'Medium', processOwnerName: '', vacancyRemarks: '',
   companyName: '', employeeName: '', employeeDesignation: '',
   additionalRemarks: '', requestType: 'MRF',
+  matchWeights: {
+    skills: 45,
+    experience: 25,
+    projectSimilarity: 0,
+    education: 15,
+    certification: 0,
+    location: 15
+  }
 }
 
 const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-colors'
@@ -667,6 +675,10 @@ export default function MyMRFsPage() {
     if (mrfMethod === 'manual' && !form.department?.trim()) return showToast('Department is required.', 'error')
     if (mrfMethod === 'upload' && !mrfFile) return showToast('Please upload an MRF document.', 'error')
     if (jdMethod === 'upload' && !jdFile) return showToast('Please upload a JD document.', 'error')
+    
+    const sum = Object.values(form.matchWeights || EMPTY_FORM.matchWeights).reduce((a, b) => a + Number(b), 0);
+    if (sum !== 100) return showToast(`Match criteria weights must sum to exactly 100% (currently ${sum}%)`, 'error');
+
     setSubmitting(true)
     try {
       const payload = {
@@ -1185,6 +1197,53 @@ export default function MyMRFsPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Section 3: AI Match Criteria Weights */}
+          <div className="space-y-4 border-t border-white/5 pt-6 animate-fadeIn">
+            <div>
+              <h3 className="font-display font-bold text-white text-base">3. AI Match Criteria Weights</h3>
+              <p className="text-xs text-slate-400">Set the relative importance of each criteria for calculating the candidate Match Score. They must sum up to exactly 100%.</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 bg-white/3 border border-white/8 rounded-2xl p-5">
+              {Object.entries({
+                skills: 'Skills',
+                experience: 'Experience',
+                education: 'Education',
+                projectSimilarity: 'Project',
+                certification: 'Certification',
+                location: 'Location'
+              }).map(([key, label]) => (
+                <div key={key} className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{label} (%)</label>
+                  <input
+                    type="number"
+                    min="0" max="100"
+                    className={inputCls}
+                    value={form.matchWeights?.[key] ?? (EMPTY_FORM.matchWeights?.[key] || 0)}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setForm(f => ({
+                        ...f,
+                        matchWeights: { ...(f.matchWeights || EMPTY_FORM.matchWeights), [key]: val }
+                      }));
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            {(() => {
+              const sum = Object.values(form.matchWeights || EMPTY_FORM.matchWeights).reduce((a, b) => a + Number(b), 0);
+              if (sum !== 100) {
+                return (
+                  <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/25 text-sm text-red-300">
+                    <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
+                    <span>Weights must sum up to exactly 100% (currently {sum}%)</span>
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           {/* ── Readiness Checklist ────────────────────────────────────── */}
