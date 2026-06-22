@@ -16,6 +16,14 @@ const INITIAL = {
   justification: '', purposeOfJob: '', rolesAndResponsibilities: '',
   minimumQualification: '', preferredIndustries: '', otherKeySkills: '',
   itRequirements: '', genderPreference: 'Any', ageMin: '', ageMax: '',
+  matchWeights: {
+    skills: 45,
+    experience: 25,
+    projectSimilarity: 0,
+    education: 15,
+    certification: 0,
+    location: 15
+  }
 }
 
 const formatSize = (bytes) => {
@@ -445,13 +453,23 @@ function MRFUpload({ onParsed }) {
 export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initialData = null }) {
   const [mode, setMode]           = useState('fill')
   const [step, setStep]           = useState('form')   // 'form' | 'preview' | 'success'
-  const [form, setForm]           = useState(initialData || INITIAL)
+  const [form, setForm]           = useState({
+    ...INITIAL,
+    ...(initialData || {}),
+    matchWeights: initialData?.matchWeights || INITIAL.matchWeights
+  })
   const [errors, setErrors]       = useState({})
   const [prefillBanner, setPrefillBanner] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   React.useEffect(() => {
-    if (initialData) setForm(initialData)
+    if (initialData) {
+      setForm({
+        ...INITIAL,
+        ...initialData,
+        matchWeights: initialData.matchWeights || INITIAL.matchWeights
+      })
+    }
   }, [initialData])
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
@@ -484,6 +502,13 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
     if (!form.noOfPositions)               e.noOfPositions = 'Required'
     if (!form.purposeOfJob.trim())         e.purposeOfJob = 'Required'
     if (!form.minimumQualification.trim()) e.minimumQualification = 'Required'
+    
+    const mw = form.matchWeights || INITIAL.matchWeights;
+    const sum = Number(mw.skills) + Number(mw.experience) + Number(mw.education) + Number(mw.projectSimilarity) + Number(mw.certification) + Number(mw.location);
+    if (sum !== 100) {
+      e.matchWeights = `Weights must sum up to exactly 100% (currently ${sum}%)`;
+    }
+
     return e
   }
 
@@ -820,6 +845,44 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Section 5: AI Match Score Criteria */}
+        <div className="card p-6 fade-up-5">
+          <SectionHeader num="5" title="AI Match Criteria Weights" />
+          <p className="text-slate-400 text-sm mb-4">Set the relative importance of each criteria for calculating the candidate Match Score. They must sum up to exactly 100%.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries({
+              skills: 'Skills Match',
+              experience: 'Experience Match',
+              projectSimilarity: 'Project Similarity',
+              education: 'Education Match',
+              certification: 'Certification Match',
+              location: 'Location/Availability Match'
+            }).map(([key, label]) => (
+              <Field key={key} label={label}>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0" max="100"
+                    className="field !w-20"
+                    value={form.matchWeights?.[key] || 0}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setForm(f => ({ ...f, matchWeights: { ...f.matchWeights, [key]: val } }));
+                    }}
+                  />
+                  <span className="text-slate-500 font-bold">%</span>
+                </div>
+              </Field>
+            ))}
+          </div>
+          {errors.matchWeights && (
+            <div className="mt-4 flex items-start gap-2 px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/25 text-sm text-red-300">
+              <AlertCircle size={15} className="flex-shrink-0 mt-0.5" />
+              <span>{errors.matchWeights}</span>
+            </div>
+          )}
         </div>
 
         {/* Submit row — now goes to Preview */}

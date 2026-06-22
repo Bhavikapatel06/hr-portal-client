@@ -116,8 +116,10 @@ function MatchCard({ candidate, rank }) {
           <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Score Breakdown</p>
           <DimBar label="Skills Match"        value={matchBreakdown.skills       ?? 0} color="text-accent" />
           <DimBar label="Experience"          value={matchBreakdown.experience   ?? 0} color="text-accent" />
-          <DimBar label="Qualification"       value={matchBreakdown.qualification ?? 0} color="text-accent" />
-          <DimBar label="Job Title Match"     value={matchBreakdown.jobTitle     ?? 0} color="text-accent" />
+          <DimBar label="Education"           value={matchBreakdown.education    ?? 0} color="text-accent" />
+          <DimBar label="Project Similarity"  value={matchBreakdown.projectSimilarity ?? 0} color="text-accent" />
+          <DimBar label="Certification Match" value={matchBreakdown.certification ?? 0} color="text-accent" />
+          <DimBar label="Location Match"      value={matchBreakdown.location     ?? 0} color="text-accent" />
 
           {/* Candidate details */}
           <div className="pt-3 border-t border-white/8 grid grid-cols-2 gap-2">

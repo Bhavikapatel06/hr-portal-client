@@ -409,7 +409,6 @@ export default function OverviewDashboard() {
   const [mrfs, setMrfs] = useState([])
   const [candidates, setCandidates] = useState([])
   const [sheetData, setSheetData] = useState([])
-  const [candidates, setCandidates] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('All')
   const [role, setRole] = useState(() => localStorage.getItem('hr_role') || 'candidate')
@@ -426,8 +425,7 @@ export default function OverviewDashboard() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
+  const loadDashboardData = async () => {
       setLoading(true)
       try {
         const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
@@ -450,12 +448,7 @@ export default function OverviewDashboard() {
       } finally {
         setLoading(false)
       }
-    } catch (err) {
-      console.error('Error loading overview data:', err)
-    } finally {
-      setLoading(false)
     }
-  }
 
   useEffect(() => {
     loadDashboardData()
