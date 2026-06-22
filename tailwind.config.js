@@ -11,22 +11,22 @@ export default {
       },
       colors: {
         ink: {
-          950: '#0A0E1A',
-          900: '#0F1629',
-          800: '#1A2040',
-          700: '#243060',
+          950: '#0B0F19',
+          900: '#141A2B',
+          800: '#141A2B',
+          700: '#1B2236',
         },
         accent: {
-          DEFAULT: '#4F8EF7',
-          light: '#7AAEFF',
-          glow: '#4F8EF720',
+          DEFAULT: '#4C7DFF',
+          light: '#3D68E0',
+          glow: '#1E2A4A',
         },
         gold: {
-          DEFAULT: '#F5A623',
+          DEFAULT: '#FBBF24',
           light: '#FFD080',
         },
-        success: '#22D3A5',
-        danger: '#F75F5F',
+        success: '#34D399',
+        danger: '#F87171',
       },
       boxShadow: {
         'card': '0 4px 24px rgba(0,0,0,0.35)',

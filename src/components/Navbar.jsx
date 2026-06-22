@@ -187,37 +187,37 @@ export default function Navbar() {
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
-              style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+              className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors border"
+              style={{ background: 'var(--border-color)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
             >
-              <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
+              <Bell size={15} />
               {notifications.some(n => !n.isRead) && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
               )}
             </button>
             
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
-                <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
-                  <h3 className="text-sm font-semibold text-white">Notifications</h3>
+              <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-xl overflow-hidden z-50">
+                <div className="px-4 py-3 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-primary)]/40">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">Notifications</h3>
                   {notifications.some(n => !n.isRead) && (
-                    <button onClick={handleMarkAllRead} className="text-xs text-accent hover:text-accent-light">Mark all as read</button>
+                    <button onClick={handleMarkAllRead} className="text-xs text-accent hover:text-accent-light font-medium">Mark all read</button>
                   )}
                 </div>
-                <div className="max-h-80 overflow-y-auto">
+                <div className="max-h-80 overflow-y-auto custom-scrollbar">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-slate-400">No notifications</div>
+                    <div className="p-4 text-center text-xs text-slate-500">No notifications</div>
                   ) : (
                     notifications.map(n => (
                       <div key={n._id} onClick={() => { handleMarkRead(n._id); if (n.link) navigate(n.link); setShowNotifications(false); }}
-                           className={`p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${!n.isRead ? 'bg-white/5 border-l-2 border-l-accent' : ''}`}>
+                           className={`p-3 border-b border-[var(--border-color)]/5 cursor-pointer hover:bg-[var(--bg-primary)]/40 transition-colors ${!n.isRead ? 'bg-[var(--accent-glow)]/40 border-l-2 border-l-accent' : ''}`}>
                         <div className="flex justify-between items-start mb-1">
-                          <p className={`text-sm font-medium ${!n.isRead ? 'text-white' : 'text-slate-300'}`}>{n.title}</p>
-                          <span className="text-[10px] text-slate-500 whitespace-nowrap ml-2">
+                          <p className={`text-xs font-semibold ${!n.isRead ? 'text-[var(--text-primary)]' : 'text-slate-400'}`}>{n.title}</p>
+                          <span className="text-[9px] text-slate-500 whitespace-nowrap ml-2">
                             {new Date(n.createdAt).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 line-clamp-2">{n.message}</p>
+                        <p className="text-[11px] text-slate-500 line-clamp-2 leading-normal">{n.message}</p>
                       </div>
                     ))
                   )}
@@ -228,8 +228,8 @@ export default function Navbar() {
 
           {/* User avatar */}
           {user && (
-            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-lg"
-              style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-lg border"
+              style={{ background: 'var(--border-color)', borderColor: 'var(--border-color)' }}
             >
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${roleDetails.avatarCls}`}>
                 {initials}
@@ -249,16 +249,16 @@ export default function Navbar() {
           <button
             onClick={handleLogout}
             title="Log out"
-            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors"
-            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors border"
+            style={{ background: 'var(--border-color)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
           >
             <LogOut size={15} />
           </button>
 
           {/* Mobile burger */}
           <button onClick={() => setMobile(o => !o)}
-            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors border"
+            style={{ background: 'var(--border-color)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
           >
             {mobile ? <X size={16} /> : <Menu size={16} />}
           </button>

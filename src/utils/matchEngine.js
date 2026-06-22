@@ -149,6 +149,9 @@ export function scoreCandidate(candidateDetails, requirements) {
 
   const skills = scoreSkills(candidateDetails, requirements);
   const experience = scoreExperience(candidateDetails, requirements);
+  const qualification = scoreQualification(candidateDetails, requirements);
+  const jobTitle = scoreJobTitle(candidateDetails, requirements);
+
 
   let score = Math.round(
     skills * 0.45 +

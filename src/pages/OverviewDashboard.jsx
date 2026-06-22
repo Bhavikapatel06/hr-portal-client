@@ -135,14 +135,14 @@ function LineChart({ data, width = 500, height = 180 }) {
 
         {/* Gridlines */}
         {gridLines.map((yVal, idx) => (
-          <line 
-            key={idx} 
-            x1={paddingLeft} 
-            y1={yVal} 
-            x2={width - paddingRight} 
-            y2={yVal} 
-            stroke="rgba(255,255,255,0.05)" 
-            strokeDasharray={idx === gridLinesCount ? "0" : "3 3"} 
+          <line
+            key={idx}
+            x1={paddingLeft}
+            y1={yVal}
+            x2={width - paddingRight}
+            y2={yVal}
+            stroke="rgba(255,255,255,0.05)"
+            strokeDasharray={idx === gridLinesCount ? "0" : "3 3"}
           />
         ))}
 
@@ -225,14 +225,14 @@ function BarChart({ data, width = 500, height = 180 }) {
 
         {/* Gridlines */}
         {gridLines.map((yVal, idx) => (
-          <line 
-            key={idx} 
-            x1={paddingLeft} 
-            y1={yVal} 
-            x2={width - paddingRight} 
-            y2={yVal} 
-            stroke="rgba(255,255,255,0.05)" 
-            strokeDasharray={idx === gridLinesCount ? "0" : "3 3"} 
+          <line
+            key={idx}
+            x1={paddingLeft}
+            y1={yVal}
+            x2={width - paddingRight}
+            y2={yVal}
+            stroke="rgba(255,255,255,0.05)"
+            strokeDasharray={idx === gridLinesCount ? "0" : "3 3"}
           />
         ))}
 
@@ -282,15 +282,15 @@ function BarChart({ data, width = 500, height = 180 }) {
 
 // ── Urgency and Status Constants ─────────────────────────────────────────────
 const URGENCY = {
-  High:   { label: 'High',   dot: 'bg-red-400',    badge: 'bg-red-400/12 border-red-400/30 text-red-400',    ring: 'border-l-red-400/40' },
-  Medium: { label: 'Medium', dot: 'bg-gold',        badge: 'bg-gold/12 border-gold/30 text-gold',              ring: 'border-l-gold/40' },
-  Low:    { label: 'Low',    dot: 'bg-slate-400',   badge: 'bg-slate-400/10 border-slate-400/25 text-slate-400', ring: 'border-l-white/10' },
+  High: { label: 'High', dot: 'bg-red-400', badge: 'bg-red-400/12 border-red-400/30 text-red-400', ring: 'border-l-red-400/40' },
+  Medium: { label: 'Medium', dot: 'bg-gold', badge: 'bg-gold/12 border-gold/30 text-gold', ring: 'border-l-gold/40' },
+  Low: { label: 'Low', dot: 'bg-slate-400', badge: 'bg-slate-400/10 border-slate-400/25 text-slate-400', ring: 'border-l-white/10' },
 }
 
 const STATUS = {
-  'Open':        { badge: 'bg-success/12 border-success/30 text-success' },
+  'Open': { badge: 'bg-success/12 border-success/30 text-success' },
   'In Progress': { badge: 'bg-accent/12 border-accent/30 text-accent' },
-  'Closed':      { badge: 'bg-slate-400/10 border-slate-400/25 text-slate-500' },
+  'Closed': { badge: 'bg-slate-400/10 border-slate-400/25 text-slate-500' },
 }
 
 const DEPT_COLORS = [
@@ -304,12 +304,12 @@ const DEPT_COLORS = [
 
 // ── Job Card Component for Candidates ────────────────────────────────────────
 function JobCard({ mrf, idx }) {
-  const urgency  = URGENCY[mrf.levelOfUrgency]  || URGENCY.Medium
-  const status   = STATUS[mrf.positionStatus]    || STATUS.Open
+  const urgency = URGENCY[mrf.levelOfUrgency] || URGENCY.Medium
+  const status = STATUS[mrf.positionStatus] || STATUS.Open
   const gradient = DEPT_COLORS[idx % DEPT_COLORS.length]
-  const skills   = (mrf.otherKeySkills || '').split(',').map(s => s.trim()).filter(Boolean)
+  const skills = (mrf.otherKeySkills || '').split(',').map(s => s.trim()).filter(Boolean)
   const visibleSkills = skills.slice(0, 3)
-  const extraSkills   = skills.length - 3
+  const extraSkills = skills.length - 3
 
   return (
     <div className={`card flex flex-col h-full overflow-hidden border-l-2 ${urgency.ring} hover:border-l-4 hover:-translate-y-0.5 transition-all duration-200 group`}>
@@ -318,9 +318,8 @@ function JobCard({ mrf, idx }) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded uppercase tracking-wider ${
-                mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35' : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
-              }`}>
+              <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35' : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
+                }`}>
                 {mrf.requestType || 'MRF'}
               </span>
               <h3 className="font-display font-bold text-white text-[15px] leading-snug group-hover:text-accent transition-colors truncate">
@@ -426,29 +425,29 @@ export default function OverviewDashboard() {
   }, [])
 
   const loadDashboardData = async () => {
-      setLoading(true)
-      try {
-        const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
-          mrfApi.list(),
-          sheetApi.fetchAll(),
-          candidateApi.list()
-        ])
-        
-        if (mrfList.status === 'fulfilled') {
-          setMrfs(mrfList.value || [])
-        }
-        if (sheetRows.status === 'fulfilled') {
-          setSheetData(sheetRows.value?.recruitmentTracker || [])
-        }
-        if (candidateList.status === 'fulfilled') {
-          setCandidates(candidateList.value || [])
-        }
-      } catch (err) {
-        console.error('Error loading overview data:', err)
-      } finally {
-        setLoading(false)
+    setLoading(true)
+    try {
+      const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
+        mrfApi.list(),
+        sheetApi.fetchAll(),
+        candidateApi.list()
+      ])
+
+      if (mrfList.status === 'fulfilled') {
+        setMrfs(mrfList.value || [])
       }
+      if (sheetRows.status === 'fulfilled') {
+        setSheetData(sheetRows.value?.recruitmentTracker || [])
+      }
+      if (candidateList.status === 'fulfilled') {
+        setCandidates(candidateList.value || [])
+      }
+    } catch (err) {
+      console.error('Error loading dashboard data:', err)
+    } finally {
+      setLoading(false)
     }
+  }
 
   useEffect(() => {
     loadDashboardData()
@@ -470,8 +469,8 @@ export default function OverviewDashboard() {
   const approvedMRFs = mrfs.filter(m => m.mrfStatus === 'Approved').length
   const rejectedMRFs = mrfs.filter(m => m.mrfStatus === 'Rejected').length
   const filledPositions = mrfs.filter(m => m.offerStatus === 'Joined' || m.offerStatus === 'Accepted').length
-  const upcomingRetirements = mrfs.filter(m => 
-    m.reasonForRequest === 'Retirement' || 
+  const upcomingRetirements = mrfs.filter(m =>
+    m.reasonForRequest === 'Retirement' ||
     m.reasonForRequest === 'Resignation' ||
     (m.employeeName && m.employeeName !== 'None' && m.employeeName !== '')
   ).length
@@ -539,12 +538,12 @@ export default function OverviewDashboard() {
   // ── 2. ADMIN DASHBOARD VIEW ─────────────────────────────────────────────────
   if (role === 'admin') {
     const adminKPI = [
-      { label: 'Pending Approvals',  value: pendingMRFs,          change: '+6 this week',  color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20',   icon: Clock },
-      { label: 'Approved Requisitions', value: approvedMRFs,       change: '+8 this week',  color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle2 },
-      { label: 'Total Open Positions',  value: openVacancies || 45, change: '+10 this week', color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/20',       icon: Briefcase },
-      { label: 'Total Employees',       value: 245,                 change: '+12 last month',color: 'text-indigo-400',  bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Users },
-      { label: 'Active Departments',    value: 14,                  change: 'No change',     color: 'text-pink-400',    bg: 'bg-pink-500/10 border-pink-500/20',     icon: Building2 },
-      { label: 'System Users',          value: 87,                  change: '+5 this week',  color: 'text-purple-400',  bg: 'bg-purple-500/10 border-purple-500/20', icon: ShieldCheck }
+      { label: 'Pending Approvals', value: pendingMRFs, change: '+6 this week', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Clock },
+      { label: 'Approved Requisitions', value: approvedMRFs, change: '+8 this week', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle2 },
+      { label: 'Total Open Positions', value: openVacancies || 45, change: '+10 this week', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20', icon: Briefcase },
+      { label: 'Total Employees', value: 245, change: '+12 last month', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Users },
+      { label: 'Active Departments', value: 14, change: 'No change', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Building2 },
+      { label: 'System Users', value: 87, change: '+5 this week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: ShieldCheck }
     ]
 
     const workforceData = [
@@ -733,12 +732,12 @@ export default function OverviewDashboard() {
   // ── 3. HR MANAGER DASHBOARD VIEW ────────────────────────────────────────────
   if (role === 'hr') {
     const hrKPI = [
-      { label: 'Job Requisitions',  value: approvedMRFs || 24,       change: '+4 from last week',  color: 'text-purple-400',  bg: 'bg-purple-500/10 border-purple-500/20',  icon: CheckCircle2 },
-      { label: 'Active Openings',    value: openVacancies || 18,      change: '+3 from last week',  color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Briefcase },
-      { label: 'Candidates Pipeline',value: candidates.length || 156, change: '+12 from last week', color: 'text-cyan-400',    bg: 'bg-cyan-500/10 border-cyan-500/20',       icon: Users },
-      { label: 'Interviews Scheduled',value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, change: '+5 from last week',  color: 'text-indigo-400',  bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Calendar },
-      { label: 'Offers Released',    value: candidates.filter(c => c.overallStatus === 'Offer').length || 7,     change: '+1 from last week',  color: 'text-pink-400',    bg: 'bg-pink-500/10 border-pink-500/20',     icon: Award },
-      { label: 'Positions Filled',   value: candidates.filter(c => c.overallStatus === 'Joined').length || 25,    change: '+6 from last month', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20',   icon: UserCheck }
+      { label: 'Job Requisitions', value: approvedMRFs || 24, change: '+4 from last week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: CheckCircle2 },
+      { label: 'Active Openings', value: openVacancies || 18, change: '+3 from last week', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Briefcase },
+      { label: 'Candidates Pipeline', value: candidates.length || 156, change: '+12 from last week', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20', icon: Users },
+      { label: 'Interviews Scheduled', value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, change: '+5 from last week', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Calendar },
+      { label: 'Offers Released', value: candidates.filter(c => c.overallStatus === 'Offer').length || 7, change: '+1 from last week', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Award },
+      { label: 'Positions Filled', value: candidates.filter(c => c.overallStatus === 'Joined').length || 25, change: '+6 from last month', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: UserCheck }
     ]
 
     const trendData = [
@@ -936,10 +935,10 @@ export default function OverviewDashboard() {
 
   // ── 4. DEPARTMENT HEAD DASHBOARD VIEW ────────────────────────────────────────
   const myMrfs = mrfs.filter(m => m.submittedBy === user?.name || !m.submittedBy)
-  const myDrafts    = myMrfs.filter(m => m.mrfStatus === 'Draft').length
-  const myPending   = myMrfs.filter(m => m.mrfStatus === 'Pending Owner Approval').length
-  const myApproved  = myMrfs.filter(m => m.mrfStatus === 'Approved').length
-  const myRejected  = myMrfs.filter(m => m.mrfStatus === 'Rejected').length
+  const myDrafts = myMrfs.filter(m => m.mrfStatus === 'Draft').length
+  const myPending = myMrfs.filter(m => m.mrfStatus === 'Pending Owner Approval').length
+  const myApproved = myMrfs.filter(m => m.mrfStatus === 'Approved').length
+  const myRejected = myMrfs.filter(m => m.mrfStatus === 'Rejected').length
 
   const myOpenPositions = myMrfs
     .filter(m => m.mrfStatus === 'Approved')
@@ -948,11 +947,11 @@ export default function OverviewDashboard() {
   const pendingApprovalsCount = candidates.filter(c => c.overallStatus === 'Pending Head Approval').length
 
   const dhKPI = [
-    { label: 'Open Positions',   value: myOpenPositions || 12, change: '+2 from last month', color: 'text-blue-400',   bg: 'bg-blue-500/10 border-blue-500/20',   icon: Briefcase },
-    { label: 'Hiring Requests',  value: myMrfs.length || 8,   change: '+1 from last week',  color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/20', icon: FileText },
-    { label: 'Pending Approvals', value: pendingApprovalsCount || 5, change: '-2 from last week',  color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: Clock },
-    { label: 'Team Strength',    value: 48,                   change: '+3 from last month', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Users },
-    { label: 'Upcoming Exits',   value: upcomingRetirements || 3,change: 'Next 30 days',       color: 'text-pink-400',    bg: 'bg-pink-500/10 border-pink-500/20',     icon: Calendar }
+    { label: 'Open Positions', value: myOpenPositions || 12, change: '+2 from last month', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', icon: Briefcase },
+    { label: 'Hiring Requests', value: myMrfs.length || 8, change: '+1 from last week', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: FileText },
+    { label: 'Pending Approvals', value: pendingApprovalsCount || 5, change: '-2 from last week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: Clock },
+    { label: 'Team Strength', value: 48, change: '+3 from last month', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Users },
+    { label: 'Upcoming Exits', value: upcomingRetirements || 3, change: 'Next 30 days', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Calendar }
   ]
 
   const dhStatusData = [
@@ -962,10 +961,10 @@ export default function OverviewDashboard() {
   ]
 
   const MRF_STATUS_CFG = {
-    'Draft':                   { label: 'Draft',           color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',   dot: 'bg-slate-400' },
-    'Pending Owner Approval':  { label: 'Pending Review',  color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/30',   dot: 'bg-amber-400' },
-    'Approved':                { label: 'Approved',        color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
-    'Rejected':                { label: 'Rejected',        color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/30',         dot: 'bg-red-400' },
+    'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25', dot: 'bg-slate-400' },
+    'Pending Owner Approval': { label: 'Pending Review', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/30', dot: 'bg-amber-400' },
+    'Approved': { label: 'Approved', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
+    'Rejected': { label: 'Rejected', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/30', dot: 'bg-red-400' },
   }
 
   return (
