@@ -242,4 +242,7 @@ export const notificationApi = {
 
   /** Delete a notification */
   delete: (id) => request(`/notifications/${id}`, { method: 'DELETE' }),
+
+  /** Clear all notifications */
+  clearAll: () => request('/notifications/clear-all', { method: 'DELETE' }),
 };
