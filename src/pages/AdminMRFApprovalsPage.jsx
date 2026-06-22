@@ -449,7 +449,7 @@ export default function AdminMRFApprovalsPage() {
           <p className="text-slate-400 text-sm">No requisitions found matching your filter or search.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4">
           {filtered.map((mrf) => {
             const statusCfg = STATUS_CFG[mrf.mrfStatus] || STATUS_CFG['Pending Owner Approval']
             const urgencyCls = URGENCY_COLOR[mrf.levelOfUrgency] || URGENCY_COLOR.Medium
@@ -458,133 +458,133 @@ export default function AdminMRFApprovalsPage() {
             return (
               <div
                 key={mrf._id}
-                className={`card p-5 border transition-all duration-200 hover:-translate-y-0.5 ${
+                className={`card p-5 border transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between h-full gap-4 ${
                   isPending ? 'border-amber-500/15 bg-amber-500/3' : 'border-white/5 bg-ink-950/40'
                 }`}
               >
-                {/* Row layout for easy scanning */}
-                <div className="flex flex-wrap items-start gap-4">
-
-                  {/* MRF ID + Type badge */}
-                  <div className="flex-shrink-0 w-20">
-                    <div className="text-[10px] text-slate-600 uppercase font-bold">MRF ID</div>
-                    <div className="text-xs font-mono font-bold text-slate-300 mt-0.5">
-                      #{mrf._id?.slice(-6).toUpperCase()}
+                {/* Card Header: title + status/urgency badges */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider ${
+                        mrf.requestType === 'JD'
+                          ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                          : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                      }`}>
+                        {mrf.requestType || 'MRF'}
+                      </span>
+                      <h3 className="font-semibold text-white text-[15px] truncate" title={mrf.designation}>
+                        {mrf.designation}
+                      </h3>
                     </div>
-                    <span className={`mt-1 inline-block px-1.5 py-0.5 rounded text-[9px] font-bold border ${
-                      mrf.requestType === 'JD'
-                        ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                        : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                    }`}>
-                      {mrf.requestType || 'MRF'}
-                    </span>
-                  </div>
-
-                  {/* Designation + Dept */}
-                  <div className="flex-1 min-w-[160px]">
-                    <div className="text-[10px] text-slate-600 uppercase font-bold">Designation</div>
-                    <div className="font-semibold text-white text-sm mt-0.5">{mrf.designation}</div>
-                    <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                      <Building2 size={10} /> {mrf.department}{mrf.section ? ` / ${mrf.section}` : ''}
+                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                      <Building2 size={10} className="flex-shrink-0" />
+                      <span className="truncate">{mrf.department}{mrf.section ? ` / ${mrf.section}` : ''}</span>
                     </div>
                   </div>
-
-                  {/* Vacancy type + count */}
-                  <div className="flex-shrink-0 w-32">
-                    <div className="text-[10px] text-slate-600 uppercase font-bold">Vacancy Type</div>
-                    <div className="text-xs text-white font-semibold mt-0.5">{mrf.reasonForRequest || '—'}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-                      <Users size={9} /> {mrf.noOfPositions || 1} position(s)
-                    </div>
-                  </div>
-
-                  {/* Location */}
-                  <div className="flex-shrink-0 w-28">
-                    <div className="text-[10px] text-slate-600 uppercase font-bold">Location</div>
-                    <div className="text-xs text-white mt-0.5 flex items-center gap-1">
-                      <MapPin size={10} className="text-slate-500 flex-shrink-0" />
-                      {mrf.location || '—'}
-                    </div>
-                  </div>
-
-                  {/* Requested by + date */}
-                  <div className="flex-shrink-0 w-36">
-                    <div className="text-[10px] text-slate-600 uppercase font-bold">Requested By</div>
-                    <div className="text-xs text-white mt-0.5 flex items-center gap-1">
-                      <User size={10} className="text-slate-500 flex-shrink-0" />
-                      {mrf.submittedBy || '—'}
-                    </div>
-                    <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-                      <Calendar size={9} />
-                      {new Date(mrf.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </div>
-                  </div>
-
-                  {/* Urgency + Status */}
-                  <div className="flex-shrink-0 flex flex-col gap-1.5 items-end ml-auto">
-                    <span className={`px-2 py-0.5 rounded border text-[10px] font-bold flex items-center gap-1 ${urgencyCls}`}>
-                      {mrf.levelOfUrgency || 'Medium'} Urgency
-                    </span>
+                  
+                  <div className="flex flex-col gap-1 items-end flex-shrink-0">
                     <span className={`px-2 py-0.5 rounded border text-[10px] font-bold flex items-center gap-1.5 ${statusCfg.bg} ${statusCfg.color}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                       {statusCfg.label}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded border text-[9px] font-bold ${urgencyCls}`}>
+                      {mrf.levelOfUrgency || 'Medium'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Meta Grid */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-slate-400 py-3 border-y border-white/5">
+                  <div>
+                    <span className="text-slate-500 block text-[10px] uppercase font-semibold">Location</span>
+                    <span className="text-white font-semibold flex items-center gap-1 truncate" title={mrf.location}>
+                      <MapPin size={10} className="text-slate-500 flex-shrink-0" />
+                      {mrf.location || '—'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[10px] uppercase font-semibold">Vacancy Type</span>
+                    <span className="text-white font-semibold truncate" title={mrf.reasonForRequest}>
+                      {mrf.reasonForRequest || '—'} ({mrf.noOfPositions || 1} pos)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[10px] uppercase font-semibold">Requested By</span>
+                    <span className="text-white font-semibold flex items-center gap-1 truncate" title={mrf.submittedBy}>
+                      <User size={10} className="text-slate-500 flex-shrink-0" />
+                      {mrf.submittedBy || '—'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[10px] uppercase font-semibold">Reports To</span>
+                    <span className="text-white font-semibold truncate" title={mrf.processOwnerName || '—'}>
+                      {mrf.processOwnerName || '—'}
                     </span>
                   </div>
                 </div>
 
                 {/* Remarks + Rejection note */}
                 {(mrf.vacancyRemarks || mrf.rejectionNote) && (
-                  <div className="mt-3 pt-3 border-t border-white/5 flex items-start gap-2 text-xs">
-                    <MessageSquare size={12} className="text-slate-500 flex-shrink-0 mt-0.5" />
+                  <div className="p-2.5 rounded-lg bg-white/3 border border-white/5 text-xs">
                     {mrf.rejectionNote ? (
-                      <span className="text-red-300"><strong>Rejection Comment:</strong> {mrf.rejectionNote}</span>
+                      <span className="text-red-300">
+                        <strong>Rejection Note:</strong> {mrf.rejectionNote}
+                      </span>
                     ) : (
-                      <span className="text-slate-400"><strong>Remarks:</strong> {mrf.vacancyRemarks}</span>
+                      <span className="text-slate-400">
+                        <strong>Remarks:</strong> {mrf.vacancyRemarks}
+                      </span>
                     )}
                   </div>
                 )}
 
                 {/* Action bar */}
-                <div className="mt-4 pt-3 border-t border-white/6 flex items-center gap-2">
-                  {/* View Requisition — always visible */}
-                  <button
-                    onClick={() => setViewingMrf(mrf)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
-                  >
-                    <Eye size={13} /> View Requisition
-                  </button>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap pt-2">
+                    {/* View Requisition — always visible */}
+                    <button
+                      onClick={() => setViewingMrf(mrf)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
+                    >
+                      <Eye size={12} /> View
+                    </button>
 
-                  {/* Quick approve/reject buttons — only for pending */}
-                  {isPending && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(mrf._id)}
-                        disabled={actioning}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50"
-                      >
-                        {actioning ? <Loader2 size={11} className="animate-spin" /> : <CheckCircle2 size={12} />}
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => { setViewingMrf(mrf) }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold hover:bg-red-500 hover:text-white transition-all"
-                      >
-                        <XCircle size={12} /> Reject
-                      </button>
-                    </>
+                    {/* Quick approve/reject buttons — only for pending */}
+                    {isPending && (
+                      <>
+                        <button
+                          onClick={() => handleApprove(mrf._id)}
+                          disabled={actioning}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50"
+                        >
+                          {actioning ? <Loader2 size={11} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => { setViewingMrf(mrf) }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold hover:bg-red-500 hover:text-white transition-all"
+                        >
+                          <XCircle size={12} /> Reject
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      onClick={() => handleDelete(mrf._id)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold hover:bg-red-500 hover:text-white transition-all ml-auto"
+                      title="Delete Requisition"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                  
+                  {mrf.mrfStatus !== 'Pending Owner Approval' && (
+                    <div className="text-[10px] text-slate-600 text-right mt-1.5">
+                      {mrf.mrfStatus === 'Approved' && '✓ Visible to HR Team'}
+                      {mrf.mrfStatus === 'Rejected' && '↩ Returned to Dept. Head'}
+                    </div>
                   )}
-
-                  <button
-                    onClick={() => handleDelete(mrf._id)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold hover:bg-red-500 hover:text-white transition-all ml-1"
-                  >
-                    <Trash2 size={13} /> Delete
-                  </button>
-
-                  <span className="ml-auto text-[10px] text-slate-600">
-                    {mrf.mrfStatus === 'Approved' && '✓ Visible to HR Team'}
-                    {mrf.mrfStatus === 'Rejected' && '↩ Returned to Dept. Head'}
-                  </span>
                 </div>
               </div>
             )

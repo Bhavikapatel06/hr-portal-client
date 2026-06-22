@@ -11,10 +11,10 @@ import MRFForm from '../components/MRFForm.jsx'
 
 // ── Status config ──────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  'Draft':                    { label: 'Draft',            color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
-  'Pending Owner Approval':   { label: 'Pending Approval', color: 'text-amber-400',   bg: 'bg-amber-400/10  border-amber-400/25',   icon: Clock },
-  'Approved':                 { label: 'Approved',         color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: CheckCircle2 },
-  'Rejected':                 { label: 'Rejected',         color: 'text-red-400',     bg: 'bg-red-400/10    border-red-400/25',     icon: XCircle },
+  'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25', icon: FileText },
+  'Pending Owner Approval': { label: 'Pending Approval', color: 'text-amber-400', bg: 'bg-amber-400/10  border-amber-400/25', icon: Clock },
+  'Approved': { label: 'Approved', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: CheckCircle2 },
+  'Rejected': { label: 'Rejected', color: 'text-red-400', bg: 'bg-red-400/10    border-red-400/25', icon: XCircle },
 }
 
 // ── Empty form template ────────────────────────────────────────────────────
@@ -28,14 +28,6 @@ const EMPTY_FORM = {
   levelOfUrgency: 'Medium', processOwnerName: '', vacancyRemarks: '',
   companyName: '', employeeName: '', employeeDesignation: '',
   additionalRemarks: '', requestType: 'MRF',
-  matchWeights: {
-    skills: 45,
-    experience: 25,
-    projectSimilarity: 0,
-    education: 15,
-    certification: 0,
-    location: 15
-  }
 }
 
 const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-colors'
@@ -85,8 +77,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
           <div className="flex items-center gap-2">
             <FileText size={18} className="text-gray-600" />
             <span className="font-bold text-gray-800 text-sm">Job Requisition — Preview</span>
-            <span className={`ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${
-              STATUS_CONFIG[mrf.mrfStatus]?.bg || ''} ${STATUS_CONFIG[mrf.mrfStatus]?.color || ''}`}>
+            <span className={`ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_CONFIG[mrf.mrfStatus]?.bg || ''} ${STATUS_CONFIG[mrf.mrfStatus]?.color || ''}`}>
               {mrf.mrfStatus === 'Pending Owner Approval' ? 'Pending Approval' : mrf.mrfStatus}
             </span>
           </div>
@@ -379,7 +370,7 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto">
       <div className="bg-ink-950 border border-white/10 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-scaleUp">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/3 flex-shrink-0">
           <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent">
@@ -791,8 +782,8 @@ export default function MyMRFsPage() {
   const FILTERS = role === 'department_head'
     ? ['All', 'Draft', 'Pending Owner Approval', 'Approved', 'Rejected']
     : role === 'admin'
-    ? ['All', 'Pending Owner Approval', 'Approved', 'Rejected']
-    : ['All', 'Approved']
+      ? ['All', 'Pending Owner Approval', 'Approved', 'Rejected']
+      : ['All', 'Approved']
 
   const filteredMRFs = filter === 'All'
     ? mrfs
@@ -906,28 +897,26 @@ export default function MyMRFsPage() {
                 <h3 className="font-display font-bold text-white text-base">1. Manpower Request Form (MRF) Setup</h3>
                 <p className="text-xs text-slate-400">Fill standard requisition details or upload an existing MRF document.</p>
               </div>
-              
+
               {/* Tab Selector */}
               <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
                 <button
                   type="button"
                   onClick={() => setMrfMethod('manual')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    mrfMethod === 'manual'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${mrfMethod === 'manual'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Fill Manually
                 </button>
                 <button
                   type="button"
                   onClick={() => setMrfMethod('upload')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    mrfMethod === 'upload'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${mrfMethod === 'upload'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Upload Requisition File
                 </button>
@@ -1046,28 +1035,26 @@ export default function MyMRFsPage() {
                 <h3 className="font-display font-bold text-white text-base">2. Job Description (JD) Setup</h3>
                 <p className="text-xs text-slate-400">Specify details manually or upload an existing JD document.</p>
               </div>
-              
+
               {/* Tab Selector */}
               <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
                 <button
                   type="button"
                   onClick={() => setJdMethod('manual')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    jdMethod === 'manual'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${jdMethod === 'manual'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Fill Manually
                 </button>
                 <button
                   type="button"
                   onClick={() => setJdMethod('upload')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    jdMethod === 'upload'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${jdMethod === 'upload'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Upload JD File
                 </button>
@@ -1162,7 +1149,7 @@ export default function MyMRFsPage() {
           {/* ── Readiness Checklist ────────────────────────────────────── */}
           {(() => {
             const mrfDone = mrfMethod === 'upload' ? !!mrfFile : !!form.designation?.trim()
-            const jdDone  = jdMethod  === 'upload' ? !!jdFile  : !!form.purposeOfJob?.trim() || !!form.rolesResponsibilities?.trim() || !!form.otherKeySkills?.trim()
+            const jdDone = jdMethod === 'upload' ? !!jdFile : !!form.purposeOfJob?.trim() || !!form.rolesResponsibilities?.trim() || !!form.otherKeySkills?.trim()
             const bothReady = mrfDone && jdDone
             return (
               <div className="pt-6 border-t border-white/10 mt-8 space-y-5 animate-fadeIn">
@@ -1170,15 +1157,13 @@ export default function MyMRFsPage() {
                 {/* Status row */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <div className="flex gap-3 flex-1 flex-wrap">
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                      mrfDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
-                    }`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${mrfDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                      }`}>
                       {mrfDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       MRF {mrfDone ? 'Ready' : 'Incomplete'}
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                      jdDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
-                    }`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${jdDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                      }`}>
                       {jdDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       JD {jdDone ? 'Ready' : 'Incomplete'}
                     </div>
@@ -1212,11 +1197,10 @@ export default function MyMRFsPage() {
                       onClick={handleSubmit}
                       disabled={submitting || saving || !bothReady}
                       title={!bothReady ? 'Complete both MRF and JD before submitting' : ''}
-                      className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        bothReady
+                      className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${bothReady
                           ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-glow-sm shadow-emerald-500/20 cursor-pointer'
                           : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
-                      }`}
+                        }`}
                     >
                       {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                       {editingId ? 'Update &amp; Submit Request' : 'Submit Request'}
@@ -1285,7 +1269,7 @@ export default function MyMRFsPage() {
           <p className="text-slate-400 text-sm">No requisitions found in this filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4">
           {filteredMRFs.map((mrf) => {
             const status = STATUS_CONFIG[mrf.mrfStatus] || STATUS_CONFIG['Draft']
             const Icon = status.icon
@@ -1294,17 +1278,16 @@ export default function MyMRFsPage() {
             const isPosted = mrf.positionStatus === 'In Progress'
 
             return (
-              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between gap-4">
+              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between h-full gap-4">
 
                 {/* Card Header: title + status badge */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider ${
-                        mrf.requestType === 'JD'
+                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD'
                           ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35'
                           : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
-                      }`}>
+                        }`}>
                         {mrf.requestType || 'MRF'}
                       </span>
                       <h3 className="font-semibold text-white text-[15px] truncate">{mrf.designation}</h3>
@@ -1370,7 +1353,7 @@ export default function MyMRFsPage() {
                               setActiveStep(1)
                               setIsCreating(true)
                               setShowForm(true)
-                              window.scrollTo({top:0,behavior:'smooth'})
+                              window.scrollTo({ top: 0, behavior: 'smooth' })
                             }}
                             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
                           >
