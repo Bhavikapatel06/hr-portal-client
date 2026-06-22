@@ -411,10 +411,7 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
         </div>
 
         {/* Footer — only Edit option; user must click Submit Request at the bottom of the form */}
-        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center gap-3 flex-shrink-0">
-          <div className="flex-1 text-xs text-slate-500">
-            <span className="text-amber-400 font-semibold">📋 Review complete?</span>&nbsp; Close this preview and click <strong className="text-white">Submit Request</strong> at the bottom when both MRF &amp; JD are ready.
-          </div>
+        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center justify-end gap-3 flex-shrink-0">
           <button
             onClick={onEditCancel}
             className="px-5 py-2.5 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-bold hover:bg-accent hover:text-white transition-all flex items-center gap-1.5"
@@ -489,6 +486,17 @@ export default function MyMRFsPage() {
     }
   }, [locationState, role])
 
+  useEffect(() => {
+    if (extractedDetails || viewingMrf) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [extractedDetails, viewingMrf])
+
   const loadMRFs = async () => {
     setLoading(true)
     try {
@@ -535,13 +543,11 @@ export default function MyMRFsPage() {
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('MRF uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
         console.warn('MRF parse unavailable:', parseErr.message)
         // No popup needed — just mark file ready
         setMrfFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, mrfFileName: res.fileName, mrfFilePath: res.filePath }))
-        showToast('MRF file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('MRF upload error:', err)
@@ -567,12 +573,10 @@ export default function MyMRFsPage() {
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('JD uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
         console.warn('JD parse unavailable:', parseErr.message)
         setJdFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, jdFileName: res.fileName, jdFilePath: res.filePath }))
-        showToast('JD file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('JD upload error:', err)
@@ -624,7 +628,6 @@ export default function MyMRFsPage() {
       setJdFile({ name: details.fileName, path: details.filePath })
       setJdMethod('manual')
     }
-    showToast('Details loaded — review and edit if needed, then click Submit Request.')
   }
 
   const handleSaveDraft = async () => {
@@ -666,7 +669,7 @@ export default function MyMRFsPage() {
     if (mrfMethod === 'manual' && !form.department?.trim()) return showToast('Department is required.', 'error')
     if (mrfMethod === 'upload' && !mrfFile) return showToast('Please upload an MRF document.', 'error')
     if (jdMethod === 'upload' && !jdFile) return showToast('Please upload a JD document.', 'error')
-
+    
     setSubmitting(true)
     try {
       const payload = {
@@ -844,63 +847,21 @@ export default function MyMRFsPage() {
         />
       )}
 
-      {/* Filter Tabs & Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 fade-up-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
-                ${filter === f
-                  ? 'bg-accent text-white border-accent shadow-glow-sm'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
-            >
-              {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
-              {f !== 'All' && (
-                <span className="ml-1 opacity-60">
-                  ({mrfs.filter(m => m.mrfStatus === f).length})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-3 ml-auto sm:ml-0 flex-shrink-0">
-          <span className="text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
-          {role === 'department_head' && !isCreating && (
-            <button
-              id="new-mrf-btn"
-              onClick={() => {
-                setEditingId(null)
-                setForm(EMPTY_FORM)
-                setMrfMethod(null)
-                setJdMethod(null)
-                setMrfFile(null)
-                setJdFile(null)
-                setActiveStep(1)
-                setIsCreating(true)
-                setShowForm(true)
-              }}
-              className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
-            >
-              <Plus size={13} /> Create Requisition Request
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* HOD: Direct Unified Requisition Form */}
-      {showForm && (
+      {showForm ? (
         <div className="card p-6 fade-up border-accent/20 border space-y-8">
-          {/* Header */}
+          {/* Header with Back button */}
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <button
+              onClick={handleCloseForm}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-all font-semibold bg-white/5 hover:bg-white/10 px-3 py-1.5 border border-white/10 rounded-xl"
+            >
+              <ArrowLeft size={13} /> Back to Requisitions
+            </button>
             <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
               <Plus size={18} className="text-accent" />
               {editingId ? 'Edit Requisition Draft' : 'Create Requisition Request'}
             </h2>
-            <button onClick={handleCloseForm} className="text-slate-500 hover:text-white transition-colors text-xs">
-              ✕ Close Form
-            </button>
+            <div className="w-[140px] hidden sm:block"></div> {/* placeholder to help center */}
           </div>
 
           {/* Primary Requisition Details (Required for all MRF requests) */}
@@ -1183,6 +1144,8 @@ export default function MyMRFsPage() {
             )}
           </div>
 
+
+
           {/* ── Readiness Checklist ────────────────────────────────────── */}
           {(() => {
             const mrfDone = mrfMethod === 'upload' ? !!mrfFile : !!form.designation?.trim()
@@ -1248,9 +1211,54 @@ export default function MyMRFsPage() {
             )
           })()}
         </div>
-      )}
+      ) : (
+        <>
+          {/* Filter Tabs & Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 fade-up-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              {FILTERS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
+                    ${filter === f
+                      ? 'bg-accent text-white border-accent shadow-glow-sm'
+                      : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
+                >
+                  {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
+                  {f !== 'All' && (
+                    <span className="ml-1 opacity-60">
+                      ({mrfs.filter(m => m.mrfStatus === f).length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 ml-auto sm:ml-0 flex-shrink-0">
+              <span className="text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
+              {role === 'department_head' && !isCreating && (
+                <button
+                  id="new-mrf-btn"
+                  onClick={() => {
+                    setEditingId(null)
+                    setForm(EMPTY_FORM)
+                    setMrfMethod(null)
+                    setJdMethod(null)
+                    setMrfFile(null)
+                    setJdFile(null)
+                    setActiveStep(1)
+                    setIsCreating(true)
+                    setShowForm(true)
+                  }}
+                  className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
+                >
+                  <Plus size={13} /> Create Requisition Request
+                </button>
+              )}
+            </div>
+          </div>
 
-      {/* MRF List */}
+          {/* MRF List */}
       {loading ? (
         <div className="card p-24 flex items-center justify-center">
           <Loader2 size={24} className="animate-spin text-accent" />
@@ -1410,6 +1418,8 @@ export default function MyMRFsPage() {
             )
           })}
         </div>
+      )}
+        </>
       )}
     </div>
   )
