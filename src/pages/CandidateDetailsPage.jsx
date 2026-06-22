@@ -17,8 +17,8 @@ const getFileUrl = (path) => {
 
 const scoreColor = (s) => {
   if (s >= 80) return { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' }
-  if (s >= 60) return { text: 'text-accent',      bg: 'bg-accent/10 border-accent/30' }
-  return              { text: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/30' }
+  if (s >= 60) return { text: 'text-accent', bg: 'bg-accent/10 border-accent/30' }
+  return { text: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30' }
 }
 
 const scoreLabel = (s) => {
@@ -29,14 +29,14 @@ const scoreLabel = (s) => {
 }
 
 const STAGE_CONFIG = {
-  'Applied':        { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
-  'Screening':      { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
+  'Applied': { color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25', icon: FileText },
+  'Screening': { color: 'text-cyan-400', bg: 'bg-cyan-400/10 border-cyan-400/25', icon: Search },
   'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
-  'Approved by Head':      { color: 'text-emerald-400', bg: 'bg-emerald-555/10 border-emerald-500/25', icon: CheckCircle2 },
-  'Interview':      { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
-  'Offer':          { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
-  'Joined':         { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',icon: UserCheck },
-  'Rejected':       { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',        icon: XCircle },
+  'Approved by Head': { color: 'text-emerald-400', bg: 'bg-emerald-555/10 border-emerald-500/25', icon: CheckCircle2 },
+  'Interview': { color: 'text-indigo-400', bg: 'bg-indigo-400/10 border-indigo-400/25', icon: Calendar },
+  'Offer': { color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/25', icon: Award },
+  'Joined': { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: UserCheck },
+  'Rejected': { color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/25', icon: XCircle },
 }
 
 const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-colors'
@@ -210,18 +210,18 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-1">
           {[
-            { label: 'Full Name',            key: 'name' },
-            { label: 'Email',                key: 'email', type: 'email' },
-            { label: 'Phone',                key: 'phone' },
-            { label: 'Current Location',     key: 'currentLocation' },
-            { label: 'Total Experience',     key: 'experience', placeholder: 'e.g. 4 years' },
-            { label: 'Current Designation',  key: 'currentDesignation' },
+            { label: 'Full Name', key: 'name' },
+            { label: 'Email', key: 'email', type: 'email' },
+            { label: 'Phone', key: 'phone' },
+            { label: 'Current Location', key: 'currentLocation' },
+            { label: 'Total Experience', key: 'experience', placeholder: 'e.g. 4 years' },
+            { label: 'Current Designation', key: 'currentDesignation' },
             { label: 'Current Organisation', key: 'currentOrganization' },
-            { label: 'Current CTC',          key: 'currentCTC', placeholder: 'e.g. 800000' },
-            { label: 'Expected CTC',         key: 'expectedCTC', placeholder: 'e.g. 1200000' },
-            { label: 'Notice Period',        key: 'noticePeriod', placeholder: 'e.g. 30 days' },
-            { label: 'Qualification',        key: 'qualification' },
-            { label: 'Key Skills',           key: 'skills', placeholder: 'React, Node.js, Python...' },
+            { label: 'Current CTC', key: 'currentCTC', placeholder: 'e.g. 800000' },
+            { label: 'Expected CTC', key: 'expectedCTC', placeholder: 'e.g. 1200000' },
+            { label: 'Notice Period', key: 'noticePeriod', placeholder: 'e.g. 30 days' },
+            { label: 'Qualification', key: 'qualification' },
+            { label: 'Key Skills', key: 'skills', placeholder: 'React, Node.js, Python...' },
           ].map(({ label, key, type, placeholder }) => (
             <div key={key} className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{label}</label>
@@ -430,10 +430,10 @@ export default function CandidateDetailsPage() {
 
       {/* ── Page Dual Layout Grid ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Column: Metrics, details, and workflow (Span 5) */}
         <div className="lg:col-span-5 space-y-6">
-          
+
           {/* Section 1: AI Match Score Ring + Breakdowns */}
           <div className="card p-5 border border-white/5 space-y-4">
             <div className="flex items-center gap-4">
@@ -452,10 +452,8 @@ export default function CandidateDetailsPage() {
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Matching Dimensions</p>
                 <DimBar label="Skills Match" value={candidate.matchBreakdown.skills ?? 0} />
                 <DimBar label="Experience Alignment" value={candidate.matchBreakdown.experience ?? 0} />
-                <DimBar label="Education Match" value={candidate.matchBreakdown.education ?? 0} />
-                <DimBar label="Project Similarity" value={candidate.matchBreakdown.projectSimilarity ?? 0} />
-                <DimBar label="Certification Match" value={candidate.matchBreakdown.certification ?? 0} />
-                <DimBar label="Location Match" value={candidate.matchBreakdown.location ?? 0} />
+                <DimBar label="Qualifications Match" value={candidate.matchBreakdown.qualification ?? 0} />
+                <DimBar label="Job Title Match" value={candidate.matchBreakdown.jobTitle ?? 0} />
               </div>
             )}
           </div>
@@ -508,8 +506,8 @@ export default function CandidateDetailsPage() {
                           onClick={() => handleStageChange(s)}
                           disabled={isActive}
                           className={`px-3 py-2 rounded-xl border text-[11px] font-bold transition-all flex items-center justify-center gap-1
-                            ${isActive 
-                              ? `${cfg.bg} ${cfg.color} cursor-default opacity-100` 
+                            ${isActive
+                              ? `${cfg.bg} ${cfg.color} cursor-default opacity-100`
                               : 'border-white/5 bg-ink-950/40 text-slate-400 hover:border-white/10 hover:text-white hover:bg-white/3'
                             }`}
                         >
@@ -522,8 +520,8 @@ export default function CandidateDetailsPage() {
 
                 {/* Quick Modals Triggers */}
                 <div className="pt-4 border-t border-white/5 flex gap-3">
-                  <button 
-                    onClick={() => setShowInterviewModal(true)} 
+                  <button
+                    onClick={() => setShowInterviewModal(true)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all shadow-glow-sm"
                   >
                     <Calendar size={13} /> Schedule Interview
@@ -544,7 +542,7 @@ export default function CandidateDetailsPage() {
                   {candidate.interviewRound}
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <span className="text-slate-500 block">Date &amp; Time</span>
@@ -586,7 +584,7 @@ export default function CandidateDetailsPage() {
           {/* Section 4: Profile Details Grid */}
           <div className="card p-5 border border-white/5 space-y-4">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Contact &amp; Personal Info</span>
-            
+
             <div className="space-y-3 text-xs">
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Mail size={14} className="text-slate-500 flex-shrink-0" />
@@ -673,7 +671,7 @@ export default function CandidateDetailsPage() {
         {/* Right Column: Resume Viewer (Span 7) */}
         <div className="lg:col-span-7 space-y-6">
           <div className="card border border-white/5 overflow-hidden flex flex-col min-h-[70vh]">
-            
+
             {/* Resume Toolbar */}
             <div className="p-4 bg-white/3 border-b border-white/5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -684,10 +682,10 @@ export default function CandidateDetailsPage() {
               </div>
 
               {resumeUrl && (
-                <a 
-                  href={resumeUrl} 
-                  download 
-                  target="_blank" 
+                <a
+                  href={resumeUrl}
+                  download
+                  target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-colors"
                 >
@@ -700,7 +698,7 @@ export default function CandidateDetailsPage() {
             <div className="flex-1 bg-ink-950/20 relative flex items-center justify-center p-6 min-h-[500px]">
               {resumeUrl ? (
                 isPdf ? (
-                  <iframe 
+                  <iframe
                     src={`${resumeUrl}#toolbar=0&navpanes=0`}
                     title="Candidate Resume PDF"
                     className="absolute inset-0 w-full h-full border-none"
@@ -716,10 +714,10 @@ export default function CandidateDetailsPage() {
                         We only support embedding PDF previews. Please click the button below to download and review the original Word document.
                       </p>
                     </div>
-                    <a 
-                      href={resumeUrl} 
-                      download 
-                      target="_blank" 
+                    <a
+                      href={resumeUrl}
+                      download
+                      target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-2 btn-primary bg-accent/10 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-colors py-2 px-4 rounded-xl"
                     >

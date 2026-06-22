@@ -152,6 +152,7 @@ export function scoreCandidate(candidateDetails, requirements) {
   const qualification = scoreQualification(candidateDetails, requirements);
   const jobTitle = scoreJobTitle(candidateDetails, requirements);
 
+
   let score = Math.round(
     skills * 0.45 +
     experience * 0.25 +
@@ -184,8 +185,8 @@ export function rankCandidates(candidates, requirements) {
 }
 
 export const MATCH_COLORS = {
-  Strong:  { text: 'text-emerald-400', bg: 'bg-emerald-400/15', border: 'border-emerald-400/30', ring: '#34d399' },
-  Good:    { text: 'text-accent',      bg: 'bg-accent/15',      border: 'border-accent/30',      ring: '#4F8EF7' },
-  Partial: { text: 'text-gold',        bg: 'bg-gold/15',        border: 'border-gold/30',        ring: '#F5A623' },
-  Low:     { text: 'text-slate-400',   bg: 'bg-slate-400/15',   border: 'border-slate-400/25',   ring: '#94a3b8' },
+  Strong: { text: 'text-emerald-400', bg: 'bg-emerald-400/15', border: 'border-emerald-400/30', ring: '#34d399' },
+  Good: { text: 'text-accent', bg: 'bg-accent/15', border: 'border-accent/30', ring: '#4F8EF7' },
+  Partial: { text: 'text-gold', bg: 'bg-gold/15', border: 'border-gold/30', ring: '#F5A623' },
+  Low: { text: 'text-slate-400', bg: 'bg-slate-400/15', border: 'border-slate-400/25', ring: '#94a3b8' },
 };
