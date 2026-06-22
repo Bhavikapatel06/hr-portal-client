@@ -442,7 +442,12 @@ export default function OverviewDashboard() {
       if (candidateList.status === 'fulfilled') {
         setCandidates(candidateList.value || [])
       }
+    } catch (err) {
+      console.error('Error loading dashboard data:', err)
+    } finally {
+      setLoading(false)
     }
+  }
 
   useEffect(() => {
     loadDashboardData()
