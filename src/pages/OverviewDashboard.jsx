@@ -409,7 +409,6 @@ export default function OverviewDashboard() {
   const [mrfs, setMrfs] = useState([])
   const [candidates, setCandidates] = useState([])
   const [sheetData, setSheetData] = useState([])
-  const [candidates, setCandidates] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('All')
   const [role, setRole] = useState(() => localStorage.getItem('hr_role') || 'candidate')
@@ -426,29 +425,23 @@ export default function OverviewDashboard() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      setLoading(true)
-      try {
-        const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
-          mrfApi.list(),
-          sheetApi.fetchAll(),
-          candidateApi.list()
-        ])
-        
-        if (mrfList.status === 'fulfilled') {
-          setMrfs(mrfList.value || [])
-        }
-        if (sheetRows.status === 'fulfilled') {
-          setSheetData(sheetRows.value?.recruitmentTracker || [])
-        }
-        if (candidateList.status === 'fulfilled') {
-          setCandidates(candidateList.value || [])
-        }
-      } catch (err) {
-        console.error('Error loading overview data:', err)
-      } finally {
-        setLoading(false)
+  const loadDashboardData = async () => {
+    setLoading(true)
+    try {
+      const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
+        mrfApi.list(),
+        sheetApi.fetchAll(),
+        candidateApi.list()
+      ])
+      
+      if (mrfList.status === 'fulfilled') {
+        setMrfs(mrfList.value || [])
+      }
+      if (sheetRows.status === 'fulfilled') {
+        setSheetData(sheetRows.value?.recruitmentTracker || [])
+      }
+      if (candidateList.status === 'fulfilled') {
+        setCandidates(candidateList.value || [])
       }
     } catch (err) {
       console.error('Error loading overview data:', err)
