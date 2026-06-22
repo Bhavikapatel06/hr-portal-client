@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Briefcase, Calendar, CheckCircle2, Clock, Edit3,
-  FileText, Loader2, Mail, MapPin, Phone, RefreshCw, Star,
-  Trash2, Upload, User, UserCheck, XCircle, ShieldAlert,
-  Building2, DollarSign, Award, Download, ExternalLink, Search
+  FileText, Loader2, Mail, MapPin, Phone, Star,
+  Trash2, Upload, UserCheck, XCircle, ShieldAlert,
+  Award, Download, ExternalLink, Search
 } from 'lucide-react'
 import { candidateApi } from '../services/api.js'
 
@@ -29,15 +29,20 @@ const scoreLabel = (s) => {
 }
 
 const STAGE_CONFIG = {
-  'Applied': { color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25', icon: FileText },
-  'Screening': { color: 'text-cyan-400', bg: 'bg-cyan-400/10 border-cyan-400/25', icon: Search },
-  'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
-  'Approved by Head': { color: 'text-emerald-400', bg: 'bg-emerald-555/10 border-emerald-500/25', icon: CheckCircle2 },
-  'Interview': { color: 'text-indigo-400', bg: 'bg-indigo-400/10 border-indigo-400/25', icon: Calendar },
-  'Offer': { color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/25', icon: Award },
-  'Joined': { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: UserCheck },
-  'Rejected': { color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/25', icon: XCircle },
+  'Shared with HOD':      { color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',    icon: Clock },
+  'Approved by HOD':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
+  'Interview':            { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',   icon: Calendar },
+  'Rejected':             { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',         icon: XCircle },
+  'Offer':                { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',     icon: Award },
+  'Joined':               { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: UserCheck },
+  // Legacy support
+  'Applied':              { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',     icon: FileText },
+  'Screening':            { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',       icon: Search },
+  'Pending Head Approval':{ color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     icon: Clock },
+  'Approved by Head':     { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
 }
+
+const HIRING_STAGES = ['Shared with HOD', 'Rejected']
 
 const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-colors'
 const selectCls = `${inputCls} appearance-none cursor-pointer`
@@ -187,8 +192,7 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
     noticePeriod: candidate.noticePeriod || '',
     qualification: candidate.qualification || '',
     skills: candidate.skills || '',
-    stage: candidate.stage || 'Applied',
-    hrNotes: candidate.hrNotes || '',
+    stage: candidate.stage || 'Shared with HOD',
   })
   const [saving, setSaving] = useState(false)
 
@@ -232,13 +236,8 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Pipeline Stage</label>
             <select value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} className={selectCls}>
-              {Object.keys(STAGE_CONFIG).map(s => <option key={s}>{s}</option>)}
+              {HIRING_STAGES.map(s => <option key={s}>{s}</option>)}
             </select>
-          </div>
-          <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">HR Notes</label>
-            <textarea value={form.hrNotes} onChange={e => setForm(f => ({ ...f, hrNotes: e.target.value }))} rows={3}
-              placeholder="Internal notes about this candidate..." className={`${inputCls} resize-none`} />
           </div>
         </div>
 
@@ -265,14 +264,11 @@ export default function CandidateDetailsPage() {
   const [error, setError] = useState(null)
   const [toast, setToast] = useState(null)
 
-  // Modals state
   const [showInterviewModal, setShowInterviewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => {
-    fetchDetails()
-  }, [candidateId])
+  useEffect(() => { fetchDetails() }, [candidateId])
 
   const fetchDetails = async () => {
     setLoading(true)
@@ -330,9 +326,7 @@ export default function CandidateDetailsPage() {
     try {
       await candidateApi.delete(candidateId)
       showToastMsg('Candidate deleted successfully! Redirecting...', 'success')
-      setTimeout(() => {
-        navigate('/recruitment')
-      }, 1500)
+      setTimeout(() => navigate('/recruitment'), 1500)
     } catch (err) {
       showToastMsg(err.message, 'error')
       setDeleting(false)
@@ -365,15 +359,17 @@ export default function CandidateDetailsPage() {
 
   const score = candidate.matchScore || candidate.score || 0
   const sc = scoreColor(score)
-  const isPdf = candidate.fileName?.toLowerCase().endsWith('.pdf') || candidate.filePath?.toLowerCase().endsWith('.pdf')
   const resumeUrl = getFileUrl(candidate.filePath) || candidate.resumeUrl
 
-  const stageCfg = STAGE_CONFIG[candidate.stage] || STAGE_CONFIG['Applied']
+  const stageCfg = STAGE_CONFIG[candidate.stage] || STAGE_CONFIG['Shared with HOD']
   const StageIcon = stageCfg.icon
+
+  const isApprovedByHOD = ['Approved by HOD', 'Approved by Head', 'Interview', 'Offer', 'Joined'].includes(candidate.stage)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      {/* Toast Alert */}
+
+      {/* Toast */}
       {toast && (
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up max-w-sm
           ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
@@ -383,35 +379,34 @@ export default function CandidateDetailsPage() {
 
       {/* Modals */}
       {showInterviewModal && (
-        <InterviewModal
-          candidate={candidate}
-          onClose={() => setShowInterviewModal(false)}
-          onSave={handleSaveInterview}
-        />
+        <InterviewModal candidate={candidate} onClose={() => setShowInterviewModal(false)} onSave={handleSaveInterview} />
       )}
       {showEditModal && (
-        <EditCandidateModal
-          candidate={candidate}
-          onClose={() => setShowEditModal(false)}
-          onSave={handleSaveCandidate}
-        />
+        <EditCandidateModal candidate={candidate} onClose={() => setShowEditModal(false)} onSave={handleSaveCandidate} />
       )}
 
-      {/* ── Page Navigation Header ────────────────────────────────────────── */}
+      {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-white/5">
         <div className="space-y-1">
-          <button onClick={() => navigate(candidate.jobOpeningId?._id ? `/recruitment/job/${candidate.jobOpeningId._id}` : '/recruitment')} className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-colors mb-2">
-            <ArrowLeft size={14} /> Back to Pipeline
-          </button>
-          <h1 className="font-display font-bold text-2xl text-white flex items-center gap-3">
-            {candidate.name}
-            {score >= 80 && (
-              <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                ⭐ TOP MATCH
-              </span>
-            )}
-          </h1>
-          <p className="text-slate-400 text-xs">
+          {/* Small ← arrow button inline with candidate name */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(candidate.jobOpeningId?._id ? `/recruitment/job/${candidate.jobOpeningId._id}` : '/recruitment')}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all flex-shrink-0"
+              title="Back to Pipeline"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <h1 className="font-display font-bold text-2xl text-white flex items-center gap-3">
+              {candidate.name}
+              {score >= 80 && (
+                <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  ⭐ TOP MATCH
+                </span>
+              )}
+            </h1>
+          </div>
+          <p className="text-slate-400 text-xs pl-11">
             Applied for <strong className="text-accent">{candidate.jobOpeningId?.designation || 'Position'}</strong> · Department: {candidate.jobOpeningId?.department || '—'}
           </p>
         </div>
@@ -421,26 +416,27 @@ export default function CandidateDetailsPage() {
             <button onClick={() => setShowEditModal(true)} className="btn-ghost flex items-center gap-1.5 text-xs py-2">
               <Edit3 size={13} /> Edit Profile
             </button>
-            <button onClick={handleDeleteCandidate} disabled={deleting} className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 disabled:opacity-55">
+            <button onClick={handleDeleteCandidate} disabled={deleting}
+              className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 disabled:opacity-55">
               {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />} Delete Candidate
             </button>
           </div>
         )}
       </div>
 
-      {/* ── Page Dual Layout Grid ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* ── Two-column grid ───────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        {/* Left Column: Metrics, details, and workflow (Span 5) */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* ── LEFT: AI Match + Hiring Stage + Interview Details ────────── */}
+        <div className="space-y-6">
 
-          {/* Section 1: AI Match Score Ring + Breakdowns */}
+          {/* AI Match Scoring */}
           <div className="card p-5 border border-white/5 space-y-4">
             <div className="flex items-center gap-4">
               <ScoreRing score={score} size={64} />
               <div>
                 <h3 className="font-display font-bold text-white text-base leading-snug">AI Match Scoring</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Calculated based on MRF requirements & JD matching parameters.</p>
+                <p className="text-xs text-slate-400 mt-0.5">Calculated based on MRF requirements &amp; JD matching parameters.</p>
               </div>
               <span className={`ml-auto px-2.5 py-1 rounded-full border text-xs font-bold ${sc.bg} ${sc.text}`}>
                 {scoreLabel(score)}
@@ -450,39 +446,37 @@ export default function CandidateDetailsPage() {
             {candidate.matchBreakdown && (
               <div className="pt-4 border-t border-white/5 space-y-3">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Matching Dimensions</p>
-                <DimBar label="Skills Match" value={candidate.matchBreakdown.skills ?? 0} />
+                <DimBar label="Skills Match"         value={candidate.matchBreakdown.skills ?? 0} />
                 <DimBar label="Experience Alignment" value={candidate.matchBreakdown.experience ?? 0} />
-                <DimBar label="Qualifications Match" value={candidate.matchBreakdown.qualification ?? 0} />
-                <DimBar label="Job Title Match" value={candidate.matchBreakdown.jobTitle ?? 0} />
+                <DimBar label="Education Match"      value={candidate.matchBreakdown.education ?? 0} />
+                <DimBar label="Project Similarity"   value={candidate.matchBreakdown.projectSimilarity ?? 0} />
+                <DimBar label="Certification Match"  value={candidate.matchBreakdown.certification ?? 0} />
+                <DimBar label="Location Match"       value={candidate.matchBreakdown.location ?? 0} />
               </div>
             )}
           </div>
 
-          {/* Section 2: Pipeline Stage Status & Actions */}
+          {/* Hiring Stage & Actions */}
           <div className="card p-5 border border-white/5 space-y-5">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Hiring Stage</span>
               <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-bold ${stageCfg.bg} ${stageCfg.color}`}>
-                <StageIcon size={12} /> {candidate.stage || 'Applied'}
+                <StageIcon size={12} /> {candidate.stage || 'Shared with HOD'}
               </span>
             </div>
 
             {role === 'department_head' ? (
-              candidate.stage === 'Pending Head Approval' ? (
+              candidate.stage === 'Shared with HOD' ? (
                 <div className="space-y-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
                   <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">Awaiting Your Approval</p>
                   <p className="text-xs text-slate-400">Review the profile and resume of this candidate to approve or reject them for the next hiring steps.</p>
                   <div className="flex gap-2.5 pt-2">
-                    <button
-                      onClick={() => handleStageChange('Approved by Head')}
-                      className="flex-1 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 active:scale-95 transition-all shadow-glow-sm"
-                    >
+                    <button onClick={() => handleStageChange('Approved by HOD')}
+                      className="flex-1 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 active:scale-95 transition-all shadow-glow-sm">
                       Approve Candidate
                     </button>
-                    <button
-                      onClick={() => handleStageChange('Rejected')}
-                      className="flex-1 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold"
-                    >
+                    <button onClick={() => handleStageChange('Rejected')}
+                      className="flex-1 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold">
                       Reject Candidate
                     </button>
                   </div>
@@ -492,46 +486,82 @@ export default function CandidateDetailsPage() {
                   Current Status: <strong className="text-white">{candidate.stage}</strong>
                 </div>
               )
-            ) : (
-              <>
+            ) : isApprovedByHOD ? (
+              /* ── HOD-Approved: Offer / Hired / Reject + Schedule Interview ── */
+              <div className="space-y-4">
                 <div className="space-y-3">
-                  <p className="text-xs font-semibold text-slate-400">Advance Candidate Stage:</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {Object.keys(STAGE_CONFIG).map(s => {
-                      const isActive = candidate.stage === s
-                      const cfg = STAGE_CONFIG[s]
-                      return (
-                        <button
-                          key={s}
-                          onClick={() => handleStageChange(s)}
-                          disabled={isActive}
-                          className={`px-3 py-2 rounded-xl border text-[11px] font-bold transition-all flex items-center justify-center gap-1
-                            ${isActive
-                              ? `${cfg.bg} ${cfg.color} cursor-default opacity-100`
-                              : 'border-white/5 bg-ink-950/40 text-slate-400 hover:border-white/10 hover:text-white hover:bg-white/3'
-                            }`}
-                        >
-                          {s}
-                        </button>
-                      )
-                    })}
+                  <p className="text-xs font-semibold text-slate-400">Candidate Actions:</p>
+                  <div className="flex gap-2.5">
+                    <button
+                      onClick={() => handleStageChange('Offer')}
+                      disabled={candidate.stage === 'Offer'}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shadow-glow-sm
+                        ${candidate.stage === 'Offer'
+                          ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 cursor-default opacity-60'
+                          : 'bg-amber-500/10 border-amber-500/25 text-amber-400 hover:bg-amber-500 hover:text-white'}`}
+                    >
+                      <Award size={13} /> Offer
+                    </button>
+                    <button
+                      onClick={() => handleStageChange('Joined')}
+                      disabled={candidate.stage === 'Joined'}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shadow-glow-sm
+                        ${candidate.stage === 'Joined'
+                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 cursor-default opacity-60'
+                          : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400 hover:bg-emerald-500 hover:text-white'}`}
+                    >
+                      <UserCheck size={13} /> Hired
+                    </button>
+                    <button
+                      onClick={() => handleStageChange('Rejected')}
+                      disabled={candidate.stage === 'Rejected'}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all
+                        ${candidate.stage === 'Rejected'
+                          ? 'bg-red-500/10 border-red-500/20 text-red-400 cursor-default opacity-60'
+                          : 'bg-red-500/10 border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white'}`}
+                    >
+                      <XCircle size={13} /> Reject
+                    </button>
                   </div>
                 </div>
-
-                {/* Quick Modals Triggers */}
-                <div className="pt-4 border-t border-white/5 flex gap-3">
+                <div className="pt-1 border-t border-white/5">
                   <button
                     onClick={() => setShowInterviewModal(true)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all shadow-glow-sm"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold hover:bg-indigo-500 hover:text-white transition-all shadow-glow-sm"
                   >
                     <Calendar size={13} /> Schedule Interview
                   </button>
                 </div>
-              </>
+              </div>
+            ) : (
+              /* ── Not yet approved: Shared with HOD / Rejected stage buttons ── */
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-slate-400">Advance Candidate Stage:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {HIRING_STAGES.map(s => {
+                    const isActive = candidate.stage === s
+                    const cfg = STAGE_CONFIG[s] || STAGE_CONFIG['Shared with HOD']
+                    const Icon = cfg.icon
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => handleStageChange(s)}
+                        disabled={isActive}
+                        className={`px-3 py-2 rounded-xl border text-[11px] font-bold transition-all flex items-center justify-center gap-1.5
+                          ${isActive
+                            ? `${cfg.bg} ${cfg.color} cursor-default opacity-100`
+                            : 'border-white/5 bg-ink-950/40 text-slate-400 hover:border-white/10 hover:text-white hover:bg-white/3'}`}
+                      >
+                        <Icon size={11} /> {s}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Section 3: Interview History/Schedule Display */}
+          {/* Interview Details (only if scheduled) */}
           {candidate.interviewStatus === 'Scheduled' && (
             <div className="card p-5 border border-indigo-500/20 bg-indigo-500/3 space-y-4">
               <div className="flex justify-between items-center">
@@ -581,7 +611,12 @@ export default function CandidateDetailsPage() {
             </div>
           )}
 
-          {/* Section 4: Profile Details Grid */}
+        </div>
+
+        {/* ── RIGHT: Contact Info + Resume ─────────────────────────────── */}
+        <div className="space-y-6">
+
+          {/* Contact & Personal Info */}
           <div className="card p-5 border border-white/5 space-y-4">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Contact &amp; Personal Info</span>
 
@@ -654,90 +689,45 @@ export default function CandidateDetailsPage() {
               </>
             )}
 
-            {candidate.hrNotes && (
-              <>
-                <div className="divider my-4" />
-                <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">HR Notes</span>
-                  <p className="text-xs text-slate-300 leading-relaxed bg-white/2 border border-white/5 p-3 rounded-lg">
-                    {candidate.hrNotes}
-                  </p>
+            <div className="divider my-4" />
+            <div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Resume</span>
+              <div className="flex items-center justify-between bg-white/5 border border-white/8 p-3.5 rounded-xl gap-3">
+                <div className="flex items-center gap-2 truncate">
+                  <FileText size={15} className="text-accent flex-shrink-0" />
+                  <span className="text-xs font-semibold text-white truncate">
+                    {candidate.fileName || 'resume.pdf'}
+                  </span>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Resume Viewer (Span 7) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="card border border-white/5 overflow-hidden flex flex-col min-h-[70vh]">
-
-            {/* Resume Toolbar */}
-            <div className="p-4 bg-white/3 border-b border-white/5 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <FileText size={16} className="text-accent" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider truncate max-w-xs">
-                  {candidate.fileName || 'resume.pdf'}
-                </span>
+                <div className="flex gap-2 flex-shrink-0">
+                  {resumeUrl ? (
+                    <>
+                      <a
+                        href={resumeUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-semibold hover:bg-white/10 transition-colors"
+                      >
+                        <ExternalLink size={12} /> View
+                      </a>
+                      <a
+                        href={resumeUrl}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 px-3 py-2 rounded-xl bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-colors"
+                      >
+                        <Download size={12} /> Download
+                      </a>
+                    </>
+                  ) : (
+                    <span className="text-xs text-slate-500 italic px-2 py-1">Not Uploaded</span>
+                  )}
+                </div>
               </div>
-
-              {resumeUrl && (
-                <a
-                  href={resumeUrl}
-                  download
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-colors"
-                >
-                  <Download size={12} /> Download
-                </a>
-              )}
-            </div>
-
-            {/* Resume embed body */}
-            <div className="flex-1 bg-ink-950/20 relative flex items-center justify-center p-6 min-h-[500px]">
-              {resumeUrl ? (
-                isPdf ? (
-                  <iframe
-                    src={`${resumeUrl}#toolbar=0&navpanes=0`}
-                    title="Candidate Resume PDF"
-                    className="absolute inset-0 w-full h-full border-none"
-                  />
-                ) : (
-                  <div className="text-center p-8 max-w-md space-y-4">
-                    <div className="w-16 h-16 rounded-2xl bg-white/3 border border-white/8 flex items-center justify-center mx-auto">
-                      <FileText size={28} className="text-slate-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">Document Preview Unavailable</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        We only support embedding PDF previews. Please click the button below to download and review the original Word document.
-                      </p>
-                    </div>
-                    <a
-                      href={resumeUrl}
-                      download
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 btn-primary bg-accent/10 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-colors py-2 px-4 rounded-xl"
-                    >
-                      <Download size={14} /> Download Document
-                    </a>
-                  </div>
-                )
-              ) : (
-                <div className="text-center p-8 max-w-xs space-y-3">
-                  <Upload size={32} className="text-slate-500 mx-auto" />
-                  <div>
-                    <p className="text-sm font-semibold text-white">No resume file attached</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      This application was submitted via form entry without a document upload.
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
+
         </div>
 
       </div>

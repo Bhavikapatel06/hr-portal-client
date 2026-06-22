@@ -5,7 +5,8 @@ import {
   Edit3, Calendar, CheckCircle2, Clock, XCircle, AlertCircle,
   Loader2, ArrowRight, FileText, Plus, Phone, Mail, MapPin,
   GraduationCap, Building2, DollarSign, Award, Send, X,
-  ExternalLink, RefreshCw, UserCheck, Search, Filter
+  ExternalLink, RefreshCw, UserCheck, Search, Filter,
+  ArrowLeft, Menu
 } from 'lucide-react'
 import { mrfApi, candidateApi } from '../services/api.js'
 
@@ -30,15 +31,20 @@ const scoreLabel = (s) => {
 }
 
 const STAGE_CONFIG = {
-  'Applied':        { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
-  'Screening':      { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
-  'Pending Head Approval': { color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/25', icon: Clock },
-  'Approved by Head':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
-  'Interview':      { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
-  'Offer':          { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
-  'Joined':         { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',icon: UserCheck },
-  'Rejected':       { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',        icon: XCircle },
+  'Shared with HOD':      { color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',   icon: Clock },
+  'Approved by HOD':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
+  'Interview':            { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
+  'Rejected':             { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',        icon: XCircle },
+  'Offer':                { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
+  'Joined':               { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',   icon: UserCheck },
+  // Legacy support
+  'Applied':              { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
+  'Screening':            { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
+  'Pending Head Approval':{ color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',    icon: Clock },
+  'Approved by Head':     { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25',   icon: CheckCircle2 },
 }
+
+const HIRING_STAGES = ['Shared with HOD', 'Rejected']
 
 const inputCls = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/20 transition-colors'
 const selectCls = `${inputCls} appearance-none cursor-pointer`
@@ -167,7 +173,7 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
     noticePeriod: candidate.noticePeriod || '',
     qualification: candidate.qualification || '',
     skills: candidate.skills || '',
-    stage: candidate.stage || 'Applied',
+    stage: candidate.stage || 'Shared with HOD',
     hrNotes: candidate.hrNotes || '',
   })
   const [saving, setSaving] = useState(false)
@@ -212,7 +218,7 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Pipeline Stage</label>
             <select value={form.stage} onChange={e => setForm(f => ({ ...f, stage: e.target.value }))} className={selectCls}>
-              {Object.keys(STAGE_CONFIG).map(s => <option key={s}>{s}</option>)}
+              {HIRING_STAGES.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
           <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -239,7 +245,7 @@ function CandidateCard({ candidate, rank }) {
   const navigate = useNavigate()
   const score = candidate.matchScore || candidate.score || 0
   const sc = scoreColor(score)
-  const stageCfg = STAGE_CONFIG[candidate.stage] || STAGE_CONFIG['Applied']
+  const stageCfg = STAGE_CONFIG[candidate.stage] || STAGE_CONFIG['Shared with HOD']
   const StageIcon = stageCfg.icon
 
   return (
@@ -348,7 +354,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
   return (
     <div 
       onClick={() => onViewCandidates(mrf)}
-      className={`card card-interactive p-5 border flex flex-col h-full ${selectClass} ${
+      className={`card card-interactive p-5 border flex flex-col justify-between h-full ${selectClass} ${
         isSelected ? '' : 'border-white/5 bg-ink-950/40'
       }`}
     >
@@ -458,7 +464,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
       )}
 
       {/* Actions */}
-      <div className="mt-auto pt-3 border-t border-white/6 flex items-center gap-2">
+      <div className="mt-auto pt-3 flex items-center gap-2">
         {isAwaiting && (
           <button 
             onClick={(e) => {
@@ -542,6 +548,7 @@ export default function HRManagerPage() {
   const [uploadingResumes, setUploadingResumes] = useState(false)
   const [candidateSearch, setCandidateSearch] = useState('')
   const [stageFilter, setStageFilter] = useState('All')
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
 
   // Modals
   const [schedulingCandidate, setSchedulingCandidate] = useState(null)
@@ -738,17 +745,7 @@ export default function HRManagerPage() {
         <EditCandidateModal candidate={editingCandidate}
           onClose={() => setEditingCandidate(null)}
           onSave={handleSaveCandidate} />
-      )}      {!selectedJob && (
-        <div className="fade-up">
-          <span className="section-tag mb-2.5">
-            <Users size={11} className="animate-pulse" /> Recruitment Hub
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-            Welcome, {user?.name || 'HR Manager'}
-          </h1>
-        </div>
-      )}
-      {loading ? (
+      )}      {loading ? (
         <div className="card p-24 flex items-center justify-center">
           <Loader2 size={24} className="animate-spin text-accent" />
         </div>
@@ -821,22 +818,119 @@ export default function HRManagerPage() {
           {selectedJob ? (
             // ── DEDICATED PIPELINE VIEW (FULL WIDTH) ──────────────────
             <div className="space-y-6 fade-up-3">
-              <div className="flex justify-between items-center pb-2 border-b border-white/5">
-                <button 
-                  onClick={() => navigate('/recruitment')}
-                  className="text-xs bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 font-bold px-3 py-1.5 rounded-xl transition-all"
-                >
-                  ← Back to Job Openings
-                </button>
-                {activeTab !== 'awaiting' && (
+              <div className="flex justify-between items-center pb-3 border-b border-white/10 gap-4 relative z-50">
+                <div className="flex items-start gap-3 min-w-0">
                   <button 
-                    onClick={() => loadCandidates(selectedJob._id)} 
-                    disabled={loadingCandidates}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 transition-all"
+                    onClick={() => navigate('/recruitment')}
+                    className="p-2 bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl transition-all flex items-center justify-center flex-shrink-0 mt-0.5"
+                    title="Back to Job Openings"
                   >
-                    <RefreshCw size={13} className={loadingCandidates ? 'animate-spin' : ''} /> Refresh Candidates
+                    <ArrowLeft size={16} />
                   </button>
-                )}
+                  <div className="min-w-0 flex flex-col gap-1.5 animate-fadeIn">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-display font-bold text-white text-base sm:text-lg truncate leading-none" title={selectedJob.designation}>
+                        {selectedJob.designation}
+                      </h2>
+                      <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border flex-shrink-0 ${
+                        selectedJob.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                      }`}>{selectedJob.requestType === 'MRF' ? 'Requisition' : selectedJob.requestType || 'Requisition'}</span>
+                      {selectedJob.levelOfUrgency && (
+                        <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded border flex-shrink-0 ${
+                          selectedJob.levelOfUrgency === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/25' :
+                          selectedJob.levelOfUrgency === 'Medium' ? 'text-amber-400 bg-amber-500/10 border-amber-500/25' :
+                          'text-slate-400 bg-slate-400/10 border-slate-400/20'
+                        }`}>{selectedJob.levelOfUrgency} Priority</span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-400">
+                      {selectedJob.department && (
+                        <span className="flex items-center gap-1"><Building2 size={11} className="text-slate-500" /> {selectedJob.department}</span>
+                      )}
+                      {selectedJob.location && (
+                        <span className="flex items-center gap-1"><MapPin size={11} className="text-slate-500" /> {selectedJob.location}</span>
+                      )}
+                      {selectedJob.experience && (
+                        <span className="flex items-center gap-1"><Clock size={11} className="text-slate-500" /> {selectedJob.experience}</span>
+                      )}
+                      {selectedJob.proposedSalary && (
+                        <span className="flex items-center gap-1"><DollarSign size={11} className="text-slate-500" /> {selectedJob.proposedSalary}</span>
+                      )}
+                      <span>Vacancies: <strong className="text-white">{selectedJob.noOfPositions || 1}</strong></span>
+                      {activeTab === 'active' && (
+                        <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active Live Job
+                        </span>
+                      )}
+                      {activeTab === 'closed' && selectedJob.closedAt && (
+                        <span className="text-red-400 font-semibold">
+                          Closed: {new Date(selectedJob.closedAt).toLocaleDateString('en-IN')}
+                        </span>
+                      )}
+                      {activeTab === 'filled' && selectedJob.offeredCandidateName && (
+                        <span className="text-emerald-400 font-semibold">
+                          Hired: {selectedJob.offeredCandidateName}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {activeTab !== 'awaiting' && (
+                    <>
+                      {/* Refresh button */}
+                      <button 
+                        onClick={() => loadCandidates(selectedJob._id)} 
+                        disabled={loadingCandidates}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 transition-all"
+                      >
+                        <RefreshCw size={13} className={loadingCandidates ? 'animate-spin' : ''} />
+                        <span className="hidden sm:inline">Refresh Candidates</span>
+                      </button>
+
+                      {/* Hamburger filter menu */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowFilterMenu(!showFilterMenu)}
+                          className={`p-2 rounded-xl border transition-all flex items-center justify-center gap-1.5 text-xs font-semibold
+                            ${showFilterMenu ? 'bg-accent border-accent text-white' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'}`}
+                          title="Filter Stages"
+                        >
+                          <Menu size={16} />
+                          <span className="hidden sm:inline">
+                            {stageFilter === 'All' ? 'All Candidates' : 'Approved by HOD'}
+                          </span>
+                        </button>
+
+                        {showFilterMenu && (
+                          <div className="absolute right-0 mt-2 w-48 rounded-xl bg-ink-900 border border-white/15 shadow-2xl z-50 overflow-hidden py-1">
+                            <button
+                              onClick={() => {
+                                setStageFilter('All');
+                                setShowFilterMenu(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-xs font-semibold transition-colors flex items-center gap-2
+                                ${stageFilter === 'All' ? 'text-accent bg-accent/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+                            >
+                              <Users size={12} /> All Candidates
+                            </button>
+                            <button
+                              onClick={() => {
+                                setStageFilter('Approved by HOD');
+                                setShowFilterMenu(false);
+                              }}
+                              className={`w-full text-left px-4 py-2 text-xs font-semibold transition-colors flex items-center gap-2
+                                ${stageFilter === 'Approved by HOD' ? 'text-accent bg-accent/10' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+                            >
+                              <CheckCircle2 size={12} /> Approved by HOD
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {activeTab === 'awaiting' ? (
@@ -845,8 +939,7 @@ export default function HRManagerPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
                       <div>
                         <span className="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 text-[10px] font-bold uppercase tracking-wider">Awaiting Live Post</span>
-                        <h2 className="font-display font-bold text-2xl text-white mt-2">{selectedJob.designation}</h2>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-400 mt-2">
                           {selectedJob.department} · {selectedJob.location || '—'} · {selectedJob.noOfPositions || 1} vacancy(s)
                         </p>
                       </div>
@@ -898,106 +991,10 @@ export default function HRManagerPage() {
                 ) : (
                   // Candidates Pipeline view for active/closed/filled jobs
                   <div className="space-y-6">
-                    {/* Job Details Header Ribbon */}
-                    <div className="p-4 rounded-xl bg-white/3 border border-white/8 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-scaleUp">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border ${
-                            selectedJob.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                          }`}>{selectedJob.requestType === 'MRF' ? 'Requisition' : selectedJob.requestType || 'Requisition'}</span>
-                          <h3 className="font-display font-bold text-white text-base leading-none">{selectedJob.designation}</h3>
-                          <span className={`badge border text-[9px] font-bold ${
-                            selectedJob.levelOfUrgency === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/25' :
-                            selectedJob.levelOfUrgency === 'Medium' ? 'text-amber-400 bg-amber-500/10 border-amber-500/25' :
-                            'text-slate-400 bg-slate-400/10 border-slate-400/20'
-                          }`}>{selectedJob.levelOfUrgency || 'Medium'} Priority</span>
-                        </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 pt-1">
-                          {selectedJob.department && (
-                            <span className="flex items-center gap-1"><Building2 size={11} className="text-slate-500" /> {selectedJob.department}</span>
-                          )}
-                          {selectedJob.location && (
-                            <span className="flex items-center gap-1"><MapPin size={11} className="text-slate-500" /> {selectedJob.location}</span>
-                          )}
-                          {selectedJob.experience && (
-                            <span className="flex items-center gap-1"><Clock size={11} className="text-slate-500" /> {selectedJob.experience}</span>
-                          )}
-                          {selectedJob.proposedSalary && (
-                            <span className="flex items-center gap-1"><DollarSign size={11} className="text-slate-500" /> {selectedJob.proposedSalary}</span>
-                          )}
-                          <span>Vacancies: <strong className="text-white">{selectedJob.noOfPositions || 1}</strong></span>
-                        </div>
-                      </div>
-                      
-                      {/* Status specific details */}
-                      <div className="flex items-center gap-3 flex-shrink-0 md:border-l md:border-white/5 md:pl-4">
-                        {activeTab === 'active' && (
-                          <div className="text-left md:text-right text-xs">
-                            <span className="text-slate-500 block">Status</span>
-                            <span className="text-emerald-400 font-bold flex items-center gap-1 justify-start">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active Live Job
-                            </span>
-                          </div>
-                        )}
-                        {activeTab === 'closed' && selectedJob.closedAt && (
-                          <div className="text-left md:text-right text-xs">
-                            <span className="text-slate-500 block">Closure Date</span>
-                            <span className="text-red-400 font-bold">{new Date(selectedJob.closedAt).toLocaleDateString('en-IN')}</span>
-                          </div>
-                        )}
-                        {activeTab === 'filled' && selectedJob.offeredCandidateName && (
-                          <div className="text-left md:text-right text-xs">
-                            <span className="text-slate-500 block">Hired Candidate</span>
-                            <span className="text-emerald-400 font-bold">{selectedJob.offeredCandidateName}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Pipeline summary bar */}
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 animate-fadeIn">
-                      {Object.entries(STAGE_COUNTS).map(([stage, count]) => {
-                        const cfg = STAGE_CONFIG[stage]
-                        const Icon = cfg.icon
-                        return (
-                          <button 
-                            key={stage} 
-                            onClick={() => setStageFilter(stageFilter === stage ? 'All' : stage)}
-                            className={`card p-3 border text-center transition-all hover:-translate-y-0.5 duration-150 cursor-pointer ${
-                              stageFilter === stage ? `${cfg.bg} ${cfg.color}` : 'border-white/5 bg-ink-950/40 text-slate-500'
-                            }`}
-                          >
-                            <Icon size={14} className="mx-auto mb-1" />
-                            <p className="text-lg font-bold">{count}</p>
-                            <p className="text-[9px] font-bold uppercase tracking-wide">{stage}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-
                     {/* Controls */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      {activeTab === 'active' && (
-                        <label className={`relative cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all flex-shrink-0
-                          ${uploadingResumes ? 'bg-accent/20 border-accent/30 text-accent cursor-not-allowed' : 'bg-accent/10 border-accent/25 text-accent hover:bg-accent hover:text-white'}`}>
-                          <input type="file" multiple accept=".pdf,.doc,.docx" onChange={handleResumeUpload}
-                            disabled={uploadingResumes} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                          {uploadingResumes ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-                          {uploadingResumes ? 'Uploading & Scoring...' : 'Upload Resumes (Bulk)'}
-                        </label>
-                      )}
-
-                      {stageFilter !== 'All' && (
-                        <button 
-                          onClick={() => setStageFilter('All')}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-semibold"
-                        >
-                          <Filter size={11} /> {stageFilter} <X size={11} />
-                        </button>
-                      )}
-
                       {/* Search */}
-                      <div className="relative flex-1 max-w-sm ml-auto">
+                      <div className="relative flex-1 max-w-sm">
                         <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                         <input 
                           value={candidateSearch} 
@@ -1006,7 +1003,27 @@ export default function HRManagerPage() {
                           className="pl-8 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent/40 w-full" 
                         />
                       </div>
-                      <span className="text-xs text-slate-500 flex-shrink-0">{filteredCandidates.length} candidate(s)</span>
+                      
+                      {stageFilter === 'All' && activeTab === 'active' && (
+                        <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all cursor-pointer shadow-glow-sm flex-shrink-0">
+                          {uploadingResumes ? (
+                            <Loader2 size={13} className="animate-spin text-accent" />
+                          ) : (
+                            <Upload size={13} />
+                          )}
+                          {uploadingResumes ? 'Processing Resumes...' : 'Bulk Upload Resumes'}
+                          <input 
+                            type="file" 
+                            multiple 
+                            accept=".pdf,.doc,.docx" 
+                            onChange={handleResumeUpload} 
+                            disabled={uploadingResumes} 
+                            className="hidden" 
+                          />
+                        </label>
+                      )}
+
+                      <span className="text-xs text-slate-500 flex-shrink-0 sm:ml-auto">{filteredCandidates.length} candidate(s)</span>
                     </div>
 
                     {/* Candidate lists */}
@@ -1073,7 +1090,6 @@ export default function HRManagerPage() {
 
               <p className="text-xs text-slate-500">
                 {activeTab === 'awaiting' && 'Approved requisitions from HOD/Admin that are ready to be published. Click "Publish Live Job" or select one to view details and publish.'}
-                {activeTab === 'active' && 'Currently active live jobs. Click "Candidates" to open the pipeline view, upload resumes, and schedule interviews.'}
                 {activeTab === 'closed' && 'Positions that were manually closed or cancelled. Click card to see full candidates and closure details.'}
                 {activeTab === 'filled' && 'Positions that have been successfully filled. Hired candidate details and join dates are shown on the cards.'}
               </p>
@@ -1092,7 +1108,7 @@ export default function HRManagerPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4">
                   {activeTabMRFs.map(m => (
                     <JobCard 
                       key={m._id} 
