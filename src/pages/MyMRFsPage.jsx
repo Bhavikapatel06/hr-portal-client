@@ -1261,7 +1261,7 @@ export default function MyMRFsPage() {
           <p className="text-slate-400 text-sm">No requisitions found in this filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4">
           {filteredMRFs.map((mrf) => {
             const status = STATUS_CONFIG[mrf.mrfStatus] || STATUS_CONFIG['Draft']
             const Icon = status.icon
@@ -1270,7 +1270,7 @@ export default function MyMRFsPage() {
             const isPosted = mrf.positionStatus === 'In Progress'
 
             return (
-              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between gap-4">
+              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between h-full gap-4">
 
                 {/* Card Header: title + status badge */}
                 <div className="flex items-start justify-between gap-3">

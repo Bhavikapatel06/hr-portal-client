@@ -5,58 +5,60 @@
 /* ─── Theme Variables ──────────────────────────────────────────────────────── */
 :root {
   /* Dark theme (default) */
-  --bg-primary:     #0A0E1A;
-  --bg-secondary:   #0F1629;
-  --bg-card:        #1A2040;
-  --bg-card-hover:  #1F2650;
-  --bg-input:       #0F1629;
-  --border-color:   rgba(255,255,255,0.08);
-  --border-hover:   rgba(79,142,247,0.35);
-  --text-primary:   #E2E8F8;
-  --text-secondary: #94A3B8;
-  --text-muted:     #64748B;
-  --text-placeholder: #475569;
-  --accent:         #4F8EF7;
-  --accent-light:   #7AAEFF;
-  --accent-glow:    rgba(79,142,247,0.18);
-  --gold:           #F5A623;
-  --success:        #22D3A5;
-  --danger:         #F75F5F;
-  --scrollbar-track: #0F1629;
-  --scrollbar-thumb: #2A3560;
-  --grid-line:      rgba(79,142,247,0.04);
+  --bg-primary:     #0B0F19;
+  --bg-secondary:   #141A2B;
+  --bg-card:        #141A2B;
+  --bg-card-hover:  #1B2236;
+  --bg-input:       #141A2B;
+  --border-color:   #2A3349;
+  --border-hover:   rgba(76, 125, 255, 0.45);
+  --text-primary:   #F5F7FA;
+  --text-secondary: #A8B2C7;
+  --text-muted:     #5C6680;
+  --text-placeholder: #5C6680;
+  --accent:         #4C7DFF;
+  --accent-light:   #3D68E0;
+  --accent-glow:    #1E2A4A;
+  --gold:           #FBBF24;
+  --success:        #34D399;
+  --danger:         #F87171;
+  --scrollbar-track: #0B0F19;
+  --scrollbar-thumb: #2A3349;
+  --grid-line:      rgba(76, 125, 255, 0.04);
   --shadow-card:    0 4px 24px rgba(0,0,0,0.35);
-  --navbar-bg:      rgba(10,14,26,0.92);
-  --select-bg:      #0F1629;
-  --select-color:   #E2E8F8;
+  --navbar-bg:      rgba(11, 15, 25, 0.92);
+  --select-bg:      #141A2B;
+  --select-color:   #F5F7FA;
+  --focus-ring:     rgba(76, 125, 255, 0.4);
 }
 
 /* ─── Light Theme ──────────────────────────────────────────────────────────── */
 html.light {
-  --bg-primary:     #F1F5FB;
+  --bg-primary:     #F7F9FC;
   --bg-secondary:   #FFFFFF;
   --bg-card:        #FFFFFF;
-  --bg-card-hover:  #F8FAFF;
+  --bg-card-hover:  #F1F5FB;
   --bg-input:       #FFFFFF;
-  --border-color:   rgba(0,0,0,0.09);
-  --border-hover:   rgba(79,142,247,0.5);
-  --text-primary:   #0F172A;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
-  --text-placeholder: #94A3B8;
-  --accent:         #4F8EF7;
-  --accent-light:   #3B7EF0;
-  --accent-glow:    rgba(79,142,247,0.12);
+  --border-color:   #E2E8F4;
+  --border-hover:   rgba(59, 111, 237, 0.45);
+  --text-primary:   #1A2238;
+  --text-secondary: #4B5670;
+  --text-muted:     #8A93A8;
+  --text-placeholder: #8A93A8;
+  --accent:         #3B6FED;
+  --accent-light:   #2F5BD1;
+  --accent-glow:    #EAF1FF;
   --gold:           #D97706;
-  --success:        #0D9488;
+  --success:        #16A34A;
   --danger:         #DC2626;
-  --scrollbar-track: #E2E8F0;
-  --scrollbar-thumb: #CBD5E1;
-  --grid-line:      rgba(79,142,247,0.05);
+  --scrollbar-track: #E2E8F4;
+  --scrollbar-thumb: #8A93A8;
+  --grid-line:      rgba(59, 111, 237, 0.05);
   --shadow-card:    0 2px 16px rgba(0,0,0,0.07);
-  --navbar-bg:      rgba(255,255,255,0.95);
+  --navbar-bg:      rgba(247, 249, 252, 0.92);
   --select-bg:      #FFFFFF;
-  --select-color:   #0F172A;
+  --select-color:   #1A2238;
+  --focus-ring:     rgba(59, 111, 237, 0.4);
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────────── */
@@ -85,16 +87,12 @@ body {
 /* ─── Grid background ──────────────────────────────────────────────────────── */
 .grid-bg {
   background-color: var(--bg-primary);
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 40px 40px;
 }
 
 /* ─── Animations ───────────────────────────────────────────────────────────── */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 12px rgba(79,142,247,0.2); }
-  50%       { box-shadow: 0 0 28px rgba(79,142,247,0.45); }
+  0%, 100% { box-shadow: 0 0 12px rgba(76, 125, 255, 0.2); }
+  50%       { box-shadow: 0 0 28px rgba(76, 125, 255, 0.45); }
 }
 
 @keyframes fade-up {
@@ -112,7 +110,7 @@ body {
 
 /* Input */
 .field {
-  @apply w-full rounded-lg px-3.5 py-2.5 text-sm transition-all duration-200
+  @apply w-full rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200
          focus:outline-none focus:ring-1;
   background-color: var(--bg-input);
   border: 1px solid var(--border-color);
@@ -123,7 +121,7 @@ body {
 .field:hover  { border-color: var(--border-hover); }
 .field:focus  {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 /* Select options */
