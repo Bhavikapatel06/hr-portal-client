@@ -501,8 +501,8 @@ export default function MyMRFsPage() {
         // Admin sees all non-draft MRFs to review
         setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
       } else {
-        // HR sees only approved MRFs
-        setMrfs(all.filter(m => m.mrfStatus === 'Approved'))
+        // HR sees all submitted MRFs (non-draft)
+        setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
       }
     } catch (e) {
       showToast('Failed to load MRFs: ' + e.message, 'error')

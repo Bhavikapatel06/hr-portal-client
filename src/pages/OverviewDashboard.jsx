@@ -407,6 +407,7 @@ function JobCard({ mrf, idx }) {
 export default function OverviewDashboard() {
   const navigate = useNavigate()
   const [mrfs, setMrfs] = useState([])
+  const [candidates, setCandidates] = useState([])
   const [sheetData, setSheetData] = useState([])
   const [candidates, setCandidates] = useState([])
   const [loading, setLoading] = useState(true)
@@ -415,6 +416,7 @@ export default function OverviewDashboard() {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -448,7 +450,14 @@ export default function OverviewDashboard() {
       } finally {
         setLoading(false)
       }
+    } catch (err) {
+      console.error('Error loading overview data:', err)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     loadDashboardData()
   }, [])
 
