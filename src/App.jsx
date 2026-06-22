@@ -36,11 +36,7 @@ function PublicOnly({ children }) {
   return children
 }
 
-// ── Role-based default dashboard ─────────────────────────────────────────────
 function DefaultDashboard() {
-  const role = localStorage.getItem('hr_role') || ''
-  // HR Manager has no dashboard — redirect to recruitment
-  if (role === 'hr') return <Navigate to="/recruitment" replace />
   return <OverviewDashboard />
 }
 

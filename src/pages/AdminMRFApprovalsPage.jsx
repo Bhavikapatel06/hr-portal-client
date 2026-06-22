@@ -33,7 +33,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
         <div className="flex items-center justify-between px-6 py-3 bg-gray-800 text-white">
           <div className="flex items-center gap-3">
             <FileText size={16} />
-            <span className="font-bold text-sm tracking-wide">MANPOWER REQUEST FORM</span>
+            <span className="font-bold text-sm tracking-wide">JOB REQUISITION FORM</span>
             {STATUS_CFG[mrf.mrfStatus] && (
               <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_CFG[mrf.mrfStatus].bg} ${STATUS_CFG[mrf.mrfStatus].color}`}>
                 {STATUS_CFG[mrf.mrfStatus].label}
@@ -48,7 +48,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
 
           {/* Form title */}
           <div className="border-2 border-gray-800 text-center py-2 text-sm font-bold text-gray-800 tracking-widest mb-0">
-            MANPOWER REQUEST FORM
+            JOB REQUISITION FORM
           </div>
 
           {/* Table-style paper form */}
@@ -198,13 +198,13 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
                   className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
                   {actioning ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                  Approve MRF
+                  Approve Requisition
                 </button>
                 <button
                   onClick={() => setShowRejectInput(true)}
                   className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
-                  <XCircle size={16} /> Reject with Comments
+                  <XCircle size={16} /> Reject Requisition
                 </button>
               </div>
             )
@@ -374,18 +374,7 @@ export default function AdminMRFApprovalsPage() {
         />
       )}
 
-      {/* Page Header */}
-      <div className="fade-up">
-        <span className="section-tag mb-2.5">
-          <ClipboardList size={11} /> HR Admin — MRF Review
-        </span>
-        <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-          MRF Approvals
-        </h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Review manpower requests submitted by Department Heads. Click <strong className="text-white">View MRF</strong> to open the full form and Approve or Reject.
-        </p>
-      </div>
+      {/* Page Header removed */}
 
       {/* Tabs Filter + Search bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 fade-up-1 pt-2">
@@ -433,7 +422,7 @@ export default function AdminMRFApprovalsPage() {
               className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent/40 w-full sm:w-64"
             />
           </div>
-          <span className="text-xs text-slate-600 flex-shrink-0 text-right sm:text-left">{filtered.length} MRF(s)</span>
+          <span className="text-xs text-slate-600 flex-shrink-0 text-right sm:text-left">{filtered.length} Requisition(s)</span>
         </div>
       </div>
 
@@ -446,7 +435,7 @@ export default function AdminMRFApprovalsPage() {
       ) : filtered.length === 0 ? (
         <div className="card p-16 flex flex-col items-center gap-4 text-center border border-white/5 bg-ink-950/40">
           <AlertCircle size={28} className="text-slate-500" />
-          <p className="text-slate-400 text-sm">No MRFs found matching your filter or search.</p>
+          <p className="text-slate-400 text-sm">No requisitions found matching your filter or search.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -546,12 +535,12 @@ export default function AdminMRFApprovalsPage() {
 
                 {/* Action bar */}
                 <div className="mt-4 pt-3 border-t border-white/6 flex items-center gap-2">
-                  {/* View MRF — always visible */}
+                  {/* View Requisition — always visible */}
                   <button
                     onClick={() => setViewingMrf(mrf)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
                   >
-                    <Eye size={13} /> View MRF
+                    <Eye size={13} /> View Requisition
                   </button>
 
                   {/* Quick approve/reject buttons — only for pending */}

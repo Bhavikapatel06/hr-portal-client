@@ -358,7 +358,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border ${
               mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-            }`}>{mrf.requestType || 'MRF'}</span>
+            }`}>{mrf.requestType === 'MRF' ? 'Requisition' : mrf.requestType || 'Requisition'}</span>
             <h3 className="font-semibold text-white text-[15px] truncate">{mrf.designation}</h3>
           </div>
           <p className="text-xs text-slate-400 mt-1">
@@ -440,7 +440,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
               onClick={(e) => e.stopPropagation()} 
               className="flex items-center gap-1 text-accent hover:underline font-semibold font-sans"
             >
-              <FileText size={12} /> MRF Doc
+              <FileText size={12} /> Requisition Doc
             </a>
           )}
           {mrf.jdFilePath && (
@@ -746,9 +746,6 @@ export default function HRManagerPage() {
           <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
             Welcome, {user?.name || 'HR Manager'}
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Manpower recruitment workflow — manage open job pipelines, score candidates, and schedule interviews.
-          </p>
         </div>
       )}
       {loading ? (
@@ -907,7 +904,7 @@ export default function HRManagerPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border ${
                             selectedJob.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
-                          }`}>{selectedJob.requestType || 'MRF'}</span>
+                          }`}>{selectedJob.requestType === 'MRF' ? 'Requisition' : selectedJob.requestType || 'Requisition'}</span>
                           <h3 className="font-display font-bold text-white text-base leading-none">{selectedJob.designation}</h3>
                           <span className={`badge border text-[9px] font-bold ${
                             selectedJob.levelOfUrgency === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/25' :
@@ -1087,7 +1084,7 @@ export default function HRManagerPage() {
                   <div>
                     <p className="text-white font-semibold">No positions found</p>
                     <p className="text-slate-500 text-xs mt-1">
-                      {activeTab === 'awaiting' && 'No approved MRFs are currently awaiting live job posting.'}
+                      {activeTab === 'awaiting' && 'No approved Requisitions are currently awaiting live job posting.'}
                       {activeTab === 'active' && 'No active job openings are currently live.'}
                       {activeTab === 'closed' && 'No closed positions in the archive.'}
                       {activeTab === 'filled' && 'No filled positions yet.'}
