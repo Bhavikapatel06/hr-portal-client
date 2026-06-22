@@ -45,7 +45,8 @@ function DimBar({ label, value, color }) {
       <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${value}%`, backgroundColor: color.replace('text-', '') === color ? '#4F8EF7' : undefined,
+          style={{
+            width: `${value}%`, backgroundColor: color.replace('text-', '') === color ? '#4F8EF7' : undefined,
             background: value >= 80 ? '#34d399' : value >= 60 ? '#4F8EF7' : value >= 35 ? '#F5A623' : '#94a3b8'
           }}
         />
@@ -114,18 +115,16 @@ function MatchCard({ candidate, rank }) {
       {expanded && (
         <div className="border-t border-white/8 p-4 bg-ink-900/40 space-y-3">
           <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Score Breakdown</p>
-          <DimBar label="Skills Match"        value={matchBreakdown.skills       ?? 0} color="text-accent" />
-          <DimBar label="Experience"          value={matchBreakdown.experience   ?? 0} color="text-accent" />
-          <DimBar label="Education"           value={matchBreakdown.education    ?? 0} color="text-accent" />
-          <DimBar label="Project Similarity"  value={matchBreakdown.projectSimilarity ?? 0} color="text-accent" />
-          <DimBar label="Certification Match" value={matchBreakdown.certification ?? 0} color="text-accent" />
-          <DimBar label="Location Match"      value={matchBreakdown.location     ?? 0} color="text-accent" />
+          <DimBar label="Skills Match" value={matchBreakdown.skills ?? 0} color="text-accent" />
+          <DimBar label="Experience" value={matchBreakdown.experience ?? 0} color="text-accent" />
+          <DimBar label="Qualification" value={matchBreakdown.qualification ?? 0} color="text-accent" />
+          <DimBar label="Job Title Match" value={matchBreakdown.jobTitle ?? 0} color="text-accent" />
 
           {/* Candidate details */}
           <div className="pt-3 border-t border-white/8 grid grid-cols-2 gap-2">
             {[
               ['Qualification', details.highestQual],
-              ['Phone',         details.phone],
+              ['Phone', details.phone],
               ['Skills / Notes', details.notes],
             ].map(([lbl, val]) => val ? (
               <div key={lbl} className="col-span-1">
@@ -229,13 +228,12 @@ export default function MatchResults({ candidates = [], requirements = null }) {
             <button
               key={level}
               onClick={() => setFilterLevel(level)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 ${
-                active
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 ${active
                   ? level === 'All'
                     ? 'bg-accent text-white border-accent shadow-glow-sm'
                     : `${colors?.bg} ${colors?.text} ${colors?.border}`
                   : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               {level} {counts[level] !== undefined ? `(${counts[level]})` : ''}
             </button>
