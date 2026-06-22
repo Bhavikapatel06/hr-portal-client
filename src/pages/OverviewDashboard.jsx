@@ -426,29 +426,29 @@ export default function OverviewDashboard() {
   }, [])
 
   const loadDashboardData = async () => {
-    setLoading(true)
-    try {
-      const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
-        mrfApi.list(),
-        sheetApi.fetchAll(),
-        candidateApi.list()
-      ])
-      
-      if (mrfList.status === 'fulfilled') {
-        setMrfs(mrfList.value || [])
+      setLoading(true)
+      try {
+        const [mrfList, sheetRows, candidateList] = await Promise.allSettled([
+          mrfApi.list(),
+          sheetApi.fetchAll(),
+          candidateApi.list()
+        ])
+        
+        if (mrfList.status === 'fulfilled') {
+          setMrfs(mrfList.value || [])
+        }
+        if (sheetRows.status === 'fulfilled') {
+          setSheetData(sheetRows.value?.recruitmentTracker || [])
+        }
+        if (candidateList.status === 'fulfilled') {
+          setCandidates(candidateList.value || [])
+        }
+      } catch (err) {
+        console.error('Error loading overview data:', err)
+      } finally {
+        setLoading(false)
       }
-      if (sheetRows.status === 'fulfilled') {
-        setSheetData(sheetRows.value?.recruitmentTracker || [])
-      }
-      if (candidateList.status === 'fulfilled') {
-        setCandidates(candidateList.value || [])
-      }
-    } catch (err) {
-      console.error('Error loading overview data:', err)
-    } finally {
-      setLoading(false)
     }
-  }
 
   useEffect(() => {
     loadDashboardData()
