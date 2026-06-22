@@ -72,20 +72,20 @@ export default function Navbar() {
       case 'admin':
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-          { to: '/mrf-approvals',  icon: ClipboardList,   label: 'MRF Approvals' },
+          { to: '/mrf-approvals',  icon: ClipboardList,   label: 'Requisitions' },
           { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'department_head':
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
-          { to: '/my-mrfs',        icon: ClipboardList,   label: 'My MRFs' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'Requisitions' },
           { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'hr':
         return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
           { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
-          { to: '/my-mrfs',        icon: ClipboardList,   label: 'MRF Posting' },
-          { to: '/vacancy-tracker', icon: LayoutDashboard, label: 'Vacancy Tracker' },
+          { to: '/my-mrfs',        icon: ClipboardList,   label: 'Requisitions' },
           { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'candidate':
@@ -183,24 +183,18 @@ export default function Navbar() {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Role badge */}
-          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${roleDetails.badgeCls}`}>
-            <RoleIcon size={12} />
-            {roleDetails.label}
-          </div>
-
           {/* Notification bell */}
           <div className="relative">
-          <button 
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
-            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
+              style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
             >
-            <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
-            {notifications.some(n => !n.isRead) && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
-          )}
-          </button>
+              <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
+              {notifications.some(n => !n.isRead) && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+              )}
+            </button>
             
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
@@ -234,15 +228,20 @@ export default function Navbar() {
 
           {/* User avatar */}
           {user && (
-            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg"
+            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-lg"
               style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${roleDetails.avatarCls}`}>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
-              <span className="text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-primary)' }}>
-                {user.name}
-              </span>
+              <div className="flex flex-col text-left">
+                <span className="text-xs font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                  {user.name}
+                </span>
+                <span className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">
+                  {roleDetails.label}
+                </span>
+              </div>
             </div>
           )}
 

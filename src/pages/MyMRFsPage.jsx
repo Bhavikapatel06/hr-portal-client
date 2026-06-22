@@ -76,7 +76,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
         <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
           <div className="flex items-center gap-2">
             <FileText size={18} className="text-gray-600" />
-            <span className="font-bold text-gray-800 text-sm">Manpower Request Form — Preview</span>
+            <span className="font-bold text-gray-800 text-sm">Job Requisition — Preview</span>
             <span className={`ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${
               STATUS_CONFIG[mrf.mrfStatus]?.bg || ''} ${STATUS_CONFIG[mrf.mrfStatus]?.color || ''}`}>
               {mrf.mrfStatus === 'Pending Owner Approval' ? 'Pending Approval' : mrf.mrfStatus}
@@ -90,7 +90,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
           {/* Title */}
           <div className="border-2 border-gray-800 mb-0">
             <div className="bg-gray-800 text-white text-center py-2 text-sm font-bold tracking-wider">
-              MANPOWER REQUEST FORM
+              JOB REQUISITION FORM
             </div>
 
             {/* Section 1 */}
@@ -644,7 +644,7 @@ export default function MyMRFsPage() {
         showToast('Draft updated. ✓')
       } else {
         await mrfApi.saveDraft(payload)
-        showToast('MRF saved as Draft. ✓')
+        showToast('Requisition saved as Draft. ✓')
       }
       setShowForm(false)
       setIsCreating(false)
@@ -682,7 +682,7 @@ export default function MyMRFsPage() {
         showToast('MRF updated and submitted! ✓')
       } else {
         await mrfApi.submit({ ...payload, mrfStatus: 'Pending Owner Approval' })
-        showToast('MRF submitted for approval! ✓')
+        showToast('Requisition submitted for approval! ✓')
       }
       setShowForm(false)
       setIsCreating(false)
@@ -717,7 +717,7 @@ export default function MyMRFsPage() {
     try {
       setMrfs(prev => prev.filter(m => m._id !== id))
       await mrfApi.delete(id)
-      showToast('MRF deleted.')
+      showToast('Requisition deleted.')
       const all = await mrfApi.list()
       if (role === 'department_head') {
         setMrfs(all.filter(m => m.submittedBy === userName || !m.submittedBy))
@@ -737,7 +737,7 @@ export default function MyMRFsPage() {
     setActioningApproval(true)
     try {
       await mrfApi.approve(id)
-      showToast('MRF approved successfully! ✓')
+      showToast('Requisition approved successfully! ✓')
       setViewingMrf(null)
       loadMRFs()
     } catch (e) {
@@ -751,7 +751,7 @@ export default function MyMRFsPage() {
     setActioningApproval(true)
     try {
       await mrfApi.reject(id, note)
-      showToast('MRF has been rejected.')
+      showToast('Requisition has been rejected.')
       setViewingMrf(null)
       loadMRFs()
     } catch (e) {
@@ -883,7 +883,7 @@ export default function MyMRFsPage() {
               }}
               className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
             >
-              <Plus size={13} /> Create MRF Request
+              <Plus size={13} /> Create Requisition Request
             </button>
           )}
         </div>
@@ -896,7 +896,7 @@ export default function MyMRFsPage() {
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
               <Plus size={18} className="text-accent" />
-              {editingId ? 'Edit Requisition Draft' : 'Create MRF Request'}
+              {editingId ? 'Edit Requisition Draft' : 'Create Requisition Request'}
             </h2>
             <button onClick={handleCloseForm} className="text-slate-500 hover:text-white transition-colors text-xs">
               ✕ Close Form
@@ -959,7 +959,7 @@ export default function MyMRFsPage() {
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Upload MRF File
+                  Upload Requisition File
                 </button>
               </div>
             </div>
@@ -986,7 +986,7 @@ export default function MyMRFsPage() {
                         <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto text-slate-400">
                           <Upload size={18} />
                         </div>
-                        <p className="text-xs text-slate-200 font-bold">Click or drag MRF document here</p>
+                        <p className="text-xs text-slate-200 font-bold">Click or drag Requisition document here</p>
                         <p className="text-[10px] text-slate-500 leading-normal">PDF, DOC, or DOCX (Max 5MB)</p>
                       </div>
                     )}

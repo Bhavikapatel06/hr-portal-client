@@ -181,7 +181,7 @@ export default function VacancyTrackerPage() {
                     <tr key={mrf._id} className="hover:bg-white/1 transition-colors leading-relaxed">
                       <td className="p-4 min-w-[150px]">
                         <p className="font-semibold text-white text-sm">{mrf.designation}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Exp: {mrf.experience || '—'} · Req: {mrf.requestType || 'MRF'}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Exp: {mrf.experience || '—'} · Req: {mrf.requestType === 'MRF' ? 'Requisition' : mrf.requestType || 'Requisition'}</p>
                       </td>
                       <td className="p-4 text-slate-300">
                         <span className="font-medium">{mrf.department}</span>
