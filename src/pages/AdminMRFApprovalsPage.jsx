@@ -8,15 +8,15 @@ import { mrfApi } from '../services/api.js'
 
 // ── Status configuration ───────────────────────────────────────────────────
 const STATUS_CFG = {
-  'Pending Owner Approval': { label: 'Pending Review', color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/30',   dot: 'bg-amber-400' },
-  'Approved':               { label: 'Approved',       color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
-  'Rejected':               { label: 'Rejected',       color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/30',         dot: 'bg-red-400' },
+  'Pending Owner Approval': { label: 'Pending Review', color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',            dot: 'bg-slate-400' },
+  'Approved':               { label: 'Approved',       color: 'text-accent',      bg: 'bg-accent/10 border-accent/20',         dot: 'bg-accent' },
+  'Rejected':               { label: 'Rejected',       color: 'text-slate-500',   bg: 'bg-white/5 border-white/8',             dot: 'bg-slate-600' },
 }
 
 const URGENCY_COLOR = {
-  High:   'text-red-400 bg-red-400/10 border-red-400/30',
-  Medium: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
-  Low:    'text-slate-400 bg-slate-400/10 border-slate-400/25',
+  High:   'text-slate-200 bg-white/10 border border-white/20',
+  Medium: 'text-slate-300 bg-white/5 border border-white/10',
+  Low:    'text-slate-400 bg-white/5 border border-white/8',
 }
 
 // ── MRF Paper Template Modal ───────────────────────────────────────────────

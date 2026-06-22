@@ -18,9 +18,9 @@ const getFileUrl = (path) => {
 };
 
 const scoreColor = (s) => {
-  if (s >= 80) return { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' }
-  if (s >= 60) return { text: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/30' }
-  return              { text: 'text-red-400',      bg: 'bg-red-500/10 border-red-500/30' }
+  if (s >= 80) return { text: 'text-accent', bg: 'bg-accent/10 border-accent/25' }
+  if (s >= 60) return { text: 'text-slate-300', bg: 'bg-white/5 border-white/10' }
+  return { text: 'text-slate-400', bg: 'bg-white/5 border-white/8' }
 }
 
 const scoreLabel = (s) => {
@@ -31,17 +31,17 @@ const scoreLabel = (s) => {
 }
 
 const STAGE_CONFIG = {
-  'Shared with HOD':      { color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',   icon: Clock },
-  'Approved by HOD':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
-  'Interview':            { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',  icon: Calendar },
-  'Rejected':             { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',        icon: XCircle },
-  'Offer':                { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',    icon: Award },
-  'Joined':               { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25',   icon: UserCheck },
+  'Shared with HOD':      { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Clock },
+  'Approved by HOD':      { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
+  'Interview':            { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Calendar },
+  'Rejected':             { color: 'text-slate-500',   bg: 'bg-white/5 border-white/8',     icon: XCircle },
+  'Offer':                { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Award },
+  'Joined':               { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: UserCheck },
   // Legacy support
-  'Applied':              { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
-  'Screening':            { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',      icon: Search },
-  'Pending Head Approval':{ color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',    icon: Clock },
-  'Approved by Head':     { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25',   icon: CheckCircle2 },
+  'Applied':              { color: 'text-slate-400',   bg: 'bg-white/5 border-white/8',     icon: FileText },
+  'Screening':            { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Search },
+  'Pending Head Approval':{ color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Clock },
+  'Approved by Head':     { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
 }
 
 const HIRING_STAGES = ['Shared with HOD', 'Rejected']
@@ -59,7 +59,7 @@ function ScoreRing({ score = 0, size = 52 }) {
       <svg viewBox="0 0 48 48" className="w-full h-full -rotate-90">
         <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
         <circle cx="24" cy="24" r={r} fill="none"
-          stroke={score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444'}
+          stroke={score >= 80 ? '#4F8EF7' : '#94a3b8'}
           strokeWidth="4" strokeDasharray={circ}
           strokeDashoffset={circ - (score / 100) * circ}
           strokeLinecap="round" className="transition-all duration-700" />
@@ -326,9 +326,9 @@ function CandidateCard({ candidate, rank }) {
 // ── Job Opening Card ───────────────────────────────────────────────────────
 function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, posting, onCloseJob, closing, isSelected }) {
   const URGENCY_COLOR = { 
-    High: 'text-red-400 bg-red-500/10 border-red-500/25', 
-    Medium: 'text-amber-400 bg-amber-500/10 border-amber-500/25', 
-    Low: 'text-slate-400 bg-slate-400/10 border-slate-400/20' 
+    High: 'text-slate-200 bg-white/10 border border-white/20', 
+    Medium: 'text-slate-300 bg-white/5 border border-white/10', 
+    Low: 'text-slate-400 bg-white/5 border border-white/8' 
   }
   const urgCls = URGENCY_COLOR[mrf.levelOfUrgency] || URGENCY_COLOR.Medium
 

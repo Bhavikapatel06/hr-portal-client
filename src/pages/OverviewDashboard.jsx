@@ -538,12 +538,12 @@ export default function OverviewDashboard() {
   // ── 2. ADMIN DASHBOARD VIEW ─────────────────────────────────────────────────
   if (role === 'admin') {
     const adminKPI = [
-      { label: 'Pending Approvals', value: pendingMRFs, change: '+6 this week', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Clock },
-      { label: 'Approved Requisitions', value: approvedMRFs, change: '+8 this week', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle2 },
-      { label: 'Total Open Positions', value: openVacancies || 45, change: '+10 this week', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20', icon: Briefcase },
-      { label: 'Total Employees', value: 245, change: '+12 last month', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Users },
-      { label: 'Active Departments', value: 14, change: 'No change', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Building2 },
-      { label: 'System Users', value: 87, change: '+5 this week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: ShieldCheck }
+      { label: 'Pending Approvals', value: pendingMRFs, change: '+6 this week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Clock },
+      { label: 'Approved Requisitions', value: approvedMRFs, change: '+8 this week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: CheckCircle2 },
+      { label: 'Total Open Positions', value: openVacancies || 45, change: '+10 this week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Briefcase },
+      { label: 'Total Employees', value: 245, change: '+12 last month', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Users },
+      { label: 'Active Departments', value: 14, change: 'No change', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Building2 },
+      { label: 'System Users', value: 87, change: '+5 this week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: ShieldCheck }
     ]
 
     const workforceData = [
@@ -556,9 +556,9 @@ export default function OverviewDashboard() {
     ]
 
     const statusChartData = [
-      { label: 'Approved', value: approvedMRFs || 32, color: '#10b981' },
-      { label: 'Pending', value: pendingMRFs || 15, color: '#f59e0b' },
-      { label: 'Rejected', value: rejectedMRFs || 15, color: '#ef4444' }
+      { label: 'Approved', value: approvedMRFs || 32, color: '#4F8EF7' },
+      { label: 'Pending', value: pendingMRFs || 15, color: '#7E8CA8' },
+      { label: 'Rejected', value: rejectedMRFs || 15, color: '#4A5870' }
     ]
 
     return (
@@ -588,27 +588,27 @@ export default function OverviewDashboard() {
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
               {/* Hero Card: Pending Approvals */}
-              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
+              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Pending Approvals</span>
-                  <Clock size={16} className="text-amber-400" />
+                  <Clock size={16} className="text-accent" />
                 </div>
                 <div className="mt-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <p className="font-display font-extrabold text-4xl text-amber-400 leading-none">{pendingMRFs}</p>
+                    <p className="font-display font-extrabold text-4xl text-white leading-none">{pendingMRFs}</p>
                     {pendingMRFs === 0 ? (
-                      <p className="text-[10px] text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
+                      <p className="text-[10px] text-accent font-semibold mt-1.5 flex items-center gap-1">
                         All caught up! 🎉 No approvals pending.
                       </p>
                     ) : (
-                      <p className="text-[10px] text-amber-500/80 font-semibold mt-1.5">
+                      <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                         Requires action from admin owners
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => navigate('/mrf-approvals')}
-                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white border border-amber-500/20 text-xs font-semibold transition-all duration-150 w-fit"
+                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/25 text-xs font-semibold transition-all duration-150 w-fit"
                   >
                     Review Pending
                     <ArrowRight size={12} />
@@ -617,13 +617,13 @@ export default function OverviewDashboard() {
               </div>
 
               {/* Card 2: Approved Requisitions */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Approved Requisitions</span>
-                  <CheckCircle2 size={16} className="text-emerald-400" />
+                  <CheckCircle2 size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-emerald-400 leading-none">{approvedMRFs}</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">{approvedMRFs}</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
                     <TrendingUp size={10} /> Active hires
                   </p>
@@ -631,13 +631,13 @@ export default function OverviewDashboard() {
               </div>
 
               {/* Card 3: Total Open Positions */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-cyan-500/10 border-cyan-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Open Positions</span>
-                  <Briefcase size={16} className="text-cyan-400" />
+                  <Briefcase size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-cyan-400 leading-none">{openVacancies || 45}</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">{openVacancies || 45}</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
                     <TrendingUp size={10} /> Across departments
                   </p>
@@ -645,13 +645,13 @@ export default function OverviewDashboard() {
               </div>
 
               {/* Card 4: Total Employees */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-indigo-500/10 border-indigo-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Total Employees</span>
-                  <Users size={16} className="text-indigo-400" />
+                  <Users size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-indigo-400 leading-none">245</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">245</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                     +12 last month
                   </p>
@@ -659,13 +659,13 @@ export default function OverviewDashboard() {
               </div>
 
               {/* Card 5: System Users */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-purple-500/10 border-purple-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">System Users</span>
-                  <ShieldCheck size={16} className="text-purple-400" />
+                  <ShieldCheck size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-purple-400 leading-none">87</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">87</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                     Authorized roles
                   </p>
@@ -732,12 +732,12 @@ export default function OverviewDashboard() {
   // ── 3. HR MANAGER DASHBOARD VIEW ────────────────────────────────────────────
   if (role === 'hr') {
     const hrKPI = [
-      { label: 'Job Requisitions', value: approvedMRFs || 24, change: '+4 from last week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: CheckCircle2 },
-      { label: 'Active Openings', value: openVacancies || 18, change: '+3 from last week', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Briefcase },
-      { label: 'Candidates Pipeline', value: candidates.length || 156, change: '+12 from last week', color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20', icon: Users },
-      { label: 'Interviews Scheduled', value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, change: '+5 from last week', color: 'text-indigo-400', bg: 'bg-indigo-500/10 border-indigo-500/20', icon: Calendar },
-      { label: 'Offers Released', value: candidates.filter(c => c.overallStatus === 'Offer').length || 7, change: '+1 from last week', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Award },
-      { label: 'Positions Filled', value: candidates.filter(c => c.overallStatus === 'Joined').length || 25, change: '+6 from last month', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: UserCheck }
+      { label: 'Job Requisitions', value: approvedMRFs || 24, change: '+4 from last week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: CheckCircle2 },
+      { label: 'Active Openings', value: openVacancies || 18, change: '+3 from last week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Briefcase },
+      { label: 'Candidates Pipeline', value: candidates.length || 156, change: '+12 from last week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Users },
+      { label: 'Interviews Scheduled', value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, change: '+5 from last week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Calendar },
+      { label: 'Offers Released', value: candidates.filter(c => c.overallStatus === 'Offer').length || 7, change: '+1 from last week', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Award },
+      { label: 'Positions Filled', value: candidates.filter(c => c.overallStatus === 'Joined').length || 25, change: '+6 from last month', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: UserCheck }
     ]
 
     const trendData = [
@@ -750,10 +750,10 @@ export default function OverviewDashboard() {
     ]
 
     const stageData = [
-      { label: 'Applied', value: candidates.filter(c => c.overallStatus === 'Applied').length || 62, color: '#a855f7' },
-      { label: 'Screening', value: candidates.filter(c => c.overallStatus === 'Screening').length || 38, color: '#06b6d4' },
-      { label: 'Interview', value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, color: '#6366f1' },
-      { label: 'Offer', value: candidates.filter(c => c.overallStatus === 'Offer').length || 8, color: '#ec4899' }
+      { label: 'Shared w/ HOD', value: candidates.filter(c => c.overallStatus === 'Applied' || c.overallStatus === 'Screening').length || 62, color: '#4F8EF7' },
+      { label: 'Approved',      value: candidates.filter(c => c.overallStatus === 'Approved by HOD' || c.overallStatus === 'Approved by Head').length || 38, color: '#3A7AE8' },
+      { label: 'Interview',     value: candidates.filter(c => c.overallStatus === 'Interview').length || 32, color: '#7E8CA8' },
+      { label: 'Offer / Hired', value: candidates.filter(c => c.overallStatus === 'Offer' || c.overallStatus === 'Joined').length || 8, color: '#2C5CC5' }
     ]
 
     return (
@@ -780,45 +780,40 @@ export default function OverviewDashboard() {
           </div>
         ) : (
           <>
-            {/* 5 Recruiter KPI Cards Grid */}
+            {/* Recruiter KPI Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
               {/* Hero Card: Active Openings */}
-              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
+              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Active Openings</span>
-                  <Briefcase size={16} className="text-emerald-400" />
+                  <Briefcase size={16} className="text-accent" />
                 </div>
                 <div className="mt-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <p className="font-display font-extrabold text-4xl text-emerald-400 leading-none">{openVacancies || 18}</p>
+                    <p className="font-display font-extrabold text-4xl text-white leading-none">{openVacancies || 18}</p>
                     {openVacancies === 0 ? (
-                      <p className="text-[10px] text-amber-400 font-semibold mt-1.5">
-                        No active requisitions live.
-                      </p>
+                      <p className="text-[10px] text-slate-500 font-semibold mt-1.5">No active requisitions live.</p>
                     ) : (
-                      <p className="text-[10px] text-emerald-400 font-semibold mt-1.5">
-                        Actively sourcing & screening
-                      </p>
+                      <p className="text-[10px] text-accent font-semibold mt-1.5">Actively sourcing & screening</p>
                     )}
                   </div>
                   <button
                     onClick={() => navigate('/recruitment')}
-                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150 w-fit"
+                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/25 text-xs font-semibold transition-all duration-150 w-fit"
                   >
-                    Manage Recruitment
-                    <ArrowRight size={12} />
+                    Manage Recruitment <ArrowRight size={12} />
                   </button>
                 </div>
               </div>
 
               {/* Card 2: Candidates Pipeline */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-cyan-500/10 border-cyan-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Candidates</span>
-                  <Users size={16} className="text-cyan-400" />
+                  <Users size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-cyan-400 leading-none">{candidates.length || 156}</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">{candidates.length || 156}</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
                     <TrendingUp size={10} /> +12 this week
                   </p>
@@ -826,50 +821,44 @@ export default function OverviewDashboard() {
               </div>
 
               {/* Card 3: Interviews Scheduled */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-indigo-500/10 border-indigo-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Interviews</span>
-                  <Calendar size={16} className="text-indigo-400" />
+                  <Calendar size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-indigo-400 leading-none">
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">
                     {candidates.filter(c => c.overallStatus === 'Interview').length || 32}
                   </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    +5 from last week
-                  </p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">+5 from last week</p>
                 </div>
               </div>
 
               {/* Card 4: Offers Released */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-pink-500/10 border-pink-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Offers Released</span>
-                  <Award size={16} className="text-pink-400" />
+                  <Award size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-pink-400 leading-none">
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">
                     {candidates.filter(c => c.overallStatus === 'Offer').length || 7}
                   </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Awaiting signatures
-                  </p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">Awaiting signatures</p>
                 </div>
               </div>
 
               {/* Card 5: Positions Filled */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
+              <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                 <div className="flex justify-between items-start">
                   <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Hired & Joined</span>
-                  <UserCheck size={16} className="text-amber-400" />
+                  <UserCheck size={16} className="text-accent" />
                 </div>
                 <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-amber-400 leading-none">
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">
                     {candidates.filter(c => c.overallStatus === 'Joined').length || 25}
                   </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    +6 this month
-                  </p>
+                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">+6 this month</p>
                 </div>
               </div>
             </div>
@@ -879,7 +868,7 @@ export default function OverviewDashboard() {
               {/* Requisitions Overview Line Chart */}
               <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
                 <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <TrendingUp size={15} className="text-purple-400" /> Requisitions Overview (6 Weeks)
+                  <TrendingUp size={15} className="text-accent" /> Requisitions Overview (6 Weeks)
                 </h3>
                 <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
                   <LineChart data={trendData} />
@@ -889,7 +878,7 @@ export default function OverviewDashboard() {
               {/* Candidates by Stage Donut Chart */}
               <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
                 <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Users size={15} className="text-cyan-400" /> Candidates by Stage
+                  <Users size={15} className="text-white" /> Candidates by Stage
                 </h3>
                 <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
                   <DonutChart data={stageData} />
@@ -899,14 +888,14 @@ export default function OverviewDashboard() {
               {/* Recent Recruiter Activities */}
               <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
                 <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Sparkles size={15} className="text-indigo-400" /> Recent Recruiter Activities
+                  <Sparkles size={15} className="text-accent" /> Recent Recruiter Activities
                 </h3>
                 <div className="mt-4 flex-1 space-y-3.5 divide-y divide-white/5">
                   {[
-                    { text: 'New candidate applied for Senior Frontend Developer', score: '94% match score', time: '15 min ago', icon: Sparkles, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
-                    { text: 'Interview scheduled with candidate Amit Patel', score: '88% match score', time: '1 hour ago', icon: Calendar, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' },
-                    { text: 'Offer released for candidate Priya Sharma', score: '91% match score', time: '3 hours ago', icon: Award, color: 'text-pink-400 bg-pink-500/10 border-pink-500/20' },
-                    { text: 'Candidate Priya Sharma accepted the offer', score: 'Offer stage', time: 'Yesterday', icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' }
+                    { text: 'New candidate applied for Senior Frontend Developer', score: '94% match score', time: '15 min ago', icon: Sparkles, color: 'text-accent bg-accent/10 border-accent/20' },
+                    { text: 'Interview scheduled with candidate Amit Patel',         score: '88% match score', time: '1 hour ago',  icon: Calendar,    color: 'text-accent bg-accent/10 border-accent/20' },
+                    { text: 'Offer released for candidate Priya Sharma',             score: '91% match score', time: '3 hours ago', icon: Award,       color: 'text-slate-300 bg-white/5 border-white/10' },
+                    { text: 'Candidate Priya Sharma accepted the offer',             score: 'Joined',          time: 'Yesterday',   icon: CheckCircle2, color: 'text-accent bg-accent/10 border-accent/20' }
                   ].map((act, idx) => {
                     const ActIcon = act.icon
                     return (
@@ -917,7 +906,7 @@ export default function OverviewDashboard() {
                         <div className="min-w-0 flex-1">
                           <p className="text-slate-300 font-medium leading-relaxed">{act.text}</p>
                           <div className="flex justify-between items-center mt-1">
-                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-bold border border-emerald-500/15">{act.score}</span>
+                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${act.score === 'Joined' ? 'bg-accent/10 text-accent border-accent/15' : 'bg-white/5 text-slate-300 border-white/10'}`}>{act.score}</span>
                             <span className="text-[9px] text-slate-500 font-semibold">{act.time}</span>
                           </div>
                         </div>
@@ -947,24 +936,24 @@ export default function OverviewDashboard() {
   const pendingApprovalsCount = candidates.filter(c => c.overallStatus === 'Pending Head Approval').length
 
   const dhKPI = [
-    { label: 'Open Positions', value: myOpenPositions || 12, change: '+2 from last month', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', icon: Briefcase },
-    { label: 'Hiring Requests', value: myMrfs.length || 8, change: '+1 from last week', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: FileText },
-    { label: 'Pending Approvals', value: pendingApprovalsCount || 5, change: '-2 from last week', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: Clock },
-    { label: 'Team Strength', value: 48, change: '+3 from last month', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Users },
-    { label: 'Upcoming Exits', value: upcomingRetirements || 3, change: 'Next 30 days', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Calendar }
+    { label: 'Open Positions',    value: myOpenPositions || 12,        change: '+2 from last month', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Briefcase },
+    { label: 'Hiring Requests',   value: myMrfs.length || 8,           change: '+1 from last week',  color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: FileText },
+    { label: 'Pending Approvals', value: pendingApprovalsCount || 5,   change: '-2 from last week',  color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Clock },
+    { label: 'Team Strength',     value: 48,                           change: '+3 from last month', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Users },
+    { label: 'Upcoming Exits',    value: upcomingRetirements || 3,     change: 'Next 30 days',       color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Calendar }
   ]
 
   const dhStatusData = [
-    { label: 'Approved', value: myApproved || 10, color: '#10b981' },
-    { label: 'Pending', value: myPending || 5, color: '#f59e0b' },
-    { label: 'Rejected', value: myRejected || 4, color: '#ef4444' }
+    { label: 'Approved', value: myApproved || 10, color: '#4F8EF7' },
+    { label: 'Pending', value: myPending || 5, color: '#7E8CA8' },
+    { label: 'Rejected', value: myRejected || 4, color: '#4A5870' }
   ]
 
   const MRF_STATUS_CFG = {
-    'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/25', dot: 'bg-slate-400' },
-    'Pending Owner Approval': { label: 'Pending Review', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/30', dot: 'bg-amber-400' },
-    'Approved': { label: 'Approved', color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
-    'Rejected': { label: 'Rejected', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/30', dot: 'bg-red-400' },
+    'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-white/5 border-white/8', dot: 'bg-slate-400' },
+    'Pending Owner Approval': { label: 'Pending Review', color: 'text-slate-300', bg: 'bg-white/5 border-white/10', dot: 'bg-slate-400' },
+    'Approved': { label: 'Approved', color: 'text-accent', bg: 'bg-accent/10 border-accent/20', dot: 'bg-accent' },
+    'Rejected': { label: 'Rejected', color: 'text-slate-500', bg: 'bg-white/5 border-white/8', dot: 'bg-slate-600' },
   }
 
   return (
@@ -994,48 +983,47 @@ export default function OverviewDashboard() {
           {/* HOD KPI Cards Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
             {/* Hero Card: Pending Approvals */}
-            <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-purple-500/10 border-purple-500/20 overflow-hidden">
+            <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Pending Approvals</span>
-                <Clock size={16} className="text-purple-400" />
+                <Clock size={16} className="text-accent" />
               </div>
               <div className="mt-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <p className="font-display font-extrabold text-4xl text-purple-400 leading-none">{pendingApprovalsCount}</p>
+                  <p className="font-display font-extrabold text-4xl text-white leading-none">{pendingApprovalsCount}</p>
                   {pendingApprovalsCount === 0 ? (
-                    <p className="text-[10px] text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
+                    <p className="text-[10px] text-accent font-semibold mt-1.5 flex items-center gap-1">
                       All caught up! 🎉 No approvals pending.
                     </p>
                   ) : (
-                    <p className="text-[10px] text-purple-400/80 font-semibold mt-1.5">
+                    <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                       Candidates awaiting head feedback
                     </p>
                   )}
                 </div>
                 <button
                   onClick={() => navigate('/my-mrfs')}
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-white border border-purple-500/20 text-xs font-semibold transition-all duration-150 w-fit"
+                  className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/25 text-xs font-semibold transition-all duration-150 w-fit"
                 >
-                  Review Applications
-                  <ArrowRight size={12} />
+                  Review Applications <ArrowRight size={12} />
                 </button>
               </div>
             </div>
 
             {/* Card 2: Hiring Requests */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
+            <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Hiring Requests</span>
-                <FileText size={16} className="text-amber-400" />
+                <FileText size={16} className="text-accent" />
               </div>
               <div className="mt-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <p className="font-display font-extrabold text-3xl text-amber-400 leading-none">{myMrfs.length || 8}</p>
+                  <p className="font-display font-extrabold text-3xl text-white leading-none">{myMrfs.length || 8}</p>
                   <p className="text-[10px] text-slate-500 font-semibold mt-1.5">Total requisitions</p>
                 </div>
                 <button
                   onClick={() => navigate('/my-mrfs', { state: { openNewRequest: true } })}
-                  className="mt-3 text-[10px] text-amber-400 font-bold hover:underline flex items-center gap-0.5 text-left"
+                  className="mt-3 text-[10px] text-accent font-bold hover:underline flex items-center gap-0.5 text-left"
                 >
                   + Create Requisition
                 </button>
@@ -1043,13 +1031,13 @@ export default function OverviewDashboard() {
             </div>
 
             {/* Card 3: Open Positions */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-blue-500/10 border-blue-500/20 overflow-hidden">
+            <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Open Positions</span>
-                <Briefcase size={16} className="text-blue-400" />
+                <Briefcase size={16} className="text-accent" />
               </div>
               <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-blue-400 leading-none">{myOpenPositions || 12}</p>
+                <p className="font-display font-extrabold text-3xl text-white leading-none">{myOpenPositions || 12}</p>
                 <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
                   <TrendingUp size={10} /> Active vacancies
                 </p>
@@ -1057,13 +1045,13 @@ export default function OverviewDashboard() {
             </div>
 
             {/* Card 4: Team Strength */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
+            <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Team Strength</span>
-                <Users size={16} className="text-emerald-400" />
+                <Users size={16} className="text-accent" />
               </div>
               <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-emerald-400 leading-none">48</p>
+                <p className="font-display font-extrabold text-3xl text-white leading-none">48</p>
                 <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                   Current head count
                 </p>
@@ -1071,13 +1059,13 @@ export default function OverviewDashboard() {
             </div>
 
             {/* Card 5: Upcoming Exits */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-pink-500/10 border-pink-500/20 overflow-hidden">
+            <div className="card p-6 flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
               <div className="flex justify-between items-start">
                 <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Upcoming Exits</span>
-                <Calendar size={16} className="text-pink-400" />
+                <Calendar size={16} className="text-accent" />
               </div>
               <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-pink-400 leading-none">{upcomingRetirements || 3}</p>
+                <p className="font-display font-extrabold text-3xl text-white leading-none">{upcomingRetirements || 3}</p>
                 <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
                   Next 30 days
                 </p>

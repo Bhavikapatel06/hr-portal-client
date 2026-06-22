@@ -169,13 +169,13 @@ export default function VacancyTrackerPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {filtered.map((mrf) => {
-                  let posColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20'
-                  if (mrf.positionStatus === 'Closed') posColor = 'text-slate-500 bg-slate-400/10 border-slate-400/20'
-                  if (mrf.positionStatus === 'On Hold') posColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                  let posColor = 'text-accent bg-accent/10 border-accent/20'
+                  if (mrf.positionStatus === 'Closed') posColor = 'text-slate-500 bg-white/5 border-white/8'
+                  if (mrf.positionStatus === 'On Hold') posColor = 'text-slate-400 bg-white/5 border-white/10'
                   
-                  let reqColor = 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
-                  if (mrf.requirementStatus === 'Fulfilled') reqColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-                  if (mrf.requirementStatus === 'Cancelled') reqColor = 'text-red-400 bg-red-500/10 border-red-500/20'
+                  let reqColor = 'text-slate-300 bg-white/5 border-white/10'
+                  if (mrf.requirementStatus === 'Fulfilled') reqColor = 'text-accent bg-accent/10 border-accent/20'
+                  if (mrf.requirementStatus === 'Cancelled') reqColor = 'text-slate-500 bg-white/5 border-white/8'
 
                   return (
                     <tr key={mrf._id} className="hover:bg-white/1 transition-colors leading-relaxed">
