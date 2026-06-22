@@ -16,9 +16,9 @@ const getFileUrl = (path) => {
 };
 
 const scoreColor = (s) => {
-  if (s >= 80) return { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' }
-  if (s >= 60) return { text: 'text-accent', bg: 'bg-accent/10 border-accent/30' }
-  return { text: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30' }
+  if (s >= 80) return { text: 'text-accent', bg: 'bg-accent/10 border-accent/25' }
+  if (s >= 60) return { text: 'text-slate-300', bg: 'bg-white/5 border-white/10' }
+  return { text: 'text-slate-400', bg: 'bg-white/5 border-white/8' }
 }
 
 const scoreLabel = (s) => {
@@ -29,17 +29,17 @@ const scoreLabel = (s) => {
 }
 
 const STAGE_CONFIG = {
-  'Shared with HOD':      { color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',    icon: Clock },
-  'Approved by HOD':      { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
-  'Interview':            { color: 'text-indigo-400',  bg: 'bg-indigo-400/10 border-indigo-400/25',   icon: Calendar },
-  'Rejected':             { color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/25',         icon: XCircle },
-  'Offer':                { color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/25',     icon: Award },
-  'Joined':               { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: UserCheck },
+  'Shared with HOD':      { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Clock },
+  'Approved by HOD':      { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
+  'Interview':            { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Calendar },
+  'Rejected':             { color: 'text-slate-500',   bg: 'bg-white/5 border-white/8',     icon: XCircle },
+  'Offer':                { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Award },
+  'Joined':               { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: UserCheck },
   // Legacy support
-  'Applied':              { color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',     icon: FileText },
-  'Screening':            { color: 'text-cyan-400',    bg: 'bg-cyan-400/10 border-cyan-400/25',       icon: Search },
-  'Pending Head Approval':{ color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/25',     icon: Clock },
-  'Approved by Head':     { color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/25', icon: CheckCircle2 },
+  'Applied':              { color: 'text-slate-400',   bg: 'bg-white/5 border-white/8',     icon: FileText },
+  'Screening':            { color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Search },
+  'Pending Head Approval':{ color: 'text-slate-300',   bg: 'bg-white/5 border-white/10',    icon: Clock },
+  'Approved by Head':     { color: 'text-accent',      bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
 }
 
 const HIRING_STAGES = ['Shared with HOD', 'Rejected']
@@ -57,7 +57,7 @@ function ScoreRing({ score = 0, size = 68 }) {
       <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
         <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
         <circle cx="32" cy="32" r={r} fill="none"
-          stroke={score >= 80 ? '#10b981' : score >= 60 ? '#4F8EF7' : '#ef4444'}
+          stroke={score >= 80 ? '#4F8EF7' : '#94a3b8'}
           strokeWidth="5" strokeDasharray={circ}
           strokeDashoffset={circ - (score / 100) * circ}
           strokeLinecap="round" className="transition-all duration-700" />
@@ -82,7 +82,7 @@ function DimBar({ label, value }) {
           className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${value}%`,
-            background: value >= 80 ? '#10b981' : value >= 60 ? '#4F8EF7' : value >= 40 ? '#f59e0b' : '#ef4444'
+            background: value >= 80 ? '#4F8EF7' : '#94a3b8'
           }}
         />
       </div>
@@ -400,7 +400,7 @@ export default function CandidateDetailsPage() {
             <h1 className="font-display font-bold text-2xl text-white flex items-center gap-3">
               {candidate.name}
               {score >= 80 && (
-                <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-accent/15 text-accent border border-accent/25">
                   ⭐ TOP MATCH
                 </span>
               )}
@@ -467,16 +467,16 @@ export default function CandidateDetailsPage() {
 
             {role === 'department_head' ? (
               candidate.stage === 'Shared with HOD' ? (
-                <div className="space-y-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                  <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">Awaiting Your Approval</p>
+                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <p className="text-xs font-bold text-accent uppercase tracking-wide">Awaiting Your Approval</p>
                   <p className="text-xs text-slate-400">Review the profile and resume of this candidate to approve or reject them for the next hiring steps.</p>
                   <div className="flex gap-2.5 pt-2">
                     <button onClick={() => handleStageChange('Approved by HOD')}
-                      className="flex-1 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs hover:bg-emerald-600 active:scale-95 transition-all shadow-glow-sm">
+                      className="flex-1 px-4 py-2 rounded-xl bg-accent text-white font-bold text-xs hover:bg-accent-light active:scale-95 transition-all shadow-glow-sm">
                       Approve Candidate
                     </button>
                     <button onClick={() => handleStageChange('Rejected')}
-                      className="flex-1 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs font-bold">
+                      className="flex-1 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white transition-all text-xs font-bold">
                       Reject Candidate
                     </button>
                   </div>
@@ -497,8 +497,8 @@ export default function CandidateDetailsPage() {
                       disabled={candidate.stage === 'Offer'}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shadow-glow-sm
                         ${candidate.stage === 'Offer'
-                          ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 cursor-default opacity-60'
-                          : 'bg-amber-500/10 border-amber-500/25 text-amber-400 hover:bg-amber-500 hover:text-white'}`}
+                          ? 'bg-white/5 border-white/8 text-slate-500 cursor-default opacity-60'
+                          : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'}`}
                     >
                       <Award size={13} /> Offer
                     </button>
@@ -507,8 +507,8 @@ export default function CandidateDetailsPage() {
                       disabled={candidate.stage === 'Joined'}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all shadow-glow-sm
                         ${candidate.stage === 'Joined'
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 cursor-default opacity-60'
-                          : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400 hover:bg-emerald-500 hover:text-white'}`}
+                          ? 'bg-accent/5 border-accent/10 text-accent/55 cursor-default opacity-60'
+                          : 'bg-accent/15 border-accent/25 text-accent hover:bg-accent hover:text-white'}`}
                     >
                       <UserCheck size={13} /> Hired
                     </button>
@@ -517,8 +517,8 @@ export default function CandidateDetailsPage() {
                       disabled={candidate.stage === 'Rejected'}
                       className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-semibold transition-all
                         ${candidate.stage === 'Rejected'
-                          ? 'bg-red-500/10 border-red-500/20 text-red-400 cursor-default opacity-60'
-                          : 'bg-red-500/10 border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white'}`}
+                          ? 'bg-white/5 border-white/8 text-slate-500 cursor-default opacity-60'
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white'}`}
                     >
                       <XCircle size={13} /> Reject
                     </button>
