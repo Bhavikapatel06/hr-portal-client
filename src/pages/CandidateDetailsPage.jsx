@@ -17,8 +17,8 @@ const getFileUrl = (path) => {
 
 const scoreColor = (s) => {
   if (s >= 80) return { text: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30' }
-  if (s >= 60) return { text: 'text-accent',      bg: 'bg-accent/10 border-accent/30' }
-  return              { text: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/30' }
+  if (s >= 60) return { text: 'text-accent', bg: 'bg-accent/10 border-accent/30' }
+  return { text: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30' }
 }
 
 const scoreLabel = (s) => {
@@ -214,18 +214,18 @@ function EditCandidateModal({ candidate, onClose, onSave }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-1">
           {[
-            { label: 'Full Name',            key: 'name' },
-            { label: 'Email',                key: 'email', type: 'email' },
-            { label: 'Phone',                key: 'phone' },
-            { label: 'Current Location',     key: 'currentLocation' },
-            { label: 'Total Experience',     key: 'experience', placeholder: 'e.g. 4 years' },
-            { label: 'Current Designation',  key: 'currentDesignation' },
+            { label: 'Full Name', key: 'name' },
+            { label: 'Email', key: 'email', type: 'email' },
+            { label: 'Phone', key: 'phone' },
+            { label: 'Current Location', key: 'currentLocation' },
+            { label: 'Total Experience', key: 'experience', placeholder: 'e.g. 4 years' },
+            { label: 'Current Designation', key: 'currentDesignation' },
             { label: 'Current Organisation', key: 'currentOrganization' },
-            { label: 'Current CTC',          key: 'currentCTC', placeholder: 'e.g. 800000' },
-            { label: 'Expected CTC',         key: 'expectedCTC', placeholder: 'e.g. 1200000' },
-            { label: 'Notice Period',        key: 'noticePeriod', placeholder: 'e.g. 30 days' },
-            { label: 'Qualification',        key: 'qualification' },
-            { label: 'Key Skills',           key: 'skills', placeholder: 'React, Node.js, Python...' },
+            { label: 'Current CTC', key: 'currentCTC', placeholder: 'e.g. 800000' },
+            { label: 'Expected CTC', key: 'expectedCTC', placeholder: 'e.g. 1200000' },
+            { label: 'Notice Period', key: 'noticePeriod', placeholder: 'e.g. 30 days' },
+            { label: 'Qualification', key: 'qualification' },
+            { label: 'Key Skills', key: 'skills', placeholder: 'React, Node.js, Python...' },
           ].map(({ label, key, type, placeholder }) => (
             <div key={key} className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{label}</label>
