@@ -88,21 +88,18 @@ export default function Navbar() {
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
           { to: '/mrf-approvals',  icon: ClipboardList,   label: 'Requisitions' },
-          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
           { to: '/settings',       icon: Settings,        label: 'Settings' },
         ]
       case 'department_head':
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
           { to: '/my-mrfs',        icon: ClipboardList,   label: 'Requisitions' },
-          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'hr':
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
           { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
           { to: '/my-mrfs',        icon: ClipboardList,   label: 'Requisitions' },
-          { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
         ]
       case 'candidate':
         return [
