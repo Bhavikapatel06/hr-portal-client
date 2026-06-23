@@ -1061,6 +1061,21 @@ export default function OverviewDashboard() {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
   const [toast, setToast] = useState(null)
+  const [updatingSheet, setUpdatingSheet] = useState(false)
+
+  const handleUpdateSheetId = async (newId) => {
+    if (!newId || !newId.trim()) return
+    setUpdatingSheet(true)
+    try {
+      await sheetApi.updateConfig(newId.trim())
+      setSheetId(newId.trim())
+      await loadDashboardData()
+    } catch (e) {
+      console.error('Failed to update Google Sheet config:', e)
+    } finally {
+      setUpdatingSheet(false)
+    }
+  }
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -1367,17 +1382,41 @@ export default function OverviewDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {googleSheetUrl && (
-              <a
-                href={googleSheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+            {googleSheetUrl ? (
+              <>
+                <a
+                  href={googleSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                >
+                  <FileSpreadsheet size={14} />
+                  View Linked Sheet
+                  <ExternalLink size={12} />
+                </a>
+                <button
+                  onClick={() => {
+                    const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
+                    if (newId !== null) handleUpdateSheetId(newId)
+                  }}
+                  disabled={updatingSheet}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                >
+                  Change Sheet
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  const newId = prompt("Enter Google Spreadsheet ID:")
+                  if (newId !== null) handleUpdateSheetId(newId)
+                }}
+                disabled={updatingSheet}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <FileSpreadsheet size={14} />
-                View Linked Sheet
-                <ExternalLink size={12} />
-              </a>
+                <Plus size={14} />
+                Link Google Sheet
+              </button>
             )}
             <button
               onClick={loadDashboardData}
@@ -1466,17 +1505,41 @@ export default function OverviewDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {googleSheetUrl && (
-              <a
-                href={googleSheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+            {googleSheetUrl ? (
+              <>
+                <a
+                  href={googleSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                >
+                  <FileSpreadsheet size={14} />
+                  View Linked Sheet
+                  <ExternalLink size={12} />
+                </a>
+                <button
+                  onClick={() => {
+                    const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
+                    if (newId !== null) handleUpdateSheetId(newId)
+                  }}
+                  disabled={updatingSheet}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                >
+                  Change Sheet
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  const newId = prompt("Enter Google Spreadsheet ID:")
+                  if (newId !== null) handleUpdateSheetId(newId)
+                }}
+                disabled={updatingSheet}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <FileSpreadsheet size={14} />
-                View Linked Sheet
-                <ExternalLink size={12} />
-              </a>
+                <Plus size={14} />
+                Link Google Sheet
+              </button>
             )}
             <button
               onClick={loadDashboardData}
