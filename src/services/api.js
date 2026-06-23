@@ -211,6 +211,21 @@ export const candidateApi = {
       body: JSON.stringify(interviewData),
     }),
 
+  /** List interview requests assigned to an interviewer */
+  listMyInterviews: (email) =>
+    request(`/interviews/me?email=${encodeURIComponent(email)}`),
+
+  /** Interviewer accepts/rejects a proposed slot */
+  respondToInterview: (candidateId, responseData) =>
+    request(`/candidates/${candidateId}/interview-response`, {
+      method: 'PATCH',
+      body: JSON.stringify(responseData),
+    }),
+
+  /** HR sends confirmed interview schedule to candidate after interviewer accepts */
+  notifyCandidateInterview: (candidateId) =>
+    request(`/candidates/${candidateId}/notify-candidate`, { method: 'POST' }),
+
   /** Record feedback and final hiring decision */
   saveFeedback: (candidateId, feedbackData) =>
     request(`/candidates/${candidateId}/feedback`, {

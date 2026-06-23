@@ -79,6 +79,7 @@ function InterviewModal({ candidate, onClose, onSave }) {
     interviewMode: candidate.interviewMode || 'In-Person',
     interviewLocation: candidate.interviewLocation || '',
     interviewerName: candidate.interviewerName || '',
+    interviewerEmail: candidate.interviewerEmail || 'interviewer@hrportal.com',
     interviewRound: candidate.interviewRound || 'Round 1',
     interviewNotes: candidate.interviewNotes || '',
     interviewStatus: candidate.interviewStatus || 'Scheduled',
@@ -125,6 +126,10 @@ function InterviewModal({ candidate, onClose, onSave }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Interviewer Name</label>
             <input value={form.interviewerName} onChange={e => setForm(f => ({ ...f, interviewerName: e.target.value }))} placeholder="Name of interviewer" className={inputCls} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Interviewer Email</label>
+            <input type="email" value={form.interviewerEmail} onChange={e => setForm(f => ({ ...f, interviewerEmail: e.target.value }))} placeholder="interviewer@hrportal.com" className={inputCls} />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Location / Link</label>

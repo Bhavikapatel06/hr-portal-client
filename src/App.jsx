@@ -10,6 +10,7 @@ import Login                     from './pages/Login.jsx'
 import CandidateApplyPage        from './pages/CandidateApplyPage.jsx'
 import CandidateStatusPage       from './pages/CandidateStatusPage.jsx'
 import CandidateDetailsPage      from './pages/CandidateDetailsPage.jsx'
+import InterviewerDashboard      from './pages/InterviewerDashboard.jsx'
 
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 const isLoggedIn = () => !!localStorage.getItem('hr_token')
@@ -35,6 +36,7 @@ function PublicOnly({ children }) {
 }
 
 function DefaultDashboard() {
+  if (getRole() === 'interviewer') return <InterviewerDashboard />
   return <OverviewDashboard />
 }
 
@@ -75,8 +77,14 @@ export default function App() {
           } />
 
           <Route path="/recruitment/candidate/:candidateId" element={
-            <Protected allowedRoles={['hr', 'admin', 'department_head']}>
+            <Protected allowedRoles={['hr', 'admin', 'department_head', 'interviewer']}>
               <CandidateDetailsPage />
+            </Protected>
+          } />
+
+          <Route path="/interviews" element={
+            <Protected allowedRoles={['interviewer']}>
+              <InterviewerDashboard />
             </Protected>
           } />
 

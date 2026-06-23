@@ -4,7 +4,7 @@ import {
   ArrowLeft, Briefcase, Calendar, CheckCircle2, Clock, Edit3,
   FileText, Loader2, Mail, MapPin, Phone, Star,
   Trash2, Upload, UserCheck, XCircle, ShieldAlert,
-  Award, Download, ExternalLink, Search
+  Award, Download, ExternalLink, Search, Send
 } from 'lucide-react'
 import { candidateApi } from '../services/api.js'
 
@@ -90,6 +90,7 @@ function InterviewModal({ candidate, onClose, onSave }) {
     interviewMode: candidate.interviewMode || 'In-Person',
     interviewLocation: candidate.interviewLocation || '',
     interviewerName: candidate.interviewerName || '',
+    interviewerEmail: candidate.interviewerEmail || 'interviewer@hrportal.com',
     interviewRound: candidate.interviewRound || 'Round 1',
     interviewNotes: candidate.interviewNotes || '',
     interviewStatus: candidate.interviewStatus || 'Scheduled',
@@ -136,6 +137,10 @@ function InterviewModal({ candidate, onClose, onSave }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Interviewer Name</label>
             <input value={form.interviewerName} onChange={e => setForm(f => ({ ...f, interviewerName: e.target.value }))} placeholder="Name of interviewer" className={inputCls} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Interviewer Email</label>
+            <input type="email" value={form.interviewerEmail} onChange={e => setForm(f => ({ ...f, interviewerEmail: e.target.value }))} placeholder="interviewer@hrportal.com" className={inputCls} />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Location / Link</label>
@@ -298,6 +303,16 @@ export default function CandidateDetailsPage() {
       showToastMsg('Interview details updated successfully! ✓')
       setShowInterviewModal(false)
       fetchDetails()
+    } catch (err) {
+      showToastMsg(err.message, 'error')
+    }
+  }
+
+  const handleNotifyCandidate = async () => {
+    try {
+      const updated = await candidateApi.notifyCandidateInterview(candidateId)
+      setCandidate(updated)
+      showToastMsg('Candidate interview notification sent successfully! ✓')
     } catch (err) {
       showToastMsg(err.message, 'error')
     }
@@ -580,6 +595,24 @@ export default function CandidateDetailsPage() {
                   <span className="text-slate-500 block">Interviewer</span>
                   <span className="text-white font-semibold mt-0.5 block">{candidate.interviewerName || '—'}</span>
                 </div>
+                {(candidate.interviewerEmail || candidate.interviewerAvailabilityStatus) && (
+                  <div className="col-span-2">
+                    <span className="text-slate-500 block">Interviewer Availability</span>
+                    {candidate.interviewerEmail && <span className="text-slate-500 block mt-0.5">{candidate.interviewerEmail}</span>}
+                    <span className={`inline-flex mt-1 px-2 py-0.5 rounded border text-[10px] font-bold uppercase ${
+                      candidate.interviewerAvailabilityStatus === 'accepted'
+                        ? 'bg-accent/10 border-accent/25 text-accent'
+                        : candidate.interviewerAvailabilityStatus === 'rejected'
+                          ? 'bg-red-500/10 border-red-500/25 text-red-300'
+                          : 'bg-amber-500/10 border-amber-500/25 text-amber-300'
+                    }`}>
+                      {candidate.interviewerAvailabilityStatus || 'pending'}
+                    </span>
+                    {candidate.interviewerReason && (
+                      <p className="text-slate-300 mt-2 italic">"{candidate.interviewerReason}"</p>
+                    )}
+                  </div>
+                )}
                 {candidate.interviewLocation && (
                   <div className="col-span-2">
                     <span className="text-slate-500 block">Location / Link</span>
@@ -598,6 +631,22 @@ export default function CandidateDetailsPage() {
                 <div className="pt-3 border-t border-indigo-500/10 text-xs">
                   <span className="text-slate-500 block font-semibold">Feedback / Notes</span>
                   <p className="text-slate-300 mt-1 italic">"{candidate.interviewNotes}"</p>
+                </div>
+              )}
+              {candidate.interviewerAvailabilityStatus === 'accepted' && (
+                <div className="pt-3 border-t border-indigo-500/10 flex justify-end">
+                  <button
+                    onClick={handleNotifyCandidate}
+                    disabled={candidate.candidateNotified}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-bold transition-all ${
+                      candidate.candidateNotified
+                        ? 'bg-white/5 border-white/10 text-slate-500 cursor-default'
+                        : 'bg-accent/10 border-accent/25 text-accent hover:bg-accent hover:text-white'
+                    }`}
+                  >
+                    <Send size={13} />
+                    {candidate.candidateNotified ? 'Candidate Notified' : 'Notify Candidate'}
+                  </button>
                 </div>
               )}
             </div>

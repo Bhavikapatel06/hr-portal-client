@@ -101,6 +101,11 @@ export default function Navbar() {
           { to: '/recruitment',    icon: BriefcaseBusiness, label: 'Recruitment' },
           { to: '/my-mrfs',        icon: ClipboardList,   label: 'Requisitions' },
         ]
+      case 'interviewer':
+        return [
+          { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+          { to: '/interviews',     icon: Users,           label: 'Interviews' },
+        ]
       case 'candidate':
         return [
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
@@ -132,6 +137,13 @@ export default function Navbar() {
       case 'hr':
         return {
           label: 'HR Manager',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
+          icon: User
+        }
+      case 'interviewer':
+        return {
+          label: 'Interviewer',
           badgeCls: 'bg-accent/10 border-accent/20 text-accent',
           avatarCls: 'bg-accent',
           icon: User

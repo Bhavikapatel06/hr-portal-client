@@ -196,6 +196,7 @@ export default function Login() {
                     { email: 'admin@hrportal.com',    password: 'admin123',     label: 'HR Admin',       icon: ShieldCheck, color: 'text-slate-400' },
                     { email: 'depthead@hrportal.com', password: 'depthead123',  label: 'Dept. Head',     icon: UserCircle2, color: 'text-slate-400' },
                     { email: 'hr@hrportal.com',       password: 'hr123456',     label: 'HR Manager',     icon: UserCircle2, color: 'text-accent' },
+                    { email: 'interviewer@hrportal.com', password: 'interviewer123', label: 'Interviewer', icon: UserCircle2, color: 'text-accent' },
                     { email: 'candidate@hrportal.com',password: 'candidate123', label: 'Candidate',      icon: UserCircle2, color: 'text-slate-400' },
                   ].map(({ email, password, label, icon: Icon, color }) => (
                     <button
@@ -310,6 +311,7 @@ export default function Login() {
                     { role: 'candidate',       label: 'Candidate',     sub: 'Looking for jobs',    icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
                     { role: 'department_head', label: 'Dept. Head',    sub: 'Submit MRF requests',  icon: ShieldCheck, active: 'bg-slate-500/15 border-slate-500/40 text-slate-400' },
                     { role: 'hr',              label: 'HR Manager',    sub: 'Manage recruitment',   icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
+                    { role: 'interviewer',     label: 'Interviewer',   sub: 'Confirm slots',        icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
                     { role: 'admin',           label: 'HR Admin',      sub: 'Full access',          icon: ShieldCheck, active: 'bg-slate-600/15 border-slate-600/40 text-slate-400' },
                   ].map(({ role: r, label, sub, icon: Icon, active }) => (
                     <button
