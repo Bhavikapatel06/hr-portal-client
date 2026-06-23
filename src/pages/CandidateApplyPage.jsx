@@ -98,6 +98,14 @@ export default function CandidateApplyPage() {
         filePath: parsed.filePath || '',
         fileSize: parsed.fileSize || files[0].size,
       })
+      // Set real score from backend
+if (parsed.matchScore !== undefined) {
+  setMatchResult({
+    score:      parsed.matchScore,
+    matchLevel: parsed.matchLevel     || 'Low',
+    breakdown:  parsed.matchBreakdown || {},
+  })
+}
 
       if (parsed.parseStatus === 'failed') {
         setErrorMsg('Failed to parse resume automatically. Please enter details manually below.')
@@ -121,6 +129,7 @@ export default function CandidateApplyPage() {
     setResumeInfo({ fileName: '', filePath: '', fileSize: 0 })
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
 
   const validate = () => {
     const e = {}
@@ -147,35 +156,7 @@ export default function CandidateApplyPage() {
     }
   }
 
-  // Live match score calculation via AI
-  useEffect(() => {
-    if (!opening || !resumeInfo.fileName) return
-    
-    // Check if the form actually has any data worth scoring
-    if (!form.skills && !form.totalExp && !form.highestQual && !form.currentCompany) return
-
-    setIsScoring(true)
-    const timer = setTimeout(async () => {
-      try {
-        const candidateDetails = { ...form, currentTitle: form.currentCompany, notes: `${form.skills || ''} ${form.notes || ''}` }
-        const requirements = {
-          designation:          opening.designation,
-          department:           opening.department,
-          experience:           opening.experience,
-          minimumQualification: opening.minimumQualification,
-          otherKeySkills:       opening.otherKeySkills,
-        }
-        const result = await candidateApi.previewMatch(candidateDetails, requirements)
-        setMatchResult(result)
-      } catch (err) {
-        console.error('Failed to get AI match preview:', err)
-      } finally {
-        setIsScoring(false)
-      }
-    }, 1200)
-
-    return () => clearTimeout(timer)
-  }, [form, opening, resumeInfo.fileName])
+  
 
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
