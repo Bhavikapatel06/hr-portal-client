@@ -89,6 +89,7 @@ export default function Navbar() {
           { to: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
           { to: '/mrf-approvals',  icon: ClipboardList,   label: 'Requisitions' },
           { to: '/analytics',      icon: Activity,        label: 'Reports & Analytics' },
+          { to: '/settings',       icon: Settings,        label: 'Settings' },
         ]
       case 'department_head':
         return [
