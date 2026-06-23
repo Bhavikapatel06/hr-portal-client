@@ -57,7 +57,7 @@ function ScoreRing({ score = 0, size = 68 }) {
       <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
         <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
         <circle cx="32" cy="32" r={r} fill="none"
-          stroke={score >= 80 ? '#4F8EF7' : '#94a3b8'}
+          stroke={score >= 80 ? 'var(--accent)' : 'var(--text-placeholder)'}
           strokeWidth="5" strokeDasharray={circ}
           strokeDashoffset={circ - (score / 100) * circ}
           strokeLinecap="round" className="transition-all duration-700" />
@@ -72,20 +72,12 @@ function ScoreRing({ score = 0, size = 68 }) {
 // ── Dimension Bar ───────────────────────────────────────────────────────────
 function DimBar({ label, value }) {
   return (
-    <div>
-      <div className="flex justify-between text-xs mb-1">
-        <span className="text-slate-400">{label}</span>
-        <span className="font-semibold text-white">{value}%</span>
+    <div className="flex items-center justify-between text-xs gap-4">
+      <span className="text-slate-400 font-medium truncate w-1/2">{label}</span>
+      <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden relative">
+        <div className="absolute top-0 left-0 h-full bg-accent rounded-full" style={{ width: `${value}%` }} />
       </div>
-      <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{
-            width: `${value}%`,
-            background: value >= 80 ? '#4F8EF7' : '#94a3b8'
-          }}
-        />
-      </div>
+      <span className="text-white font-bold w-8 text-right">{value}%</span>
     </div>
   )
 }
@@ -374,7 +366,7 @@ export default function CandidateDetailsPage() {
       {/* Toast */}
       {toast && (
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up max-w-sm
-          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -400,7 +392,7 @@ export default function CandidateDetailsPage() {
               <ArrowLeft size={16} />
             </button>
             <h1 className="font-display font-bold text-2xl text-white flex items-center gap-3">
-              {candidate.name}
+              {candidate.details?.fullName || candidate.fileName || 'Unknown Candidate'}
               {score >= 80 && (
                 <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-accent/15 text-accent border border-accent/25">
                   ⭐ TOP MATCH
@@ -440,7 +432,7 @@ export default function CandidateDetailsPage() {
                 <h3 className="font-display font-bold text-white text-base leading-snug">AI Match Scoring</h3>
                 <p className="text-xs text-slate-400 mt-0.5">Calculated based on MRF requirements &amp; JD matching parameters.</p>
               </div>
-              <span className={`ml-auto px-2.5 py-1 rounded-full border text-xs font-bold ${sc.bg} ${sc.text}`}>
+              <span className={`ml-auto px-2.5 py-1 rounded-full border text-xs font-bold ${sc.bg} ${sc.border} ${sc.text}`}>
                 {scoreLabel(score)}
               </span>
             </div>
