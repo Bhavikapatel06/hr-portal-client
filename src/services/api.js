@@ -121,6 +121,12 @@ export const mrfApi = {
 export const sheetApi = {
   /** Fetch all rows from the linked Google Sheet */
   fetchAll: () => request('/mrf/sheet'),
+  /** Fetch the current Google Sheet configuration */
+  getConfig: () => request('/mrf/sheet/config'),
+  /** Update the Google Sheet configuration */
+  updateConfig: (sheetId) => request('/mrf/sheet/config', { method: 'POST', body: JSON.stringify({ sheetId }) }),
+  /** Manually sync all database data to the linked Google Sheet */
+  syncAll: () => request('/mrf/sheet/sync-all', { method: 'POST' }),
 };
 
 
