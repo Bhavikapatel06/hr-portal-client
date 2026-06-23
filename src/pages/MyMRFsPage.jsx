@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Plus, FileText, Clock, CheckCircle2, XCircle, AlertCircle,
   Building2, MapPin, Users, Loader2, Send, Save, Trash2,
   Briefcase, Upload, Eye, ShieldCheck, Flame, Edit3, ArrowRight, ArrowLeft,
-  ExternalLink, CheckSquare
+  ExternalLink, CheckSquare, Award
 } from 'lucide-react'
-import { mrfApi } from '../services/api.js'
+import { mrfApi, candidateApi } from '../services/api.js'
 import MRFForm from '../components/MRFForm.jsx'
 
 // ── Status config ──────────────────────────────────────────────────────────
@@ -346,7 +346,11 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function MyMRFsPage() {
   const locationState = useLocation().state
+  const navigate = useNavigate()
+  const user = (() => { try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null } })()
   const [mrfs, setMrfs] = useState([])
+  const [candidates, setCandidates] = useState([])
+  const [selectedMrfForCandidates, setSelectedMrfForCandidates] = useState(null)
   const [loading, setLoading] = useState(true)
 
   // MRF Creation variables (Dept Head)
@@ -418,10 +422,18 @@ export default function MyMRFsPage() {
   const loadMRFs = async () => {
     setLoading(true)
     try {
-      const all = await mrfApi.list()
+      const [all, allCands] = await Promise.all([
+        mrfApi.list(),
+        candidateApi.list().catch(() => [])
+      ])
+      
       if (role === 'department_head') {
         // HOD sees their drafts and submitted MRFs
         setMrfs(all.filter(m => m.submittedBy === userName || !m.submittedBy))
+        setCandidates(allCands.filter(c => 
+          (c.stage === 'Pending Head Approval' || c.stage === 'Shared with HOD') &&
+          (c.jobOpeningId?.department === user?.department || !user?.department)
+        ))
       } else if (role === 'admin') {
         // Admin sees all non-draft MRFs to review
         setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
@@ -1181,6 +1193,106 @@ export default function MyMRFsPage() {
         <div className="card p-24 flex items-center justify-center">
           <Loader2 size={24} className="animate-spin text-accent" />
         </div>
+      ) : selectedMrfForCandidates ? (
+        <div className="space-y-6 animate-fadeIn fade-up">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+            <div>
+              <button
+                onClick={() => setSelectedMrfForCandidates(null)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-all font-semibold bg-white/5 hover:bg-white/10 px-3 py-1.5 border border-white/10 rounded-xl mb-3"
+              >
+                <ArrowLeft size={13} /> Back to Requisitions
+              </button>
+              <h2 className="font-display font-bold text-lg text-white">
+                Candidates for {selectedMrfForCandidates.designation}
+              </h2>
+            </div>
+            <div className="text-xs text-slate-400 font-medium bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+              Department: <span className="text-amber-400 font-bold">{user?.department || 'Operations'}</span>
+            </div>
+          </div>
+          
+          {(() => {
+            const mrfCandidates = candidates.filter(c => c.jobOpeningId?._id === selectedMrfForCandidates._id || c.jobOpeningId?.id === selectedMrfForCandidates._id || c.jobOpeningId === selectedMrfForCandidates._id);
+            if (mrfCandidates.length === 0) {
+              return (
+                <div className="card p-12 flex flex-col items-center justify-center gap-3 fade-up-1">
+                  <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                    <CheckCircle2 size={24} className="text-slate-500" />
+                  </div>
+                  <p className="text-slate-400 text-sm font-medium">All caught up! No candidates pending your review for this requisition.</p>
+                </div>
+              )
+            }
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 fade-up-1">
+                {mrfCandidates.map(c => {
+                  const score = c.matchScore || c.score || 0;
+                  const isHighMatch = score >= 80;
+                  return (
+                    <div 
+                      key={c._id} 
+                      className="relative group p-5 rounded-2xl border border-white/5 bg-gradient-to-b from-white/5 to-transparent hover:border-accent/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 overflow-hidden flex flex-col"
+                    >
+                      <div className={`absolute top-0 left-0 w-full h-1 ${isHighMatch ? 'bg-gradient-to-r from-accent to-emerald-400' : 'bg-white/10'}`} />
+                      
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-lg border ${
+                            isHighMatch ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-white'
+                          }`}>
+                            {(c.details?.fullName || 'U')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-white text-base leading-tight group-hover:text-accent transition-colors">
+                              {c.details?.fullName || c.fileName || 'Unknown Candidate'}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase mt-0.5">
+                              {c.jobOpeningId?.designation || 'Unknown Role'}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end">
+                          <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                            isHighMatch ? 'border-accent text-accent bg-accent/5' : 'border-emerald-400/50 text-emerald-400 bg-emerald-400/5'
+                          }`}>
+                            <span className="font-display font-bold text-xs">{score}</span>
+                          </div>
+                          {isHighMatch && (
+                            <span className="text-[8px] font-bold text-accent uppercase tracking-wider mt-1">High Match</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-2.5 mb-6">
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <Briefcase size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.totalExp || 'Experience not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <MapPin size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.currentLocation || 'Location not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <Award size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.highestQual || 'Qualification not specified'}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/recruitment/candidate/${c._id}`)}
+                        className="mt-auto w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-accent hover:border-accent hover:text-white flex items-center justify-center gap-2 transition-all duration-300 group/btn"
+                      >
+                        Review Full Profile <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+        </div>
       ) : filteredMRFs.length === 0 ? (
         <div className="card p-16 flex flex-col items-center gap-4 text-center border border-white/5 bg-ink-950/40">
           <AlertCircle size={32} className="text-slate-500" />
@@ -1290,11 +1402,18 @@ export default function MyMRFsPage() {
                     )}
 
                     {/* HOD: candidate count for approved MRFs */}
-                    {role === 'department_head' && isApproved && (
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-xs font-semibold">
-                        <Users size={11} /> {mrf.candidateCount || 0} applied
-                      </span>
-                    )}
+                    {role === 'department_head' && isApproved && (() => {
+                      const mrfCandidates = candidates.filter(c => c.jobOpeningId?._id === mrf._id || c.jobOpeningId?.id === mrf._id || c.jobOpeningId === mrf._id);
+                      return (
+                        <button 
+                          onClick={() => setSelectedMrfForCandidates(mrf)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 border border-accent/25 text-accent text-xs font-semibold transition-all group"
+                        >
+                          <Users size={11} className="group-hover:scale-110 transition-transform" /> 
+                          {mrfCandidates.length > 0 ? `${mrfCandidates.length} Selected Candidates` : 'No Pending Candidates'}
+                        </button>
+                      );
+                    })()}
 
                     {/* Admin/HR: View button. Admin only: Delete */}
                     {(role === 'admin' || role === 'hr') && (
