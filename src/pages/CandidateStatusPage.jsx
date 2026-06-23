@@ -10,6 +10,10 @@ const STATUS_MAP = {
   selected: { label: 'Selected', color: 'text-success', badge: 'bg-success/10 border-success/20 text-success', icon: CheckCircle },
   rejected: { label: 'Not Selected', color: 'text-red-400', badge: 'bg-red-400/10 border-red-400/20 text-red-400', icon: XCircle },
   on_hold: { label: 'On Hold', color: 'text-orange-400', badge: 'bg-orange-400/10 border-orange-400/20 text-orange-400', icon: AlertCircle },
+  'Shared with HOD': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
+  'Approved by HOD': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
+  'Pending Head Approval': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
+  'Approved by Head': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
 };
 
 export default function CandidateStatusPage() {

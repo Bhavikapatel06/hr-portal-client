@@ -292,7 +292,9 @@ export default function CandidateDetailsPage() {
     try {
       const updated = await candidateApi.updateDetails(candidateId, { stage: newStage })
       setCandidate(updated)
-      showToastMsg(`Candidate moved to ${newStage} successfully! ✓`)
+      if (newStage !== 'Shared with HOD' && newStage !== 'Rejected') {
+        showToastMsg(`Candidate moved to ${newStage} successfully! ✓`)
+      }
     } catch (err) {
       showToastMsg(err.message, 'error')
     }
@@ -448,10 +450,8 @@ export default function CandidateDetailsPage() {
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Matching Dimensions</p>
                 <DimBar label="Skills Match"         value={candidate.matchBreakdown.skills ?? 0} />
                 <DimBar label="Experience Alignment" value={candidate.matchBreakdown.experience ?? 0} />
-                <DimBar label="Education Match"      value={candidate.matchBreakdown.education ?? 0} />
-                <DimBar label="Project Similarity"   value={candidate.matchBreakdown.projectSimilarity ?? 0} />
-                <DimBar label="Certification Match"  value={candidate.matchBreakdown.certification ?? 0} />
-                <DimBar label="Location Match"       value={candidate.matchBreakdown.location ?? 0} />
+                <DimBar label="Qualification Match"  value={candidate.matchBreakdown.qualification ?? 0} />
+                <DimBar label="Job Title Match"      value={candidate.matchBreakdown.jobTitle ?? 0} />
               </div>
             )}
           </div>
