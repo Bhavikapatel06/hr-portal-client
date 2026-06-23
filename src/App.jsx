@@ -3,9 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar                    from './components/Navbar.jsx'
 import OverviewDashboard         from './pages/OverviewDashboard.jsx'
 import MyMRFsPage               from './pages/MyMRFsPage.jsx'
-import ReportsPage               from './pages/ReportsPage.jsx'
 import AdminMRFApprovalsPage     from './pages/AdminMRFApprovalsPage.jsx'
-import AdminReportsPage          from './pages/AdminReportsPage.jsx'
 import AdminSettingsPage         from './pages/AdminSettingsPage.jsx'
 import HRManagerPage             from './pages/HRManagerPage.jsx'
 import Login                     from './pages/Login.jsx'
@@ -40,11 +38,7 @@ function DefaultDashboard() {
   return <OverviewDashboard />
 }
 
-// ── Role-based reports selector ───────────────────────────────────────────────
-// All three staff roles use the same AdminReportsPage with dropdown selector
-function ReportsRouteSelector() {
-  return <AdminReportsPage />
-}
+
 
 export default function App() {
   return (
@@ -109,13 +103,7 @@ export default function App() {
 
 
 
-          {/* Reports — Admin gets dedicated admin reports, others get shared reports */}
-          <Route path="/analytics" element={
-            <Protected allowedRoles={['admin', 'hr', 'department_head']}>
-              {/* Role-based reports rendered inside a shared route */}
-              <ReportsRouteSelector />
-            </Protected>
-          } />
+
 
           {/* Protected — Candidate only */}
           <Route path="/apply/:mrfId" element={
