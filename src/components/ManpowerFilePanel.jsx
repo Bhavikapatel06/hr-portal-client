@@ -271,7 +271,7 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
             <p className="text-sm font-medium text-white truncate">{pendingFile?.name || stored?.fileName}</p>
             <p className="text-xs text-slate-500 mt-0.5">{formatSize(pendingFile?.size || stored?.fileSize)}</p>
           </div>
-          <span className="badge bg-gold/15 text-gold border border-gold/25">
+          <span className="badge bg-slate-500/15 text-slate-500 border border-slate-500/25">
             <AlertCircle size={11} /> Confirm details
           </span>
         </div>
@@ -308,7 +308,7 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
     <div className="space-y-5 fade-up">
 
       {/* Active file banner */}
-      <div className="card p-4 border-success/20 bg-success/5">
+      <div className="card p-4 border-accent/20 bg-accent/5">
         <div className="flex items-start gap-3">
           <div className={`w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0 ${fileBg}`}>
             <FileIcon size={20} className={fileColor} />
@@ -316,7 +316,7 @@ export default function ManpowerFilePanel({ onRequirementsChange, compact = fals
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-sm font-semibold text-white truncate">{stored.fileName}</p>
-              <span className="badge bg-success/15 text-success border border-success/25">
+              <span className="badge bg-accent/15 text-accent border border-accent/25">
                 <CheckCircle2 size={11} /> Active
               </span>
             </div>

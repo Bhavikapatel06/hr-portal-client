@@ -38,7 +38,7 @@ export default function ResumePage() {
       {/* Active requirements badge */}
       {requirements?.designation && (
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 fade-up-1">
-          <CheckCircle2 size={15} className="text-success flex-shrink-0" />
+          <CheckCircle2 size={15} className="text-accent flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm text-white font-medium">Matching against: <span className="text-accent">{requirements.designation}</span></p>
             <p className="text-xs text-slate-500 mt-0.5">

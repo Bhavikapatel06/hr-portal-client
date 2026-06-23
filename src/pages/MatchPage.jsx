@@ -48,8 +48,8 @@ export default function MatchPage() {
                 <p className="font-bold text-lg text-white">{rankedCandidates.length}</p>
                 <p className="text-xs text-slate-500">Candidates</p>
               </div>
-              <div className="text-center px-4 py-2 rounded-xl bg-emerald-400/10 border border-emerald-400/20">
-                <p className="font-bold text-lg text-emerald-400">{strongCount}</p>
+              <div className="text-center px-4 py-2 rounded-xl bg-accent/10 border border-accent/20">
+                <p className="font-bold text-lg text-accent">{strongCount}</p>
                 <p className="text-xs text-slate-500">Strong</p>
               </div>
             </div>
@@ -61,7 +61,7 @@ export default function MatchPage() {
       {requirements?.designation && (
         <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 fade-up-1 flex-wrap">
           <div className="flex items-center gap-2">
-            <CheckCircle2 size={15} className="text-success flex-shrink-0" />
+            <CheckCircle2 size={15} className="text-accent flex-shrink-0" />
             <span className="text-sm text-slate-300">
               Matching for: <span className="text-white font-semibold">{requirements.designation}</span>
               {requirements.experience && <> · {requirements.experience}</>}

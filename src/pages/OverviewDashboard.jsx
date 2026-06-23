@@ -321,24 +321,20 @@ function BarChart({ data, width = 500, height = 180 }) {
 
 // ── Urgency and Status Constants ─────────────────────────────────────────────
 const URGENCY = {
-  High: { label: 'High', dot: 'bg-red-400', badge: 'bg-red-400/12 border-red-400/30 text-red-400', ring: 'border-l-red-400/40' },
-  Medium: { label: 'Medium', dot: 'bg-gold', badge: 'bg-gold/12 border-gold/30 text-gold', ring: 'border-l-gold/40' },
-  Low: { label: 'Low', dot: 'bg-slate-400', badge: 'bg-slate-400/10 border-slate-400/25 text-slate-400', ring: 'border-l-white/10' },
+  High: { label: 'High', dot: 'bg-accent', badge: 'bg-accent/10 border-accent/20 text-accent', ring: 'border-l-accent' },
+  Medium: { label: 'Medium', dot: 'bg-[var(--text-secondary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', ring: 'border-l-[var(--border-color)]' },
+  Low: { label: 'Low', dot: 'bg-[var(--text-secondary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]', ring: 'border-l-[var(--border-color)]' },
 }
 
 const STATUS = {
-  'Open': { badge: 'bg-success/12 border-success/30 text-success' },
-  'In Progress': { badge: 'bg-accent/12 border-accent/30 text-accent' },
-  'Closed': { badge: 'bg-slate-400/10 border-slate-400/25 text-slate-500' },
+  'Open': { badge: 'bg-accent/10 border-accent/20 text-accent' },
+  'In Progress': { badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]' },
+  'Closed': { badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-slate-500' },
 }
 
 const DEPT_COLORS = [
-  'from-blue-500/20 to-blue-600/5',
-  'from-purple-500/20 to-purple-600/5',
-  'from-emerald-500/20 to-emerald-600/5',
-  'from-orange-500/20 to-orange-600/5',
-  'from-pink-500/20 to-pink-600/5',
-  'from-cyan-500/20 to-cyan-600/5',
+  'from-accent/20 to-transparent',
+  'from-slate-500/10 to-transparent',
 ]
 
 // ── Job Card Component for Candidates ────────────────────────────────────────
@@ -357,7 +353,7 @@ function JobCard({ mrf, idx }) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35' : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
+              <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35' : 'bg-slate-600/15 text-slate-400 border border-slate-600/35'
                 }`}>
                 {mrf.requestType || 'MRF'}
               </span>
@@ -430,7 +426,7 @@ function JobCard({ mrf, idx }) {
           </div>
           <Link
             to={`/apply/${mrf._id || mrf.id}`}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-success/10 border border-success/25 text-success text-xs font-semibold hover:bg-success hover:text-white transition-all duration-150 group/btn"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg btn-primary text-xs font-semibold group/btn"
           >
             Apply Now
             <ArrowRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
@@ -901,7 +897,7 @@ export default function OverviewDashboard() {
               {/* Workforce Overview Bar Chart */}
               <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
                 <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Building2 size={15} className="text-purple-400" /> Workforce Overview
+                  <Building2 size={15} className="text-slate-400" /> Workforce Overview
                 </h3>
                 <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
                   <BarChart data={workforceData} />
@@ -911,7 +907,7 @@ export default function OverviewDashboard() {
               {/* Requisition Status Donut */}
               <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
                 <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Activity size={15} className="text-emerald-400" /> Requisition Status
+                  <Activity size={15} className="text-accent" /> Requisition Status
                 </h3>
                 <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
                   <DonutChart data={statusChartData} />
@@ -925,9 +921,9 @@ export default function OverviewDashboard() {
                 </h3>
                 <div className="mt-4 flex-1 space-y-3.5 divide-y divide-white/5">
                   {[
-                    { text: 'New user added: John Doe (HR Manager)', time: '10 min ago', icon: UserCheck, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' },
-                    { text: 'Department updated: Engineering', time: '1 hour ago', icon: Building2, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
-                    { text: 'New requisition approved: Senior Frontend Developer', time: '2 hours ago', icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+                    { text: 'New user added: John Doe (HR Manager)', time: '10 min ago', icon: UserCheck, color: 'text-slate-400 bg-slate-500/10 border-slate-500/20' },
+                    { text: 'Department updated: Engineering', time: '1 hour ago', icon: Building2, color: 'text-slate-400 bg-slate-600/10 border-slate-600/20' },
+                    { text: 'New requisition approved: Senior Frontend Developer', time: '2 hours ago', icon: CheckCircle2, color: 'text-accent bg-accent/10 border-accent/20' },
                     { text: 'System backup completed successfully', time: 'Yesterday', icon: ShieldCheck, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' }
                   ].map((act, idx) => {
                     const ActIcon = act.icon
@@ -1398,7 +1394,7 @@ export default function OverviewDashboard() {
             {/* Left side: Hiring Requests Status Donut */}
             <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
               <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                <Activity size={15} className="text-emerald-400" /> Hiring Requests Status
+                <Activity size={15} className="text-accent" /> Hiring Requests Status
               </h3>
               <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
                 <DonutChart data={dhStatusData} />
@@ -1431,7 +1427,7 @@ export default function OverviewDashboard() {
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-white text-sm truncate">{mrf.designation}</p>
                             {isPosted && (
-                              <span className="px-1.5 py-0.5 text-[8px] font-bold rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+                              <span className="px-1.5 py-0.5 text-[8px] font-bold rounded bg-accent/15 text-accent border border-accent/25">
                                 LIVE
                               </span>
                             )}

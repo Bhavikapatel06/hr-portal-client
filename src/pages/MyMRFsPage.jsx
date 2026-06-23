@@ -73,7 +73,10 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
       <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full my-4 overflow-hidden">
 
         {/* Modal header bar */}
-        <div className="flex items-center justify-between px-6 py-3 bg-gray-800 text-white">
+        <div 
+          className="flex items-center justify-between px-6 py-3 border-b"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+        >
           <div className="flex items-center gap-3">
             <FileText size={16} />
             <span className="font-bold text-sm tracking-wide">JOB REQUISITION FORM</span>
@@ -83,7 +86,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
               </span>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-300 hover:text-white text-lg leading-none font-bold">✕</button>
+          <button onClick={onClose} style={{ color: 'var(--text-muted)' }} className="hover:opacity-70 transition-opacity text-lg leading-none font-bold">✕</button>
         </div>
 
         {/* Scrollable form body */}
@@ -204,7 +207,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
         </div>
 
         {/* Actions Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           {role === 'admin' && isPending ? (
             showRejectInput ? (
               <div className="space-y-3">
@@ -219,7 +222,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => setShowRejectInput(false)}
-                    className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-200 transition-colors"
+                    className="btn-ghost px-4 py-2 text-xs"
                   >
                     Cancel
                   </button>
@@ -238,7 +241,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
                 <button
                   onClick={() => onApprove(mrf._id)}
                   disabled={actioningApproval}
-                  className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                  className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
                   {actioningApproval ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
                   Approve Requisition
@@ -255,7 +258,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
             <div className="flex justify-end">
               <button
                 onClick={onClose}
-                className="px-8 py-2.5 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-semibold text-sm transition-colors"
+                className="btn-ghost"
               >
                 Close
               </button>
@@ -728,7 +731,7 @@ export default function MyMRFsPage() {
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up
           ${toast.type === 'error'
             ? 'bg-red-500/15 border-red-500/30 text-red-300'
-            : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+            : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -745,8 +748,8 @@ export default function MyMRFsPage() {
       {/* Confirmation Modal */}
       {confirmModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="card max-w-sm w-full p-6 border border-emerald-500/25 space-y-4 text-center animate-scaleUp">
-            <CheckCircle2 size={40} className="text-emerald-400 mx-auto" />
+          <div className="card max-w-sm w-full p-6 border border-accent/25 space-y-4 text-center animate-scaleUp">
+            <CheckCircle2 size={40} className="text-accent mx-auto" />
             <div className="space-y-1">
               <h4 className="font-display font-bold text-white text-base">Success</h4>
               <p className="text-xs text-slate-300">{confirmModal.message}</p>
@@ -757,7 +760,7 @@ export default function MyMRFsPage() {
                 setConfirmModal(null)
                 if (onConfirm) onConfirm()
               }}
-              className="w-full btn-primary justify-center bg-emerald-500 hover:bg-emerald-600 border-emerald-500/30 text-white font-bold"
+              className="w-full btn-primary justify-center bg-accent hover:bg-accent border-accent/30 text-white font-bold"
             >
               OK
             </button>
@@ -881,14 +884,14 @@ export default function MyMRFsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-between gap-3 animate-scaleUp">
+                  <div className="p-4 rounded-xl border border-accent/25 bg-accent/5 flex items-center justify-between gap-3 animate-scaleUp">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
                         <FileText size={16} />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-white truncate">{mrfFile.name}</p>
-                        <p className="text-[10px] text-emerald-400 font-medium">Uploaded Successfully</p>
+                        <p className="text-[10px] text-accent font-medium">Uploaded Successfully</p>
                       </div>
                     </div>
                     <button
@@ -1019,14 +1022,14 @@ export default function MyMRFsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-between gap-3 animate-scaleUp">
+                  <div className="p-4 rounded-xl border border-accent/25 bg-accent/5 flex items-center justify-between gap-3 animate-scaleUp">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
                         <FileText size={16} />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-white truncate">{jdFile.name}</p>
-                        <p className="text-[10px] text-emerald-400 font-medium">Uploaded Successfully</p>
+                        <p className="text-[10px] text-accent font-medium">Uploaded Successfully</p>
                       </div>
                     </div>
                     <button
@@ -1087,12 +1090,12 @@ export default function MyMRFsPage() {
                 {/* Status row */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <div className="flex gap-3 flex-1 flex-wrap">
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${mrfDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${mrfDone ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-slate-500'
                       }`}>
                       {mrfDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       MRF {mrfDone ? 'Ready' : 'Incomplete'}
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${jdDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${jdDone ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-slate-500'
                       }`}>
                       {jdDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       JD {jdDone ? 'Ready' : 'Incomplete'}
@@ -1128,7 +1131,7 @@ export default function MyMRFsPage() {
                       disabled={submitting || saving || !bothReady}
                       title={!bothReady ? 'Complete both MRF and JD before submitting' : ''}
                       className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${bothReady
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-glow-sm shadow-emerald-500/20 cursor-pointer'
+                          ? 'bg-accent hover:bg-accent text-white shadow-glow-sm shadow-accent/20 cursor-pointer'
                           : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
                         }`}
                     >
@@ -1234,12 +1237,12 @@ export default function MyMRFsPage() {
                       key={c._id} 
                       className="relative group p-5 rounded-2xl border border-white/5 bg-gradient-to-b from-white/5 to-transparent hover:border-accent/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 overflow-hidden flex flex-col"
                     >
-                      <div className={`absolute top-0 left-0 w-full h-1 ${isHighMatch ? 'bg-gradient-to-r from-accent to-emerald-400' : 'bg-white/10'}`} />
+                      <div className={`absolute top-0 left-0 w-full h-1 ${isHighMatch ? 'bg-accent' : 'bg-[var(--border-color)]'}`} />
                       
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-lg border ${
-                            isHighMatch ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-white'
+                            isHighMatch ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]'
                           }`}>
                             {(c.details?.fullName || 'U')[0].toUpperCase()}
                           </div>
@@ -1255,7 +1258,7 @@ export default function MyMRFsPage() {
                         
                         <div className="flex flex-col items-end">
                           <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                            isHighMatch ? 'border-accent text-accent bg-accent/5' : 'border-emerald-400/50 text-emerald-400 bg-emerald-400/5'
+                            isHighMatch ? 'border-accent text-accent bg-accent/5' : 'border-[var(--border-color)] text-[var(--text-secondary)] bg-[var(--bg-secondary)]'
                           }`}>
                             <span className="font-display font-bold text-xs">{score}</span>
                           </div>
@@ -1282,7 +1285,7 @@ export default function MyMRFsPage() {
 
                       <button
                         onClick={() => navigate(`/recruitment/candidate/${c._id}`)}
-                        className="mt-auto w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-accent hover:border-accent hover:text-white flex items-center justify-center gap-2 transition-all duration-300 group/btn"
+                        className="mt-auto w-full py-2.5 rounded-xl btn-ghost flex items-center justify-center gap-2 group/btn"
                       >
                         Review Full Profile <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                       </button>
@@ -1316,7 +1319,7 @@ export default function MyMRFsPage() {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD'
                           ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35'
-                          : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
+                          : 'bg-slate-600/15 text-slate-400 border border-slate-600/35'
                         }`}>
                         {mrf.requestType || 'MRF'}
                       </span>
@@ -1440,14 +1443,14 @@ export default function MyMRFsPage() {
                       <button
                         onClick={() => handlePostJob(mrf._id)}
                         disabled={postingJobId === mrf._id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-60"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all disabled:opacity-60"
                       >
                         {postingJobId === mrf._id ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} />}
                         Post as Job
                       </button>
                     )}
                     {role === 'hr' && isApproved && isPosted && (
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 text-accent text-xs font-semibold">
                         <CheckSquare size={11} /> Job Live
                       </span>
                     )}

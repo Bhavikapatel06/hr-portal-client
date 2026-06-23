@@ -30,7 +30,10 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
       <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full my-4 overflow-hidden">
 
         {/* Modal header bar */}
-        <div className="flex items-center justify-between px-6 py-3 bg-gray-800 text-white">
+        <div 
+          className="flex items-center justify-between px-6 py-3 border-b"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+        >
           <div className="flex items-center gap-3">
             <FileText size={16} />
             <span className="font-bold text-sm tracking-wide">JOB REQUISITION FORM</span>
@@ -40,7 +43,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
               </span>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-300 hover:text-white text-lg leading-none font-bold">✕</button>
+          <button onClick={onClose} style={{ color: 'var(--text-muted)' }} className="hover:opacity-70 transition-opacity text-lg leading-none font-bold">✕</button>
         </div>
 
         {/* Scrollable form body */}
@@ -161,7 +164,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
         </div>
 
         {/* Actions Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           {isPending ? (
             showRejectInput ? (
               <div className="space-y-3">
@@ -176,7 +179,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => setShowRejectInput(false)}
-                    className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-200 transition-colors"
+                    className="btn-ghost px-4 py-2 text-xs"
                   >
                     Cancel
                   </button>
@@ -195,7 +198,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
                 <button
                   onClick={() => onApprove(mrf._id)}
                   disabled={actioning}
-                  className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                  className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
                   {actioning ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
                   Approve Requisition
@@ -212,7 +215,7 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, actioning }) {
             <div className="flex justify-end">
               <button
                 onClick={onClose}
-                className="px-8 py-2.5 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-semibold text-sm transition-colors"
+                className="btn-ghost"
               >
                 Close
               </button>
@@ -339,7 +342,7 @@ export default function AdminMRFApprovalsPage() {
   const FILTER_TABS = [
     { key: 'All',                    label: 'All',              count: mrfs.length, icon: ClipboardList, color: 'text-accent' },
     { key: 'Pending Owner Approval', label: 'Pending Review',   count: pending,     icon: Clock,         color: 'text-amber-400' },
-    { key: 'Approved',               label: 'Approved',         count: approved,    icon: CheckCircle2,  color: 'text-emerald-400' },
+    { key: 'Approved',               label: 'Approved',         count: approved,    icon: CheckCircle2,  color: 'text-accent' },
     { key: 'Rejected',               label: 'Rejected',         count: rejected,    icon: XCircle,       color: 'text-red-400' },
   ]
 
@@ -369,7 +372,7 @@ export default function AdminMRFApprovalsPage() {
       {/* Toast */}
       {toast && (
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up max-w-sm
-          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -469,7 +472,7 @@ export default function AdminMRFApprovalsPage() {
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider ${
                         mrf.requestType === 'JD'
                           ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                          : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                          : 'bg-slate-600/15 text-slate-400 border-slate-600/30'
                       }`}>
                         {mrf.requestType || 'MRF'}
                       </span>
@@ -556,7 +559,7 @@ export default function AdminMRFApprovalsPage() {
                         <button
                           onClick={() => handleApprove(mrf._id)}
                           disabled={actioning}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all disabled:opacity-50"
                         >
                           {actioning ? <Loader2 size={11} className="animate-spin" /> : <CheckCircle2 size={12} />}
                           Approve

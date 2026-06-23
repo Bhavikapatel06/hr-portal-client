@@ -51,7 +51,7 @@ function HRMRFCard({ mrf, onCreateJob, onRecordOffer, loading }) {
 
   return (
     <div className={`card overflow-hidden border-l-2 transition-all duration-200 ${isActive ? 'border-l-accent/60' : 'border-l-emerald-400/60'}`}>
-      <div className="h-1 bg-gradient-to-r from-accent/40 to-emerald-400/20 w-full" />
+      <div className="h-1 bg-gradient-to-r from-accent/40 to-transparent/20 w-full" />
       <div className="p-5">
 
         {/* Header */}
@@ -70,7 +70,7 @@ function HRMRFCard({ mrf, onCreateJob, onRecordOffer, loading }) {
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${
               isActive
                 ? 'bg-accent/10 border-accent/25 text-accent'
-                : 'bg-emerald-400/10 border-emerald-400/25 text-emerald-400'
+                : 'bg-accent/10 border-accent/25 text-accent'
             }`}>
               {isActive ? 'Recruiting' : 'Approved'}
             </span>
@@ -87,10 +87,10 @@ function HRMRFCard({ mrf, onCreateJob, onRecordOffer, loading }) {
 
         {/* Offer summary badge */}
         {hasOffer && (
-          <div className="mb-3 px-3 py-2 rounded-lg bg-emerald-500/8 border border-emerald-500/20 text-xs text-emerald-300 flex items-center gap-2">
+          <div className="mb-3 px-3 py-2 rounded-lg bg-accent/8 border border-accent/20 text-xs text-accent flex items-center gap-2">
             <CheckCircle2 size={12} />
             Offer Extended to: <span className="font-semibold">{mrf.offeredCandidateName}</span>
-            <span className="ml-auto text-emerald-400/60">{mrf.offerStatus}</span>
+            <span className="ml-auto text-accent/60">{mrf.offerStatus}</span>
           </div>
         )}
 
@@ -225,7 +225,7 @@ function HRMRFCard({ mrf, onCreateJob, onRecordOffer, loading }) {
               <button
                 id={`offer-btn-${mrf._id}`}
                 onClick={() => setShowOfferForm(o => !o)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all duration-150"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all duration-150"
               >
                 <IndianRupee size={12} /> {hasOffer ? 'Update Offer' : 'Record Offer'}
               </button>
@@ -306,7 +306,7 @@ export default function HRWorkflowDashboard() {
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up
           ${toast.type === 'error'
             ? 'bg-red-500/15 border-red-500/30 text-red-300'
-            : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+            : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -327,7 +327,7 @@ export default function HRWorkflowDashboard() {
         {[
           { label: 'Awaiting Activation', value: pendingCount,    color: 'text-amber-400',   bg: 'bg-amber-400/10 border-amber-400/20',    icon: Clock },
           { label: 'Actively Recruiting', value: recruitingCount, color: 'text-accent',       bg: 'bg-accent/10 border-accent/20',           icon: TrendingUp },
-          { label: 'Offers Extended',     value: offeredCount,    color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20', icon: CheckCircle2 },
+          { label: 'Offers Extended',     value: offeredCount,    color: 'text-accent', bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
         ].map(({ label, value, color, bg, icon: Icon }) => (
           <div key={label} className="card p-4">
             <div className={`w-9 h-9 rounded-lg border flex items-center justify-center mb-3 ${bg}`}>
