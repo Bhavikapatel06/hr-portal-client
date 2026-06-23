@@ -120,22 +120,22 @@ export default function Navbar() {
       case 'admin':
         return {
           label: 'HR Admin',
-          badgeCls: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
-          avatarCls: 'bg-purple-500',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
           icon: ShieldCheck
         }
       case 'department_head':
         return {
           label: 'Dept Head',
-          badgeCls: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-          avatarCls: 'bg-amber-500',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
           icon: User
         }
       case 'hr':
         return {
           label: 'HR Manager',
-          badgeCls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-          avatarCls: 'bg-emerald-500',
+          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
+          avatarCls: 'bg-accent',
           icon: User
         }
       case 'candidate':
@@ -207,7 +207,7 @@ export default function Navbar() {
             >
               <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
               {notifications.some(n => !n.isRead) && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-500 rounded-full" />
               )}
             </button>
             

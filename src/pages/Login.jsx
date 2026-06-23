@@ -110,7 +110,7 @@ export default function Login() {
         {/* Card */}
         <div className="card p-8 border border-white/8 bg-ink-950/80 backdrop-blur-xl relative overflow-hidden">
           <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-slate-600/10 blur-3xl pointer-events-none" />
 
           {/* Tab switcher */}
           <div className="relative flex bg-white/5 rounded-xl p-1 mb-7 gap-1">
@@ -193,8 +193,8 @@ export default function Login() {
                 <p className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">Demo Credentials</p>
                 <div className="space-y-1">
                   {[
-                    { email: 'admin@hrportal.com',    password: 'admin123',     label: 'HR Admin',       icon: ShieldCheck, color: 'text-purple-400' },
-                    { email: 'depthead@hrportal.com', password: 'depthead123',  label: 'Dept. Head',     icon: UserCircle2, color: 'text-orange-400' },
+                    { email: 'admin@hrportal.com',    password: 'admin123',     label: 'HR Admin',       icon: ShieldCheck, color: 'text-slate-400' },
+                    { email: 'depthead@hrportal.com', password: 'depthead123',  label: 'Dept. Head',     icon: UserCircle2, color: 'text-slate-400' },
                     { email: 'hr@hrportal.com',       password: 'hr123456',     label: 'HR Manager',     icon: UserCircle2, color: 'text-accent' },
                     { email: 'candidate@hrportal.com',password: 'candidate123', label: 'Candidate',      icon: UserCircle2, color: 'text-slate-400' },
                   ].map(({ email, password, label, icon: Icon, color }) => (
@@ -220,7 +220,7 @@ export default function Login() {
             <form onSubmit={handleRegister} className="space-y-4 relative">
 
               {regSuccess && (
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-success/10 border border-success/25 text-success text-sm">
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-sm">
                   <CheckCircle2 size={15} />
                   Account created! Redirecting...
                 </div>
@@ -308,9 +308,9 @@ export default function Login() {
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { role: 'candidate',       label: 'Candidate',     sub: 'Looking for jobs',    icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
-                    { role: 'department_head', label: 'Dept. Head',    sub: 'Submit MRF requests',  icon: ShieldCheck, active: 'bg-orange-500/15 border-orange-500/40 text-orange-400' },
+                    { role: 'department_head', label: 'Dept. Head',    sub: 'Submit MRF requests',  icon: ShieldCheck, active: 'bg-slate-500/15 border-slate-500/40 text-slate-400' },
                     { role: 'hr',              label: 'HR Manager',    sub: 'Manage recruitment',   icon: UserCircle2, active: 'bg-accent/15 border-accent/40 text-accent' },
-                    { role: 'admin',           label: 'HR Admin',      sub: 'Full access',          icon: ShieldCheck, active: 'bg-purple-500/15 border-purple-500/40 text-purple-400' },
+                    { role: 'admin',           label: 'HR Admin',      sub: 'Full access',          icon: ShieldCheck, active: 'bg-slate-600/15 border-slate-600/40 text-slate-400' },
                   ].map(({ role: r, label, sub, icon: Icon, active }) => (
                     <button
                       key={r}

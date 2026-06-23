@@ -59,7 +59,7 @@ function ScoreRing({ score = 0, size = 52 }) {
       <svg viewBox="0 0 48 48" className="w-full h-full -rotate-90">
         <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
         <circle cx="24" cy="24" r={r} fill="none"
-          stroke={score >= 80 ? '#4F8EF7' : '#94a3b8'}
+          stroke={score >= 80 ? 'var(--accent)' : 'var(--text-placeholder)'}
           strokeWidth="4" strokeDasharray={circ}
           strokeDashoffset={circ - (score / 100) * circ}
           strokeLinecap="round" className="transition-all duration-700" />
@@ -250,9 +250,8 @@ function CandidateCard({ candidate, rank }) {
 
   return (
     <div className={`border rounded-xl hover:border-accent/30 hover:shadow-glow-sm transition-all duration-200 overflow-hidden ${
-      rank === 1 ? 'border-emerald-500/30 bg-emerald-500/3' :
-      rank === 2 ? 'border-accent/20 bg-accent/3' :
-      'border-white/8 bg-ink-950/40'
+      rank === 1 ? 'border-accent bg-accent/5' :
+      'border-[var(--border-color)] bg-[var(--bg-card)]'
     }`}>
       {/* Collapsed Header — always visible */}
       <div
@@ -261,10 +260,10 @@ function CandidateCard({ candidate, rank }) {
       >
         {/* Rank badge */}
         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-          rank === 1 ? 'bg-emerald-500 text-white' :
-          rank === 2 ? 'bg-accent text-white' :
-          rank === 3 ? 'bg-amber-500 text-white' :
-          'bg-white/10 text-slate-400'
+          rank === 1 ? 'bg-accent text-white' :
+          rank === 2 ? 'bg-accent/80 text-white' :
+          rank === 3 ? 'bg-accent/60 text-white' :
+          'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)]'
         }`}>
           {rank}
         </div>
@@ -275,9 +274,9 @@ function CandidateCard({ candidate, rank }) {
         {/* Name + designation */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-white text-sm">{candidate.name || 'Unknown Candidate'}</p>
+            <p className="font-semibold text-[var(--text-primary)] text-sm">{candidate.name || 'Unknown Candidate'}</p>
             {rank === 1 && (
-              <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-accent/10 text-accent border border-accent/30">
                 ⭐ TOP MATCH
               </span>
             )}
@@ -363,7 +362,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border ${
-              mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+              mrf.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-slate-600/15 text-slate-400 border-slate-600/30'
             }`}>{mrf.requestType === 'MRF' ? 'Requisition' : mrf.requestType || 'Requisition'}</span>
             <h3 className="font-semibold text-white text-[15px] truncate">{mrf.designation}</h3>
           </div>
@@ -379,7 +378,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
             </span>
           )}
           {isActive && (
-            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border-emerald-500/25">
+            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-accent bg-accent/10 border-accent/25">
               ✓ Job Live
             </span>
           )}
@@ -389,7 +388,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
             </span>
           )}
           {isFilled && (
-            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border-emerald-500/25">
+            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-accent bg-accent/10 border-accent/25">
               Fulfilled
             </span>
           )}
@@ -423,8 +422,8 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
         )}
 
         {isFilled && mrf.offeredCandidateName && (
-          <div className="col-span-2 mt-1 p-2 rounded bg-emerald-500/5 border border-emerald-500/10 text-xs">
-            <div className="text-emerald-400 font-bold">Hired Candidate:</div>
+          <div className="col-span-2 mt-1 p-2 rounded bg-accent/5 border border-accent/10 text-xs">
+            <div className="text-accent font-bold">Hired Candidate:</div>
             <div className="text-white font-medium">{mrf.offeredCandidateName}</div>
             {mrf.actualDOJ && (
               <div className="text-[10px] text-slate-400 mt-0.5">
@@ -472,7 +471,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
               onPostJob(mrf._id);
             }} 
             disabled={posting === mrf._id}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-bold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-60 flex-1 justify-center shadow-glow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-bold hover:bg-accent hover:text-white transition-all disabled:opacity-60 flex-1 justify-center shadow-glow-sm"
           >
             {posting === mrf._id ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} />}
             Publish Live Job
@@ -730,7 +729,7 @@ export default function HRManagerPage() {
       {/* Toast */}
       {toast && (
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up max-w-sm
-          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+          ${toast.type === 'error' ? 'bg-red-500/15 border-red-500/30 text-red-300' : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -759,8 +758,8 @@ export default function HRManagerPage() {
                   label: 'Awaiting Posting', 
                   value: awaitingJobs.length, 
                   color: 'text-amber-400', 
-                  activeStyle: 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,166,35,0.15)] ring-1 ring-amber-500/20',
-                  inactiveStyle: 'bg-amber-500/3 border-white/5 text-slate-400 hover:border-amber-500/20 hover:text-amber-300',
+                  activeStyle: 'border-amber-500/50 shadow-[0_0_20px_rgba(245,166,35,0.15)] ring-1 ring-amber-500/20',
+                  inactiveStyle: 'border-white/5 text-slate-400 hover:border-amber-500/20 hover:text-amber-300',
                   icon: Clock, 
                   tab: 'awaiting'
                 },
@@ -768,8 +767,8 @@ export default function HRManagerPage() {
                   label: 'Active Live Jobs', 
                   value: activeJobs.length, 
                   color: 'text-accent', 
-                  activeStyle: 'bg-accent/10 border-accent/50 shadow-[0_0_20px_rgba(79,142,247,0.15)] ring-1 ring-accent/20',
-                  inactiveStyle: 'bg-accent/3 border-white/5 text-slate-400 hover:border-accent/20 hover:text-accent',
+                  activeStyle: 'border-accent/50 shadow-[0_0_20px_rgba(37,99,235,0.15)] ring-1 ring-accent/20',
+                  inactiveStyle: 'border-white/5 text-slate-400 hover:border-accent/20 hover:text-accent',
                   icon: ExternalLink, 
                   tab: 'active'
                 },
@@ -777,17 +776,17 @@ export default function HRManagerPage() {
                   label: 'Closed Jobs', 
                   value: closedJobs.length, 
                   color: 'text-red-400', 
-                  activeStyle: 'bg-red-500/10 border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.15)] ring-1 ring-red-500/20',
-                  inactiveStyle: 'bg-red-500/3 border-white/5 text-slate-400 hover:border-red-500/20 hover:text-red-300',
+                  activeStyle: 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.15)] ring-1 ring-red-500/20',
+                  inactiveStyle: 'border-white/5 text-slate-400 hover:border-red-500/20 hover:text-red-300',
                   icon: XCircle, 
                   tab: 'closed'
                 },
                 { 
                   label: 'Filled Positions', 
                   value: filledJobs.length, 
-                  color: 'text-emerald-400', 
-                  activeStyle: 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_20px_rgba(34,211,165,0.15)] ring-1 ring-emerald-500/20',
-                  inactiveStyle: 'bg-emerald-500/3 border-white/5 text-slate-400 hover:border-emerald-500/20 hover:text-emerald-300',
+                  color: 'text-accent', 
+                  activeStyle: 'border-accent/50 shadow-[0_0_20px_rgba(34,211,165,0.15)] ring-1 ring-accent/20',
+                  inactiveStyle: 'border-white/5 text-slate-400 hover:border-accent/20 hover:text-accent',
                   icon: CheckCircle2, 
                   tab: 'filled'
                 },
@@ -833,7 +832,7 @@ export default function HRManagerPage() {
                         {selectedJob.designation}
                       </h2>
                       <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase border flex-shrink-0 ${
-                        selectedJob.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-purple-500/15 text-purple-400 border-purple-500/30'
+                        selectedJob.requestType === 'JD' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-slate-600/15 text-slate-400 border-slate-600/30'
                       }`}>{selectedJob.requestType === 'MRF' ? 'Requisition' : selectedJob.requestType || 'Requisition'}</span>
                       {selectedJob.levelOfUrgency && (
                         <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded border flex-shrink-0 ${
@@ -858,8 +857,8 @@ export default function HRManagerPage() {
                       )}
                       <span>Vacancies: <strong className="text-white">{selectedJob.noOfPositions || 1}</strong></span>
                       {activeTab === 'active' && (
-                        <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Active Live Job
+                        <span className="text-accent font-semibold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> Active Live Job
                         </span>
                       )}
                       {activeTab === 'closed' && selectedJob.closedAt && (
@@ -868,7 +867,7 @@ export default function HRManagerPage() {
                         </span>
                       )}
                       {activeTab === 'filled' && selectedJob.offeredCandidateName && (
-                        <span className="text-emerald-400 font-semibold">
+                        <span className="text-accent font-semibold">
                           Hired: {selectedJob.offeredCandidateName}
                         </span>
                       )}
@@ -946,7 +945,7 @@ export default function HRManagerPage() {
                       <button 
                         onClick={() => handlePostJob(selectedJob._id)} 
                         disabled={posting === selectedJob._id}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-600 active:scale-95 transition-all shadow-glow-sm flex-shrink-0"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-bold text-sm hover:bg-accent active:scale-95 transition-all shadow-glow-sm flex-shrink-0"
                       >
                         {posting === selectedJob._id ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />}
                         Publish live Job Opening
@@ -1076,13 +1075,13 @@ export default function HRManagerPage() {
                   {activeTab === 'awaiting' && <><Clock size={16} className="text-amber-400" /> Approved — Awaiting Job Posting</>}
                   {activeTab === 'active' && <><ExternalLink size={16} className="text-accent" /> Live Job Openings</>}
                   {activeTab === 'closed' && <><XCircle size={16} className="text-red-400" /> Closed Positions Archive</>}
-                  {activeTab === 'filled' && <><CheckCircle2 size={16} className="text-emerald-400" /> Filled &amp; Fulfilled Positions</>}
+                  {activeTab === 'filled' && <><CheckCircle2 size={16} className="text-accent" /> Filled &amp; Fulfilled Positions</>}
                 </h2>
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                   activeTab === 'awaiting' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/25' :
                   activeTab === 'active' ? 'bg-accent/15 text-accent border border-accent/25' :
                   activeTab === 'closed' ? 'bg-red-500/15 text-red-400 border border-red-500/25' :
-                  'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                  'bg-accent/15 text-accent border border-accent/25'
                 }`}>
                   {activeTabMRFs.length} position(s)
                 </span>
