@@ -481,38 +481,35 @@ function CompactKPICard({ item }) {
 function RecentCandidatesCard({ candidates }) {
   const recentCandidates = [...candidates]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5)
 
   return (
-    <div className="card p-4 flex flex-col justify-between overflow-hidden">
-      <div>
-        <h3 className="font-display font-bold text-white text-xs flex items-center gap-2 border-b border-white/5 pb-3">
-          <Users size={14} className="text-accent" />
-          Recent Candidates
-        </h3>
-        {recentCandidates.length === 0 ? (
-          <p className="text-xs text-slate-500 italic py-6 text-center">No recent candidates</p>
-        ) : (
-          <div className="divide-y divide-white/5 mt-2">
-            {recentCandidates.map(c => (
-              <div key={c._id} className="py-2.5 flex justify-between items-center text-xs">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-white truncate">{c.details?.fullName || 'Anonymous'}</p>
-                  <p className="text-[10px] text-slate-500 truncate mt-0.5">{c.details?.currentTitle || 'No Title'}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 ml-3 flex-shrink-0">
-                  <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] text-slate-400">
-                    {c.overallStatus || 'Applied'}
-                  </span>
-                  <span className="text-[9px] text-slate-500">
-                    {relativeDate(c.createdAt)}
-                  </span>
-                </div>
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+        <Users size={16} className="text-accent" />
+        Recent Candidates
+      </h4>
+      {recentCandidates.length === 0 ? (
+        <p className="text-sm text-slate-500 italic py-8 text-center flex-1">No recent candidates</p>
+      ) : (
+        <div className="divide-y divide-white/5 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-0">
+          {recentCandidates.map(c => (
+            <div key={c._id} className="py-3 flex justify-between items-center text-sm">
+              <div className="min-w-0 flex-1 pr-2">
+                <p className="font-semibold text-white truncate">{c.details?.fullName || 'Anonymous'}</p>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{c.details?.currentTitle || 'No Title'}</p>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[11px] font-medium text-slate-400">
+                  {c.overallStatus || 'Applied'}
+                </span>
+                <span className="text-[10px] text-slate-500 font-semibold">
+                  {relativeDate(c.createdAt)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -526,36 +523,127 @@ function UpcomingJoiningDatesCard({ tracker }) {
       const dateB = new Date(b.tentativeDOJ || b.actualDOJ)
       return dateA - dateB
     })
-    .slice(0, 5)
 
   return (
-    <div className="card p-4 flex flex-col justify-between overflow-hidden">
-      <div>
-        <h3 className="font-display font-bold text-white text-xs flex items-center gap-2 border-b border-white/5 pb-3">
-          <Calendar size={14} className="text-indigo-400" />
-          Upcoming Joining Dates
-        </h3>
-        {upcomingJoins.length === 0 ? (
-          <p className="text-xs text-slate-500 italic py-6 text-center">No upcoming joining dates</p>
-        ) : (
-          <div className="divide-y divide-white/5 mt-2">
-            {upcomingJoins.map((t, idx) => (
-              <div key={t._id || idx} className="py-2.5 flex justify-between items-center text-xs">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-white truncate">{t.offeredCandidateName || 'TBD'}</p>
-                  <p className="text-[10px] text-slate-500 truncate mt-0.5">{t.offeredDesignation || 'TBD'} · {t.department}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 ml-3 flex-shrink-0">
-                  <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[9px] text-indigo-400">
-                    {new Date(t.tentativeDOJ || t.actualDOJ).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                  </span>
-                  <span className="text-[9px] text-slate-500">
-                    {t.offerStatus}
-                  </span>
-                </div>
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+        <Calendar size={16} className="text-indigo-400" />
+        Upcoming Joining Dates
+      </h4>
+      {upcomingJoins.length === 0 ? (
+        <p className="text-sm text-slate-500 italic py-8 text-center flex-1">No upcoming joining dates</p>
+      ) : (
+        <div className="divide-y divide-white/5 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-0">
+          {upcomingJoins.map((t, idx) => (
+            <div key={t._id || idx} className="py-3 flex justify-between items-center text-sm">
+              <div className="min-w-0 flex-1 pr-2">
+                <p className="font-semibold text-white truncate">{t.offeredCandidateName || 'TBD'}</p>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{t.offeredDesignation || 'TBD'} · {t.department}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-400 font-semibold">
+                  {new Date(t.tentativeDOJ || t.actualDOJ).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                </span>
+                <span className="text-[10px] text-slate-500 font-semibold">
+                  {t.offerStatus}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── System Alerts Card ───────────────────────────────────────────────────────
+// System alerts removed per design request (card removed from dashboard)
+
+// ── Quick Actions Card ───────────────────────────────────────────────────────
+function QuickActionsCard() {
+  return (
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3">
+        <Briefcase size={16} className="text-purple-400" />
+        Quick Actions
+      </h4>
+      <div className="flex flex-col gap-3">
+        <button className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm text-slate-300 font-semibold">
+          <Plus size={16} className="text-purple-400" /> Create Requisition
+        </button>
+        <button className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm text-slate-300 font-semibold">
+          <Users size={16} className="text-blue-400" /> Schedule Interview
+        </button>
+        <button className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm text-slate-300 font-semibold">
+          <Award size={16} className="text-emerald-400" /> Generate Offer Letter
+        </button>
+        <button className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/5 text-sm text-slate-300 font-semibold">
+          <FileText size={16} className="text-amber-400" /> View Employee Reports
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Today's Interviews Card ──────────────────────────────────────────────────
+function TodayInterviewsCard() {
+  const mockInterviews = [
+    { name: 'Sarah Jenkins', role: 'Frontend Engineer', time: '10:30 AM', type: 'Technical' },
+    { name: 'Michael Chen', role: 'Product Manager', time: '01:00 PM', type: 'HR Round' },
+    { name: 'Aisha Patel', role: 'UX Designer', time: '03:15 PM', type: 'Final Round' }
+  ]
+  return (
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+        <Calendar size={16} className="text-cyan-400" />
+        Today's Interviews
+      </h4>
+      <div className="flex flex-col gap-3 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-0">
+        {mockInterviews.map((i, idx) => (
+          <div key={idx} className="flex flex-col gap-1 border-l-2 border-cyan-500/50 pl-3 py-1">
+            <div className="flex justify-between items-start">
+              <span className="font-semibold text-white text-sm">{i.name}</span>
+              <span className="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded">{i.time}</span>
+            </div>
+            <span className="text-xs text-slate-400">{i.role}</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">{i.type}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Open Requisitions Card ───────────────────────────────────────────────────
+function OpenRequisitionsCard({ mrfs }) {
+  const open = (mrfs || []).filter(m => ['pending', 'approved', 'open'].includes((m.status || '').toLowerCase()))
+  const byDept = open.reduce((acc, m) => {
+    const d = m.department || m.dept || 'General'
+    acc[d] = (acc[d] || 0) + 1
+    return acc
+  }, {})
+  const topDepts = Object.entries(byDept).sort((a, b) => b[1] - a[1]).slice(0, 4)
+  return (
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+        <FileText size={16} className="text-indigo-400" />
+        Open Requisitions
+      </h4>
+      <div className="flex flex-col items-center justify-center flex-1 gap-3">
+        <p className="text-5xl font-display font-bold text-indigo-400 leading-none">{open.length}</p>
+        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Active Requisitions</p>
+        {topDepts.length > 0 && (
+          <div className="w-full flex flex-col gap-2 mt-2">
+            {topDepts.map(([dept, count]) => (
+              <div key={dept} className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 truncate">{dept}</span>
+                <span className="font-bold text-indigo-400 ml-2">{count}</span>
               </div>
             ))}
           </div>
+        )}
+        {topDepts.length === 0 && (
+          <p className="text-xs text-slate-500">No open requisitions</p>
         )}
       </div>
     </div>
@@ -563,35 +651,35 @@ function UpcomingJoiningDatesCard({ tracker }) {
 }
 
 // Report Donut / Pie chart (Compacted)
-function ReportDonutChart({ data, size = 110, title }) {
+function ReportDonutChart({ data, size = 150, title }) {
   const total = data.reduce((s, d) => s + d.value, 0) || 1
-  const r = 58
+  const r = 62
   const circ = 2 * Math.PI * r
   let acc = 0
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
-      {title && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
-      <div className="flex items-center gap-3 w-full justify-center">
+    <div className="flex flex-col items-center gap-3 w-full h-full justify-center">
+      {title && <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
+      <div className="flex items-center gap-6 w-full justify-center">
         <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
           <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
-            <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
+            <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
             {data.map((item, i) => {
               const pct = item.value / total
               const dashOffset = circ - pct * circ
               const rot = (acc / total) * 360
               acc += item.value
               const midAngle = (rot + pct * 180) * Math.PI / 180
-              const tx = 100 + Math.cos(midAngle) * (r + 22)
-              const ty = 100 + Math.sin(midAngle) * (r + 22)
+              const tx = 100 + Math.cos(midAngle) * (r + 24)
+              const ty = 100 + Math.sin(midAngle) * (r + 24)
               return (
                 <g key={i}>
                   <circle cx="100" cy="100" r={r} fill="transparent" stroke={item.color}
-                    strokeWidth="16" strokeDasharray={circ} strokeDashoffset={dashOffset}
+                    strokeWidth="18" strokeDasharray={circ} strokeDashoffset={dashOffset}
                     transform={`rotate(${rot} 100 100)`} className="transition-all duration-700" />
                   {pct > 0.08 && (
                     <g style={{ transform: `rotate(90deg)`, transformOrigin: `${tx}px ${ty}px` }}>
-                      <text x={tx} y={ty} fill={item.color} fontSize="11" fontWeight="bold"
+                      <text x={tx} y={ty} fill={item.color} fontSize="16" fontWeight="bold"
                         textAnchor="middle" dominantBaseline="middle">
                         {Math.round(pct * 100)}%
                       </text>
@@ -602,18 +690,18 @@ function ReportDonutChart({ data, size = 110, title }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-base font-bold text-white leading-none">{total}</span>
-            <span className="text-[7px] text-slate-500 uppercase tracking-widest font-bold mt-0.5">Total</span>
+            <span className="text-3xl font-bold text-white leading-none">{total}</span>
+            <span className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">Total</span>
           </div>
         </div>
-        <div className="space-y-1.5 flex-1 min-w-0">
+        <div className="space-y-3 flex-1 min-w-0">
           {data.slice(0, 5).map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-[10px] border-b border-white/5 pb-1 last:border-0">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="text-slate-400 truncate">{item.label}</span>
+            <div key={i} className="flex items-center justify-between text-[13px] border-b border-white/5 pb-1.5 last:border-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                <span className="text-slate-300 truncate font-medium">{item.label}</span>
               </div>
-              <span className="text-white font-bold ml-1.5 flex-shrink-0">
+              <span className="text-white font-bold ml-2 flex-shrink-0 text-sm">
                 {item.value}
               </span>
             </div>
@@ -625,18 +713,18 @@ function ReportDonutChart({ data, size = 110, title }) {
 }
 
 // Report Vertical bar chart (Compacted)
-function ReportBarChart({ data, height = 110, colorFn }) {
+function ReportBarChart({ data, height = 180, colorFn }) {
   const maxVal = Math.max(...data.map(d => d.value), 1)
   const Y_STEPS = 3
   const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
 
   return (
-    <div className="p-2.5 rounded-xl bg-white/2 border border-white/5 w-full">
-      <div className="flex gap-2" style={{ height }}>
-        <div className="flex flex-col justify-between text-[9px] text-slate-500 font-bold w-6 items-end">
+    <div className="w-full h-full flex flex-col justify-end">
+      <div className="flex gap-3" style={{ height }}>
+        <div className="flex flex-col justify-between text-xs text-slate-500 font-bold w-8 items-end pr-1">
           {gridLines.map((g, i) => <span key={i}>{g}</span>)}
         </div>
-        <div className="flex-1 border-b border-l border-white/10 relative flex items-end justify-around px-1 pt-2">
+        <div className="flex-1 border-b border-l border-white/10 relative flex items-end justify-around px-2 pt-2">
           {Array.from({ length: Y_STEPS }).map((_, i) => (
             <div key={i} className="absolute border-t border-white/5 w-full left-0"
               style={{ bottom: `${(i / Y_STEPS) * 100}%` }} />
@@ -645,14 +733,14 @@ function ReportBarChart({ data, height = 110, colorFn }) {
             const pct = (item.value / maxVal) * 100
             const color = colorFn ? colorFn(i) : PALETTE[i % PALETTE.length]
             return (
-              <div key={i} className="flex flex-col items-center flex-1 group h-full justify-end relative max-w-[40px]">
+              <div key={i} className="flex flex-col items-center flex-1 group h-full justify-end relative max-w-[50px]">
                 <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
-                  bg-ink-950 border border-white/10 rounded px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                  bg-ink-950 border border-white/10 rounded px-2 py-1 text-xs font-bold text-white whitespace-nowrap z-10 shadow-xl">
                   {item.value} {item.unit || ''}
                 </div>
                 <div className="w-full rounded-t transition-all duration-500"
                   style={{ height: `${pct}%`, backgroundColor: color, opacity: 0.85 }} />
-                <div className="absolute top-full mt-1 text-[8px] text-slate-500 font-bold text-center truncate w-full" title={item.label}>
+                <div className="absolute top-full mt-2 text-xs text-slate-400 font-bold text-center truncate w-full" title={item.label}>
                   {item.label}
                 </div>
               </div>
@@ -660,26 +748,102 @@ function ReportBarChart({ data, height = 110, colorFn }) {
           })}
         </div>
       </div>
-      <div className="h-3" />
+      <div className="h-6" />
     </div>
   )
 }
+
+// Combined Department Position Summary Bar Chart (Side-by-Side Double Bars)
+function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180 }) {
+  const data = deptLabels.map(l => ({
+    label: l,
+    open: deptOpen[l] || 0,
+    filled: deptFilled[l] || 0
+  }))
+
+  const maxVal = Math.max(...data.flatMap(d => [d.open, d.filled]), 1)
+  const Y_STEPS = 3
+  const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
+
+  return (
+    <div className="w-full h-full flex flex-col justify-end pt-2">
+      <div className="flex gap-3" style={{ height }}>
+        {/* Y Axis labels */}
+        <div className="flex flex-col justify-between text-xs text-slate-500 font-bold w-8 items-end pr-1">
+          {gridLines.map((g, i) => <span key={i}>{g}</span>)}
+        </div>
+        {/* Grid and bars */}
+        <div className="flex-1 border-b border-l border-white/10 relative flex items-end justify-around px-2 pt-2">
+          {Array.from({ length: Y_STEPS }).map((_, i) => (
+            <div key={i} className="absolute border-t border-white/5 w-full left-0"
+              style={{ bottom: `${(i / Y_STEPS) * 100}%` }} />
+          ))}
+          {data.map((item, i) => {
+            const openPct = (item.open / maxVal) * 100
+            const filledPct = (item.filled / maxVal) * 100
+            return (
+              <div key={i} className="flex flex-col items-center flex-1 h-full justify-end relative">
+                {/* Side-by-side bars */}
+                <div className="flex items-end gap-2 h-full w-full justify-center px-1">
+                  {/* Open Positions (blue) */}
+                  <div className="flex-1 max-w-[16px] group relative h-full flex flex-col justify-end">
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
+                      bg-ink-950 border border-white/10 rounded px-2 py-1 text-xs font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                      {item.open} Open
+                    </div>
+                    <div className="w-full rounded-t bg-cyan-500/80 group-hover:bg-cyan-500 transition-all duration-300"
+                      style={{ height: `${openPct}%` }} />
+                  </div>
+                  {/* Filled Positions (green) */}
+                  <div className="flex-1 max-w-[16px] group relative h-full flex flex-col justify-end">
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
+                      bg-ink-950 border border-white/10 rounded px-2 py-1 text-xs font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                      {item.filled} Filled
+                    </div>
+                    <div className="w-full rounded-t bg-emerald-500/80 group-hover:bg-emerald-500 transition-all duration-300"
+                      style={{ height: `${filledPct}%` }} />
+                  </div>
+                </div>
+                {/* X Axis Label */}
+                <div className="absolute top-full mt-2 text-xs text-slate-400 font-bold text-center truncate w-full px-0.5" title={item.label}>
+                  {item.label}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {/* Legend */}
+      <div className="flex justify-center gap-6 mt-6 text-sm font-bold pb-1">
+        <div className="flex items-center gap-2 text-slate-300">
+          <span className="w-3 h-3 rounded bg-cyan-500/80" />
+          <span>Open Positions</span>
+        </div>
+        <div className="flex items-center gap-2 text-slate-300">
+          <span className="w-3 h-3 rounded bg-emerald-500/80" />
+          <span>Filled Positions</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 
 // Report Horizontal bar (progress style) (Compacted)
 function HBarChart({ data }) {
   const max = Math.max(...data.map(d => d.value), 1)
   return (
-    <div className="space-y-2 p-2.5 rounded-xl bg-white/2 border border-white/5 w-full">
+    <div className="space-y-6 w-full flex flex-col justify-center h-full">
       {data.map((item, i) => {
         const pct = Math.round((item.value / max) * 100)
         const color = item.color || PALETTE[i % PALETTE.length]
         return (
-          <div key={i} className="space-y-0.5">
-            <div className="flex justify-between text-[10px] font-semibold">
-              <span className="text-slate-400 truncate max-w-[120px]">{item.label}</span>
-              <span className="text-white font-bold">{item.value} <span className="text-slate-500 font-normal">({pct}%)</span></span>
+          <div key={i} className="space-y-2">
+            <div className="flex justify-between text-sm font-semibold">
+              <span className="text-slate-300 truncate max-w-[160px]">{item.label}</span>
+              <span className="text-white font-bold text-[15px]">{item.value} <span className="text-slate-500 font-normal text-sm">({pct}%)</span></span>
             </div>
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-4 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${pct}%`, backgroundColor: color }} />
             </div>
@@ -692,7 +856,7 @@ function HBarChart({ data }) {
 
 // Report Line chart (trends) (Compacted)
 function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
-  const W = 500, H = 120, PAD = 20
+  const W = 500, H = 180, PAD = 20
   const vals = data.map(d => d.value)
   const maxVal = Math.max(...vals, 1)
   const divisor = data.length > 1 ? data.length - 1 : 1
@@ -709,9 +873,9 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
     : ''
 
   return (
-    <div className="p-2.5 rounded-xl bg-white/2 border border-white/5 w-full flex flex-col justify-between">
+    <div className="w-full h-full flex flex-col justify-between pt-2">
       <div className="relative w-full" style={{ height: H }}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full overflow-visible">
           <defs>
             <linearGradient id={`lg-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity="0.25" />
@@ -722,19 +886,19 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
           <line x1={PAD} y1={PAD + (H - PAD * 2) / 2} x2={W - PAD} y2={PAD + (H - PAD * 2) / 2} stroke="rgba(255,255,255,0.04)" />
           <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="rgba(255,255,255,0.1)" />
           {areaD && <path d={areaD} fill={`url(#lg-${color.replace('#', '')})`} />}
-          {pathD && <path d={pathD} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
+          {pathD && <path d={pathD} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
           {points.map((p, i) => (
             <g key={i} className="group cursor-pointer">
-              <circle cx={p.x} cy={p.y} r="4" fill={color} stroke="#12131a" strokeWidth="2" />
-              <circle cx={p.x} cy={p.y} r="10" fill="transparent" />
-              <text x={p.x} y={p.y - 8} fill="white" fontSize="9" textAnchor="middle" fontWeight="bold" className="hidden group-hover:block">{p.val}</text>
-              <text x={p.x} y={H - 4} fill="#64748b" fontSize="8" fontWeight="bold" textAnchor="middle">{p.label}</text>
+              <circle cx={p.x} cy={p.y} r="5" fill={color} stroke="#12131a" strokeWidth="2.5" />
+              <circle cx={p.x} cy={p.y} r="12" fill="transparent" />
+              <text x={p.x} y={p.y - 12} fill="white" fontSize="13" textAnchor="middle" fontWeight="bold" className="hidden group-hover:block">{p.val}</text>
+              <text x={p.x} y={H + 4} fill="#94a3b8" fontSize="12" fontWeight="bold" textAnchor="middle">{p.label}</text>
             </g>
           ))}
         </svg>
       </div>
-      <div className="flex items-center gap-1 justify-center mt-1.5 text-[9px] font-bold" style={{ color }}>
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+      <div className="flex items-center gap-2 justify-center mt-4 text-sm font-bold pb-1" style={{ color }}>
+        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
         {label}
       </div>
     </div>
@@ -744,12 +908,12 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
 // Chart Section Wrapper (Compacted)
 function ChartCard({ title, icon: Icon, iconColor, children }) {
   return (
-    <div className="card p-3 border border-white/5 bg-ink-950/40 flex flex-col justify-between hover:border-white/10 transition-all duration-200">
-      <h4 className="font-display font-bold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-white/5 pb-2 mb-2">
-        {Icon && <Icon size={12} className={iconColor} />}
+    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
+      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+        {Icon && <Icon size={16} className={iconColor} />}
         <span className="truncate">{title}</span>
       </h4>
-      <div className="flex-1 flex items-center justify-center min-h-[120px] w-full">
+      <div className="flex-1 flex items-center justify-center w-full min-h-0">
         {children}
       </div>
     </div>
@@ -757,11 +921,11 @@ function ChartCard({ title, icon: Icon, iconColor, children }) {
 }
 
 // Unified Performance Reports Section
-function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
+function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [], tracker = [] }) {
   const records = (sheetData && sheetData.recruitmentTracker && sheetData.recruitmentTracker.length > 0)
     ? sheetData.recruitmentTracker
     : []
-  
+
   const hasData = records.length > 0
   if (!hasData) {
     return (
@@ -787,12 +951,12 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
   }
 
   // 1. Recruitment Summary Report calculations
-  const pending   = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval' || m.mrfStatus === 'Pending').length
-  const approved  = mrfs.filter(m => m.mrfStatus === 'Approved').length
-  const rejected  = mrfs.filter(m => m.mrfStatus === 'Rejected').length
+  const pending = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval' || m.mrfStatus === 'Pending').length
+  const approved = mrfs.filter(m => m.mrfStatus === 'Approved').length
+  const rejected = mrfs.filter(m => m.mrfStatus === 'Rejected').length
   const totalVacs = mrfs.filter(m => m.mrfStatus === 'Approved').reduce((s, m) => s + (parseInt(m.noOfPositions) || 0), 0)
-  const filled    = records.filter(r => r['Offer Status'] === 'Joined').length
-  const offered   = records.filter(r => ['Offered','Accepted','Joined'].includes(r['Offer Status'])).length
+  const filled = records.filter(r => r['Offer Status'] === 'Joined').length
+  const offered = records.filter(r => ['Offered', 'Accepted', 'Joined'].includes(r['Offer Status'])).length
 
   // 2. Department Hiring Report calculations
   const deptVac = {}, deptFilled = {}, deptOpen = {}
@@ -800,11 +964,11 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
     const d = (r['Department'] || 'General').trim()
     const v = parseInt(r['Number of Vacancies']) || 1
     const isFilled = r['Offer Status'] === 'Joined' || r['Offer Status'] === 'Accepted'
-    deptVac[d]    = (deptVac[d] || 0) + v
+    deptVac[d] = (deptVac[d] || 0) + v
     deptFilled[d] = (deptFilled[d] || 0) + (isFilled ? v : 0)
-    deptOpen[d]   = (deptOpen[d] || 0) + (!isFilled ? v : 0)
+    deptOpen[d] = (deptOpen[d] || 0) + (!isFilled ? v : 0)
   })
-  const top5 = Object.entries(deptVac).sort((a,b)=>b[1]-a[1]).slice(0,5)
+  const top5 = Object.entries(deptVac).sort((a, b) => b[1] - a[1]).slice(0, 5)
   const deptLabels = top5.map(([k]) => k)
 
   // 3. Vacancy Status calculations
@@ -822,23 +986,23 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
   const reqData = Object.entries(reqMap).map(([label, value], i) => ({ label, value, color: PALETTE[(i + 3) % PALETTE.length] }))
 
   // 4. MRF Status calculations
-  const mrfPending   = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval' || m.mrfStatus === 'Pending').length
-  const mrfApproved  = mrfs.filter(m => m.mrfStatus === 'Approved').length
-  const mrfRejected  = mrfs.filter(m => m.mrfStatus === 'Rejected').length
-  const mrfDraft     = mrfs.filter(m => m.mrfStatus === 'Draft').length
+  const mrfPending = mrfs.filter(m => m.mrfStatus === 'Pending Owner Approval' || m.mrfStatus === 'Pending').length
+  const mrfApproved = mrfs.filter(m => m.mrfStatus === 'Approved').length
+  const mrfRejected = mrfs.filter(m => m.mrfStatus === 'Rejected').length
+  const mrfDraft = mrfs.filter(m => m.mrfStatus === 'Draft').length
   const byDept = {}
   mrfs.forEach(m => {
     const d = (m.department || 'General').trim()
     byDept[d] = (byDept[d] || 0) + 1
   })
-  const deptData = Object.entries(byDept).sort((a,b)=>b[1]-a[1]).slice(0,6)
+  const deptData = Object.entries(byDept).sort((a, b) => b[1] - a[1]).slice(0, 6)
 
   // 5. Retirement Analysis calculations
   const exits = records.filter(r => {
     const name = r['Employee Name (Retirement/Resignation/Transfer Out)'] || ''
     return name && name !== 'None' && name.trim() !== ''
   })
-  const monthMap = { Jan:0,Feb:0,Mar:0,Apr:0,May:0,Jun:0,Jul:0,Aug:0,Sep:0,Oct:0,Nov:0,Dec:0 }
+  const monthMap = { Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0, Jun: 0, Jul: 0, Aug: 0, Sep: 0, Oct: 0, Nov: 0, Dec: 0 }
   const MONTHS = Object.keys(monthMap)
   exits.forEach(r => {
     const d = r['Position Start Date']
@@ -846,7 +1010,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
       try {
         const m = new Date(d).getMonth()
         if (m >= 0) monthMap[MONTHS[m]]++
-      } catch {}
+      } catch { }
     }
   })
   const exitDeptMap = {}
@@ -860,7 +1024,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
     const name = r['Employee Name (Retirement/Resignation/Transfer Out)'] || ''
     return name && name !== 'None'
   })
-  const resignMonthMap = { Jan:0,Feb:0,Mar:0,Apr:0,May:0,Jun:0 }
+  const resignMonthMap = { Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0, Jun: 0 }
   const RESIGN_MONTHS = Object.keys(resignMonthMap)
   resigned.forEach(r => {
     const d = r['Position Start Date']
@@ -868,7 +1032,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
       try {
         const m = new Date(d).getMonth()
         if (m >= 0 && m < 6) resignMonthMap[RESIGN_MONTHS[m]]++
-      } catch {}
+      } catch { }
     }
   })
   const exitSourceMap = {}
@@ -883,7 +1047,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
     const s = (r['Source of Hiring'] || 'Unknown').trim()
     srcMap[s] = (srcMap[s] || 0) + 1
   })
-  const srcData = Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))
+  const srcData = Object.entries(srcMap).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))
   const filledBySrc = {}
   records.filter(r => r['Offer Status'] === 'Joined').forEach(r => {
     const s = (r['Source of Hiring'] || 'Unknown').trim()
@@ -896,7 +1060,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
     const s = (r['Offer Status'] || 'Not Offered').trim()
     offerSummaryMap[s] = (offerSummaryMap[s] || 0) + 1
   })
-  const offerColors = { 'Offered':'#f59e0b','Accepted':'#6366f1','Joined':'#10b981','Declined':'#ef4444','Withdrawn':'#64748b','Not Offered':'#1e293b' }
+  const offerColors = { 'Offered': '#f59e0b', 'Accepted': '#6366f1', 'Joined': '#10b981', 'Declined': '#ef4444', 'Withdrawn': '#64748b', 'Not Offered': '#1e293b' }
 
   // 9. TAT Analysis calculations
   const withTAT = records.filter(r => r['TAT (Turnaround Time)'] && !isNaN(parseInt(r['TAT (Turnaround Time)'])))
@@ -922,127 +1086,96 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
   const deptAvgTAT = Object.entries(tatDeptMap).map(([label, v]) => ({ label, value: Math.round(v.total / v.count), unit: 'days' }))
 
   return (
-    <div className="space-y-4">
-      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${role === 'hr' ? '' : 'xl:grid-cols-3'}`}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full auto-rows-[280px]">
 
-        <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
-          <HBarChart data={[
-            { label: 'Total Vacancies',   value: totalVacs, color: '#06b6d4' },
-            { label: 'Offered Candidates', value: offered,  color: '#6366f1' },
-            { label: 'Joined / Onboarded', value: filled,   color: '#10b981' },
-          ]} />
-        </ChartCard>
+      {/* Row 1 */}
 
-        {role !== 'department_head' && (
-          <>
-            <ChartCard title="Dept Open Positions" icon={BarChart3} iconColor="text-cyan-400">
-              <ReportBarChart data={deptLabels.map(l => ({ label: l, value: deptOpen[l] || 0 }))} colorFn={() => '#06b6d4'} />
-            </ChartCard>
-            <ChartCard title="Dept Filled Positions" icon={BarChart3} iconColor="text-emerald-400">
-              <ReportBarChart data={deptLabels.map(l => ({ label: l, value: deptFilled[l] || 0 }))} colorFn={() => '#10b981'} />
-            </ChartCard>
-            <ChartCard title="Dept Total Vacancies" icon={PieChart} iconColor="text-indigo-400">
-              <ReportDonutChart data={top5.map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
-            </ChartCard>
-          </>
-        )}
+      <ChartCard title="Department Position Summary" icon={BarChart3} iconColor="text-accent">
+        <DeptSummaryBarChart deptLabels={deptLabels} deptOpen={deptOpen} deptFilled={deptFilled} />
+      </ChartCard>
+      <ChartCard title="Department Total Vacancies" icon={PieChart} iconColor="text-indigo-400">
+        <ReportDonutChart data={top5.map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
+      </ChartCard>
+      <UpcomingJoiningDatesCard tracker={tracker} />
 
-        <ChartCard title="Position Status" icon={PieChart} iconColor="text-indigo-400">
-          <ReportDonutChart data={posData} />
-        </ChartCard>
+      {/* Row 3 */}
 
-        <ChartCard title="Requirement Status" icon={PieChart} iconColor="text-cyan-400">
-          <ReportDonutChart data={reqData} />
-        </ChartCard>
+      <ChartCard title="MRFs by Department" icon={BarChart3} iconColor="text-accent">
+        <ReportBarChart data={deptData.map(([label, value]) => ({ label, value }))} />
+      </ChartCard>
+      <ChartCard title="Position Status" icon={PieChart} iconColor="text-indigo-400">
+        <ReportDonutChart data={posData} />
+      </ChartCard>
+      <RecentCandidatesCard candidates={candidates} />
 
-        <ChartCard title="MRF Status Breakdown" icon={PieChart} iconColor="text-amber-400">
-          <ReportDonutChart data={[
-            { label: 'Pending Review', value: mrfPending,  color: '#f59e0b' },
-            { label: 'Approved',       value: mrfApproved, color: '#10b981' },
-            { label: 'Rejected',       value: mrfRejected, color: '#ef4444' },
-            { label: 'Draft',          value: mrfDraft,    color: '#64748b' },
-          ].filter(d => d.value > 0)} />
-        </ChartCard>
+      {/* Row 4 */}
 
-        {role !== 'department_head' && (
-          <ChartCard title="MRFs by Department" icon={BarChart3} iconColor="text-accent">
-            <ReportBarChart data={deptData.map(([label, value]) => ({ label, value }))} />
-          </ChartCard>
-        )}
+      <ChartCard title="Requirement Status" icon={PieChart} iconColor="text-cyan-400">
+        <ReportDonutChart data={reqData} />
+      </ChartCard>
 
-        <ChartCard title="Retirements by Month" icon={Calendar} iconColor="text-pink-400">
-          <ReportLineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements" />
-        </ChartCard>
+      <ChartCard title="MRF Status Breakdown" icon={PieChart} iconColor="text-amber-400">
+        <ReportDonutChart data={[
+          { label: 'Pending Review', value: mrfPending, color: '#f59e0b' },
+          { label: 'Approved', value: mrfApproved, color: '#10b981' },
+          { label: 'Rejected', value: mrfRejected, color: '#ef4444' },
+          { label: 'Draft', value: mrfDraft, color: '#64748b' },
+        ].filter(d => d.value > 0)} />
+      </ChartCard>
+      <TodayInterviewsCard />
 
-        {role !== 'department_head' && (
-          <ChartCard title="Retirements by Dept" icon={BarChart3} iconColor="text-rose-400">
-            <ReportBarChart data={Object.entries(exitDeptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
-          </ChartCard>
-        )}
 
-        <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
-          <ReportDonutChart data={[
-            { label: 'Exit Replacement', value: exits.length, color: '#ec4899' },
-            { label: 'New Positions',    value: totalVacs - exits.length, color: '#64748b' },
-          ].filter(d => d.value > 0)} />
-        </ChartCard>
+      {/* Row 5 */}
+      <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
+        <ReportDonutChart data={Object.entries(offerSummaryMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
+      </ChartCard>
+      <ChartCard title="All Hiring Sources" icon={PieChart} iconColor="text-emerald-400">
+        <ReportDonutChart data={srcData} />
+      </ChartCard>
+      <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
+        <ReportBarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
+      </ChartCard>
 
-        <ChartCard title="Resignation Trend" icon={TrendingUp} iconColor="text-orange-400">
-          <ReportLineChart data={RESIGN_MONTHS.map(m => ({ label: m, value: resignMonthMap[m] }))} color="#f97316" label="Exit replacements" />
-        </ChartCard>
+      {/* Row 6 */}
+      <ChartCard title="Retirements by Month" icon={Calendar} iconColor="text-pink-400">
+        <ReportLineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements" />
+      </ChartCard>
+      <ChartCard title="Retirements by Department" icon={BarChart3} iconColor="text-rose-400">
+        <ReportBarChart data={Object.entries(exitDeptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
+      </ChartCard>
+      <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
+        <ReportDonutChart data={[
+          { label: 'Exit Replacement', value: exits.length, color: '#ec4899' },
+          { label: 'New Positions', value: totalVacs - exits.length, color: '#64748b' },
+        ].filter(d => d.value > 0)} />
+      </ChartCard>
 
-        <ChartCard title="Replacement Hire Source" icon={PieChart} iconColor="text-amber-400">
-          <ReportDonutChart data={Object.entries(exitSourceMap).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
-        </ChartCard>
-
-        <ChartCard title="All Hiring Sources" icon={PieChart} iconColor="text-emerald-400">
-          <ReportDonutChart data={srcData} />
-        </ChartCard>
-
-        <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
-          <ReportBarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
-        </ChartCard>
-
-        <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
-          <ReportDonutChart data={Object.entries(offerSummaryMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
-        </ChartCard>
-
-        <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
-          <HBarChart data={[
-            { label: 'Total Offered',    value: offered,  color: '#f59e0b' },
-            { label: 'Actually Joined',  value: filled,   color: '#10b981' },
-          ]} />
-        </ChartCard>
-
-        <ChartCard title="TAT Distribution Buckets" icon={PieChart} iconColor="text-rose-400">
-          <ReportDonutChart data={Object.entries(tatBuckets).map(([label, value], i) => ({ label, value, color: ['#10b981','#06b6d4','#f59e0b','#ef4444'][i] })).filter(d => d.value > 0)} />
-        </ChartCard>
-
-        {role !== 'department_head' && (
-          <ChartCard title="Average TAT by Dept" icon={BarChart3} iconColor="text-amber-400">
-            <ReportBarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
-          </ChartCard>
-        )}
-
-        <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400">
-          <div className="flex items-center justify-around py-3 w-full">
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-cyan-400 leading-none">{avgTAT}</p>
-              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Avg. Days</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-emerald-400 leading-none">{withTAT.length}</p>
-              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Tracked</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-amber-400 leading-none">
-                {withTAT.length ? Math.min(...withTAT.map(r => parseInt(r['TAT (Turnaround Time)']))) : 0}
-              </p>
-              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Fastest</p>
-            </div>
+      {/* Row 7 */}
+      <ChartCard title="TAT Distribution Buckets" icon={PieChart} iconColor="text-rose-400">
+        <ReportDonutChart data={Object.entries(tatBuckets).map(([label, value], i) => ({ label, value, color: ['#10b981', '#06b6d4', '#f59e0b', '#ef4444'][i] })).filter(d => d.value > 0)} />
+      </ChartCard>
+      <ChartCard title="Average TAT by Department" icon={BarChart3} iconColor="text-amber-400">
+        <ReportBarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
+      </ChartCard>
+      <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400">
+        <div className="flex items-center justify-around py-6 w-full">
+          <div className="text-center">
+            <p className="text-4xl font-display font-bold text-cyan-400 leading-none">{avgTAT}</p>
+            <p className="text-xs text-slate-400 mt-2 font-bold uppercase tracking-wider">Avg. Days</p>
           </div>
-        </ChartCard>
-      </div>
+          <div className="text-center">
+            <p className="text-4xl font-display font-bold text-emerald-400 leading-none">{withTAT.length}</p>
+            <p className="text-xs text-slate-400 mt-2 font-bold uppercase tracking-wider">Tracked</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl font-display font-bold text-amber-400 leading-none">
+              {withTAT.length ? Math.min(...withTAT.map(r => parseInt(r['TAT (Turnaround Time)']))) : 0}
+            </p>
+            <p className="text-xs text-slate-400 mt-2 font-bold uppercase tracking-wider">Fastest</p>
+          </div>
+        </div>
+      </ChartCard>
+
     </div>
   )
 }
@@ -1126,100 +1259,100 @@ export default function OverviewDashboard() {
     : approvedMrfs.filter(m => m.levelOfUrgency === filter || m.positionStatus === filter)
 
   // ── Calculations for stats (Unified Google Sheets & MongoDB) ────────────────
-  const useSheets = !!(sheetData && sheetData.hodMrf && sheetData.hodMrf.length > 0)
+  const useSheets = !!(sheetData && Object.keys(sheetData).length > 0)
 
   const normalizedMRFs = useSheets
     ? (sheetData.hodMrf || []).map(r => ({
-        _id: r['MRF ID'],
-        designation: r['Designation'],
-        department: r['Department'],
-        section: r['Section'],
-        location: r['Vacancy Location'],
-        noOfPositions: parseInt(r['Number of Vacancies']) || 1,
-        requirementType: r['Requirement Type'],
-        experience: r['Experience Required'],
-        proposedSalary: r['Proposed Salary'],
-        levelOfUrgency: r['Level of Urgency'] || 'Medium',
-        reasonForRequest: r['Vacancy Reason'],
-        replacementFor: r['Replacement For'],
-        justification: r['Justification'],
-        purposeOfJob: r['Purpose of Job'],
-        rolesResponsibilities: r['Roles & Responsibilities'],
-        minimumQualification: r['Minimum Qualification'],
-        otherKeySkills: r['Other Key Skills'],
-        reportsTo: r['Reports To'],
-        submittedBy: r['Submitted By'],
-        approvedBy: r['Approved By'],
-        approvedAt: r['Approved At'],
-        createdAt: r['Created At'] || new Date(),
-        specializations: r['Specializations'],
-        ageRange: r['Age Range'],
-        preferredIndustries: r['Preferred Industries'],
-        itRequirements: r['IT Requirements'],
-        mrfStatus: r['MRF Status'] || 'Pending Owner Approval',
-      }))
+      _id: r['MRF ID'],
+      designation: r['Designation'],
+      department: r['Department'],
+      section: r['Section'],
+      location: r['Vacancy Location'],
+      noOfPositions: parseInt(r['Number of Vacancies']) || 1,
+      requirementType: r['Requirement Type'],
+      experience: r['Experience Required'],
+      proposedSalary: r['Proposed Salary'],
+      levelOfUrgency: r['Level of Urgency'] || 'Medium',
+      reasonForRequest: r['Vacancy Reason'],
+      replacementFor: r['Replacement For'],
+      justification: r['Justification'],
+      purposeOfJob: r['Purpose of Job'],
+      rolesResponsibilities: r['Roles & Responsibilities'],
+      minimumQualification: r['Minimum Qualification'],
+      otherKeySkills: r['Other Key Skills'],
+      reportsTo: r['Reports To'],
+      submittedBy: r['Submitted By'],
+      approvedBy: r['Approved By'],
+      approvedAt: r['Approved At'],
+      createdAt: r['Created At'] || new Date(),
+      specializations: r['Specializations'],
+      ageRange: r['Age Range'],
+      preferredIndustries: r['Preferred Industries'],
+      itRequirements: r['IT Requirements'],
+      mrfStatus: r['MRF Status'] || 'Pending Owner Approval',
+    }))
     : mrfs
 
   const normalizedTracker = useSheets
     ? (sheetData.recruitmentTracker || []).map(r => ({
-        _id: r['MRF ID'],
-        designation: r['Designation'],
-        department: r['Department'],
-        location: r['Vacancy Location'],
-        positionStatus: r['Position Status'] || 'Open',
-        requirementStatus: r['Requirement Status'] || 'Pending',
-        offerStatus: r['Offer Status'] || 'Not Offered',
-        offeredCandidateName: r['Offered Candidate Name'],
-        offeredDesignation: r['Offered Designation'],
-        offerDate: r['Offer Date'],
-        tentativeDOJ: r['Tentative DOJ'],
-        actualDOJ: r['Actual DOJ'],
-        tat: r['TAT (Days)'],
-        preEmploymentMedicalStatus: r['pre employee medical status'],
-        sourceOfHiring: r['Source of Hiring'],
-        internalRefName: r['Internal Reference Name'],
-        minimumQualification: r['Qualification'],
-        lastOrganization: r['Last Organization'],
-        candidateLocation: r['Last Location'],
-        lastDesignation: r['Last Designation'],
-        totalPreviousExp: r['Total Experience (Years)'],
-        lastCTC: r['Last CTC (LPA)'],
-        offeredCTC: r['Offered CTC (LPA)'],
-        costOfCompany: r['COC (LPA)'],
-        ctcDifferencePercent: r['CTC Difference (%)'],
-        recruitmentRemarks: r['Recruitment Remarks'],
-        employeeName: r['Exit Employee Name'],
-        employeeDesignation: r['Exit Employee Designation'],
-        positionStartDate: r['Exit Date'],
-        additionalRemarks: r['Additional Remarks']
-      }))
+      _id: r['MRF ID'],
+      designation: r['Designation'],
+      department: r['Department'],
+      location: r['Vacancy Location'],
+      positionStatus: r['Position Status'] || 'Open',
+      requirementStatus: r['Requirement Status'] || 'Pending',
+      offerStatus: r['Offer Status'] || 'Not Offered',
+      offeredCandidateName: r['Offered Candidate Name'],
+      offeredDesignation: r['Offered Designation'],
+      offerDate: r['Offer Date'],
+      tentativeDOJ: r['Tentative DOJ'],
+      actualDOJ: r['Actual DOJ'],
+      tat: r['TAT (Days)'],
+      preEmploymentMedicalStatus: r['pre employee medical status'],
+      sourceOfHiring: r['Source of Hiring'],
+      internalRefName: r['Internal Reference Name'],
+      minimumQualification: r['Qualification'],
+      lastOrganization: r['Last Organization'],
+      candidateLocation: r['Last Location'],
+      lastDesignation: r['Last Designation'],
+      totalPreviousExp: r['Total Experience (Years)'],
+      lastCTC: r['Last CTC (LPA)'],
+      offeredCTC: r['Offered CTC (LPA)'],
+      costOfCompany: r['COC (LPA)'],
+      ctcDifferencePercent: r['CTC Difference (%)'],
+      recruitmentRemarks: r['Recruitment Remarks'],
+      employeeName: r['Exit Employee Name'],
+      employeeDesignation: r['Exit Employee Designation'],
+      positionStartDate: r['Exit Date'],
+      additionalRemarks: r['Additional Remarks']
+    }))
     : mrfs
 
   const normalizedCandidates = useSheets
     ? (sheetData.candidateDetails || []).map(r => ({
-        _id: r['Candidate ID'],
-        jobOpeningId: r['MRF ID'],
-        details: {
-          fullName: r['Full Name'],
-          email: r['Email'],
-          phone: r['Phone'],
-          currentTitle: r['Current Title'],
-          totalExp: r['Total Experience'],
-          highestQual: r['Highest Qualification'],
-          skills: r['Skills'],
-          currentLocation: r['Current Location'],
-          currentCompany: r['Current Company'],
-          currentCtc: r['Current CTC'],
-          expectedCtc: r['Expected CTC'],
-          noticePeriod: r['Notice Period'],
-          reasonForChange: r['Reason For Change'],
-        },
-        matchScore: parseInt(r['Match Score']) || 0,
-        matchLevel: r['Match Level'],
-        overallStatus: r['Overall Status'] || 'Applied',
-        appliedVia: r['Applied Via'],
-        createdAt: r['Applied At'] || new Date()
-      }))
+      _id: r['Candidate ID'],
+      jobOpeningId: r['MRF ID'],
+      details: {
+        fullName: r['Full Name'],
+        email: r['Email'],
+        phone: r['Phone'],
+        currentTitle: r['Current Title'],
+        totalExp: r['Total Experience'],
+        highestQual: r['Highest Qualification'],
+        skills: r['Skills'],
+        currentLocation: r['Current Location'],
+        currentCompany: r['Current Company'],
+        currentCtc: r['Current CTC'],
+        expectedCtc: r['Expected CTC'],
+        noticePeriod: r['Notice Period'],
+        reasonForChange: r['Reason For Change'],
+      },
+      matchScore: parseInt(r['Match Score']) || 0,
+      matchLevel: r['Match Level'],
+      overallStatus: r['Overall Status'] || 'Applied',
+      appliedVia: r['Applied Via'],
+      createdAt: r['Applied At'] || new Date()
+    }))
     : candidates
 
   const getOpenVacancies = () => {
@@ -1325,7 +1458,7 @@ export default function OverviewDashboard() {
     ].filter(Boolean)))
     const systemUsersCount = uniqueAdminUsers.length || 12
 
-    const totalJoinedHires = normalizedTracker.filter(t => 
+    const totalJoinedHires = normalizedTracker.filter(t =>
       t.offerStatus === 'Joined' || t.offerStatus === 'Accepted'
     ).length
     const totalEmployeesCount = 200 + totalJoinedHires
@@ -1375,7 +1508,7 @@ export default function OverviewDashboard() {
         <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/5 pb-4">
           <div>
             <span className="section-tag mb-1">
-              <ShieldCheck size={11} className="animate-pulse" /> HR Admin Console
+              <ShieldCheck size={11} className="animate-pulse" /> Admin Console
             </span>
             <h1 className="font-display font-bold text-lg text-white">
               Welcome back, {user?.name || 'Admin'}
@@ -1383,28 +1516,29 @@ export default function OverviewDashboard() {
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             {googleSheetUrl ? (
-              <>
+              <div className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 overflow-hidden text-xs font-semibold">
                 <a
                   href={googleSheetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-emerald-400 hover:bg-white/5 hover:text-emerald-300 transition-all duration-150"
+                  title="Open linked Google Sheet"
                 >
-                  <FileSpreadsheet size={14} />
-                  View Linked Sheet
-                  <ExternalLink size={12} />
+                  <FileSpreadsheet size={13} />
+                  View Sheet
                 </a>
+                <span className="w-px h-3.5 bg-white/10" />
                 <button
                   onClick={() => {
                     const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
                     if (newId !== null) handleUpdateSheetId(newId)
                   }}
                   disabled={updatingSheet}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                  className="inline-flex items-center px-3 py-1.5 text-slate-300 hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
                 >
-                  Change Sheet
+                  Change
                 </button>
-              </>
+              </div>
             ) : (
               <button
                 onClick={() => {
@@ -1414,8 +1548,8 @@ export default function OverviewDashboard() {
                 disabled={updatingSheet}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <Plus size={14} />
-                Link Google Sheet
+                <Plus size={13} />
+                Link Sheet
               </button>
             )}
             <button
@@ -1498,36 +1632,37 @@ export default function OverviewDashboard() {
         <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/5 pb-4">
           <div>
             <span className="section-tag mb-1">
-              <Activity size={11} className="animate-pulse" /> HR Recruiter Console
+              <Activity size={11} className="animate-pulse" /> HR Console
             </span>
             <h1 className="font-display font-bold text-lg text-white">
-              Welcome back, {user?.name || 'HR Manager'}
+              Welcome back, {user?.name || 'HR'}
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             {googleSheetUrl ? (
-              <>
+              <div className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 overflow-hidden text-xs font-semibold">
                 <a
                   href={googleSheetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-emerald-400 hover:bg-white/5 hover:text-emerald-300 transition-all duration-150"
+                  title="Open linked Google Sheet"
                 >
-                  <FileSpreadsheet size={14} />
-                  View Linked Sheet
-                  <ExternalLink size={12} />
+                  <FileSpreadsheet size={13} />
+                  View Sheet
                 </a>
+                <span className="w-px h-3.5 bg-white/10" />
                 <button
                   onClick={() => {
                     const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
                     if (newId !== null) handleUpdateSheetId(newId)
                   }}
                   disabled={updatingSheet}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                  className="inline-flex items-center px-3 py-1.5 text-slate-300 hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
                 >
-                  Change Sheet
+                  Change
                 </button>
-              </>
+              </div>
             ) : (
               <button
                 onClick={() => {
@@ -1537,8 +1672,8 @@ export default function OverviewDashboard() {
                 disabled={updatingSheet}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <Plus size={14} />
-                Link Google Sheet
+                <Plus size={13} />
+                Link Sheet
               </button>
             )}
             <button
@@ -1569,18 +1704,16 @@ export default function OverviewDashboard() {
               ))}
             </div>
 
-            {/* Below KPIs Layout Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start fade-up-2 mt-6">
-              {/* Performance Reports grid on the left */}
-              <div className="lg:col-span-3">
-                <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
-              </div>
-
-              {/* Recent Candidates & Upcoming Joining Dates Tables on the right */}
-              <div className="lg:col-span-1 space-y-6">
-                <RecentCandidatesCard candidates={normalizedCandidates} />
-                <UpcomingJoiningDatesCard tracker={normalizedTracker} />
-              </div>
+            {/* Performance Reports section stretching full width */}
+            <div className="fade-up-2 mt-6">
+              <PerformanceReportsSection
+                mrfs={normalizedMRFs}
+                sheetData={sheetData}
+                user={user}
+                role={role}
+                candidates={normalizedCandidates}
+                tracker={normalizedTracker}
+              />
             </div>
           </>
         )}
@@ -1592,15 +1725,15 @@ export default function OverviewDashboard() {
   const deptName = user?.department || 'Operations'
 
   // Filter HOD MRFs and tracker and candidates by their department
-  const myDeptMRFs = normalizedMRFs.filter(m => 
+  const myDeptMRFs = normalizedMRFs.filter(m =>
     m.department && m.department.toLowerCase() === deptName.toLowerCase()
   )
-  
-  const myDeptTracker = normalizedTracker.filter(t => 
+
+  const myDeptTracker = normalizedTracker.filter(t =>
     t.department && t.department.toLowerCase() === deptName.toLowerCase()
   )
 
-  const myDeptCandidates = normalizedCandidates.filter(c => 
+  const myDeptCandidates = normalizedCandidates.filter(c =>
     myDeptMRFs.some(m => m._id === c.jobOpeningId)
   )
 
@@ -1620,7 +1753,7 @@ export default function OverviewDashboard() {
       return s
     }, 0)
 
-  const pendingApprovalsCount = myDeptCandidates.filter(c => 
+  const pendingApprovalsCount = myDeptCandidates.filter(c =>
     c.overallStatus === 'Pending Head Approval' || c.overallStatus === 'Pending Owner Approval'
   ).length
 

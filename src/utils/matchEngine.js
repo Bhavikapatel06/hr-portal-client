@@ -184,8 +184,8 @@ export function rankCandidates(candidates, requirements) {
 }
 
 export const MATCH_COLORS = {
-  Strong: { text: 'text-accent', bg: 'bg-accent/15', border: 'border-accent/30', ring: 'var(--accent)' },
-  Good: { text: 'text-accent', bg: 'bg-accent/5', border: 'border-accent/20', ring: 'var(--accent)' },
-  Partial: { text: 'text-slate-400', bg: 'bg-slate-400/15', border: 'border-slate-400/25', ring: 'var(--text-placeholder)' },
-  Low: { text: 'text-slate-500', bg: 'bg-slate-500/10', border: 'border-slate-500/20', ring: 'var(--text-muted)' },
+  Strong: { text: 'text-emerald-400', bg: 'bg-emerald-400/15', border: 'border-emerald-400/30', ring: '#34d399' },
+  Good: { text: 'text-accent', bg: 'bg-accent/15', border: 'border-accent/30', ring: '#4F8EF7' },
+  Partial: { text: 'text-gold', bg: 'bg-gold/15', border: 'border-gold/30', ring: '#F5A623' },
+  Low: { text: 'text-slate-400', bg: 'bg-slate-400/15', border: 'border-slate-400/25', ring: '#94a3b8' },
 };

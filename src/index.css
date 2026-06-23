@@ -107,6 +107,35 @@ body {
   color: var(--text-primary);
   box-shadow: var(--shadow-card);
 }
+
+/* Custom thin scrollbars */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+html.light .custom-scrollbar {
+  scrollbar-color: rgba(15, 23, 42, 0.12) transparent;
+}
+html.light .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.12);
+}
+html.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
 .field::placeholder { color: var(--text-placeholder); }
 .field:hover  { border-color: var(--border-hover); }
 .field:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus-ring); }
@@ -389,8 +418,4 @@ html.light .card-selected-closed {
   box-shadow: 0 10px 25px -8px rgba(0,0,0,0.6), 0 0 12px rgba(37, 99, 235, 0.1);
 }
 
-/* ─── Custom scrollbar ───────────────────────────────────────────────────────── */
-.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.01); }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
