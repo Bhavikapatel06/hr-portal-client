@@ -441,17 +441,138 @@ function JobCard({ mrf, idx }) {
 // ── Color palettes ─────────────────────────────────────────────────────────
 const PALETTE = ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
 
-// Report Donut / Pie chart
-function ReportDonutChart({ data, size = 180, title }) {
+// ── Compact KPI Card ─────────────────────────────────────────────────────────
+function CompactKPICard({ item }) {
+  const Icon = item.icon
+  return (
+    <div className={`p-3.5 rounded-xl border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 ${item.bg}`}>
+      <div className="flex items-center justify-between gap-3 w-full">
+        <div className="min-w-0 flex-1">
+          <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase block truncate">
+            {item.label}
+          </span>
+          <p className={`font-display font-extrabold text-2xl mt-1 leading-none ${item.color}`}>
+            {item.value}
+          </p>
+        </div>
+        <div className={`p-2 rounded-lg bg-white/5 ${item.color} flex-shrink-0`}>
+          <Icon size={14} />
+        </div>
+      </div>
+      {item.change && (
+        <p className="text-[9px] text-slate-500 font-semibold mt-1 truncate">
+          {item.change}
+        </p>
+      )}
+      {item.action && (
+        <button
+          onClick={item.action.onClick}
+          className={`mt-2.5 w-full flex items-center justify-center gap-1 py-1 px-2 rounded-lg text-[9px] font-bold border transition-all duration-150 ${item.action.className}`}
+        >
+          {item.action.text}
+          <ArrowRight size={10} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ── Recent Candidates Card ───────────────────────────────────────────────────
+function RecentCandidatesCard({ candidates }) {
+  const recentCandidates = [...candidates]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5)
+
+  return (
+    <div className="card p-4 flex flex-col justify-between overflow-hidden">
+      <div>
+        <h3 className="font-display font-bold text-white text-xs flex items-center gap-2 border-b border-white/5 pb-3">
+          <Users size={14} className="text-accent" />
+          Recent Candidates
+        </h3>
+        {recentCandidates.length === 0 ? (
+          <p className="text-xs text-slate-500 italic py-6 text-center">No recent candidates</p>
+        ) : (
+          <div className="divide-y divide-white/5 mt-2">
+            {recentCandidates.map(c => (
+              <div key={c._id} className="py-2.5 flex justify-between items-center text-xs">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-white truncate">{c.details?.fullName || 'Anonymous'}</p>
+                  <p className="text-[10px] text-slate-500 truncate mt-0.5">{c.details?.currentTitle || 'No Title'}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1 ml-3 flex-shrink-0">
+                  <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[9px] text-slate-400">
+                    {c.overallStatus || 'Applied'}
+                  </span>
+                  <span className="text-[9px] text-slate-500">
+                    {relativeDate(c.createdAt)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Upcoming Joining Dates Card ──────────────────────────────────────────────
+function UpcomingJoiningDatesCard({ tracker }) {
+  const upcomingJoins = [...tracker]
+    .filter(t => t.tentativeDOJ || t.actualDOJ)
+    .sort((a, b) => {
+      const dateA = new Date(a.tentativeDOJ || a.actualDOJ)
+      const dateB = new Date(b.tentativeDOJ || b.actualDOJ)
+      return dateA - dateB
+    })
+    .slice(0, 5)
+
+  return (
+    <div className="card p-4 flex flex-col justify-between overflow-hidden">
+      <div>
+        <h3 className="font-display font-bold text-white text-xs flex items-center gap-2 border-b border-white/5 pb-3">
+          <Calendar size={14} className="text-indigo-400" />
+          Upcoming Joining Dates
+        </h3>
+        {upcomingJoins.length === 0 ? (
+          <p className="text-xs text-slate-500 italic py-6 text-center">No upcoming joining dates</p>
+        ) : (
+          <div className="divide-y divide-white/5 mt-2">
+            {upcomingJoins.map((t, idx) => (
+              <div key={t._id || idx} className="py-2.5 flex justify-between items-center text-xs">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-white truncate">{t.offeredCandidateName || 'TBD'}</p>
+                  <p className="text-[10px] text-slate-500 truncate mt-0.5">{t.offeredDesignation || 'TBD'} · {t.department}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1 ml-3 flex-shrink-0">
+                  <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-[9px] text-indigo-400">
+                    {new Date(t.tentativeDOJ || t.actualDOJ).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                  </span>
+                  <span className="text-[9px] text-slate-500">
+                    {t.offerStatus}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Report Donut / Pie chart (Compacted)
+function ReportDonutChart({ data, size = 110, title }) {
   const total = data.reduce((s, d) => s + d.value, 0) || 1
   const r = 58
   const circ = 2 * Math.PI * r
   let acc = 0
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      {title && <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
-      <div className="flex flex-col sm:flex-row items-center gap-6">
+    <div className="flex flex-col items-center gap-2 w-full">
+      {title && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
+      <div className="flex items-center gap-3 w-full justify-center">
         <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
           <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
             <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
@@ -468,9 +589,9 @@ function ReportDonutChart({ data, size = 180, title }) {
                   <circle cx="100" cy="100" r={r} fill="transparent" stroke={item.color}
                     strokeWidth="16" strokeDasharray={circ} strokeDashoffset={dashOffset}
                     transform={`rotate(${rot} 100 100)`} className="transition-all duration-700" />
-                  {pct > 0.06 && (
+                  {pct > 0.08 && (
                     <g style={{ transform: `rotate(90deg)`, transformOrigin: `${tx}px ${ty}px` }}>
-                      <text x={tx} y={ty} fill={item.color} fontSize="9" fontWeight="bold"
+                      <text x={tx} y={ty} fill={item.color} fontSize="11" fontWeight="bold"
                         textAnchor="middle" dominantBaseline="middle">
                         {Math.round(pct * 100)}%
                       </text>
@@ -481,19 +602,19 @@ function ReportDonutChart({ data, size = 180, title }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-white">{total}</span>
-            <span className="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Total</span>
+            <span className="text-base font-bold text-white leading-none">{total}</span>
+            <span className="text-[7px] text-slate-500 uppercase tracking-widest font-bold mt-0.5">Total</span>
           </div>
         </div>
-        <div className="space-y-2 flex-1 w-full max-w-[200px]">
-          {data.map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-xs border-b border-white/5 pb-1.5 last:border-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+        <div className="space-y-1.5 flex-1 min-w-0">
+          {data.slice(0, 5).map((item, i) => (
+            <div key={i} className="flex items-center justify-between text-[10px] border-b border-white/5 pb-1 last:border-0">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                 <span className="text-slate-400 truncate">{item.label}</span>
               </div>
-              <span className="text-white font-bold ml-3">
-                {item.value} <span className="text-slate-500 font-normal">({Math.round((item.value / total) * 100)}%)</span>
+              <span className="text-white font-bold ml-1.5 flex-shrink-0">
+                {item.value}
               </span>
             </div>
           ))}
@@ -503,19 +624,19 @@ function ReportDonutChart({ data, size = 180, title }) {
   )
 }
 
-// Report Vertical bar chart
-function ReportBarChart({ data, height = 180, colorFn }) {
+// Report Vertical bar chart (Compacted)
+function ReportBarChart({ data, height = 110, colorFn }) {
   const maxVal = Math.max(...data.map(d => d.value), 1)
-  const Y_STEPS = 4
+  const Y_STEPS = 3
   const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
 
   return (
-    <div className="p-4 rounded-xl bg-white/2 border border-white/5 w-full">
-      <div className="flex gap-3" style={{ height }}>
-        <div className="flex flex-col justify-between text-[10px] text-slate-500 font-bold w-8 items-end">
+    <div className="p-2.5 rounded-xl bg-white/2 border border-white/5 w-full">
+      <div className="flex gap-2" style={{ height }}>
+        <div className="flex flex-col justify-between text-[9px] text-slate-500 font-bold w-6 items-end">
           {gridLines.map((g, i) => <span key={i}>{g}</span>)}
         </div>
-        <div className="flex-1 border-b border-l border-white/10 relative flex items-end justify-around px-2 pt-4">
+        <div className="flex-1 border-b border-l border-white/10 relative flex items-end justify-around px-1 pt-2">
           {Array.from({ length: Y_STEPS }).map((_, i) => (
             <div key={i} className="absolute border-t border-white/5 w-full left-0"
               style={{ bottom: `${(i / Y_STEPS) * 100}%` }} />
@@ -524,14 +645,14 @@ function ReportBarChart({ data, height = 180, colorFn }) {
             const pct = (item.value / maxVal) * 100
             const color = colorFn ? colorFn(i) : PALETTE[i % PALETTE.length]
             return (
-              <div key={i} className="flex flex-col items-center flex-1 group h-full justify-end relative max-w-[55px]">
+              <div key={i} className="flex flex-col items-center flex-1 group h-full justify-end relative max-w-[40px]">
                 <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
-                  bg-ink-950 border border-white/10 rounded px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                  bg-ink-950 border border-white/10 rounded px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
                   {item.value} {item.unit || ''}
                 </div>
                 <div className="w-full rounded-t transition-all duration-500"
                   style={{ height: `${pct}%`, backgroundColor: color, opacity: 0.85 }} />
-                <div className="absolute top-full mt-1.5 text-[9px] text-slate-500 font-bold text-center truncate w-full" title={item.label}>
+                <div className="absolute top-full mt-1 text-[8px] text-slate-500 font-bold text-center truncate w-full" title={item.label}>
                   {item.label}
                 </div>
               </div>
@@ -539,26 +660,26 @@ function ReportBarChart({ data, height = 180, colorFn }) {
           })}
         </div>
       </div>
-      <div className="h-5" />
+      <div className="h-3" />
     </div>
   )
 }
 
-// Report Horizontal bar (progress style)
+// Report Horizontal bar (progress style) (Compacted)
 function HBarChart({ data }) {
   const max = Math.max(...data.map(d => d.value), 1)
   return (
-    <div className="space-y-3 p-4 rounded-xl bg-white/2 border border-white/5 w-full">
+    <div className="space-y-2 p-2.5 rounded-xl bg-white/2 border border-white/5 w-full">
       {data.map((item, i) => {
         const pct = Math.round((item.value / max) * 100)
         const color = item.color || PALETTE[i % PALETTE.length]
         return (
-          <div key={i} className="space-y-1">
-            <div className="flex justify-between text-xs font-semibold">
-              <span className="text-slate-400">{item.label}</span>
-              <span className="text-white">{item.value} <span className="text-slate-500 font-normal">({pct}%)</span></span>
+          <div key={i} className="space-y-0.5">
+            <div className="flex justify-between text-[10px] font-semibold">
+              <span className="text-slate-400 truncate max-w-[120px]">{item.label}</span>
+              <span className="text-white font-bold">{item.value} <span className="text-slate-500 font-normal">({pct}%)</span></span>
             </div>
-            <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${pct}%`, backgroundColor: color }} />
             </div>
@@ -569,9 +690,9 @@ function HBarChart({ data }) {
   )
 }
 
-// Report Line chart (trends)
+// Report Line chart (trends) (Compacted)
 function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
-  const W = 500, H = 160, PAD = 32
+  const W = 500, H = 120, PAD = 20
   const vals = data.map(d => d.value)
   const maxVal = Math.max(...vals, 1)
   const divisor = data.length > 1 ? data.length - 1 : 1
@@ -588,7 +709,7 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
     : ''
 
   return (
-    <div className="p-4 rounded-xl bg-white/2 border border-white/5 w-full">
+    <div className="p-2.5 rounded-xl bg-white/2 border border-white/5 w-full flex flex-col justify-between">
       <div className="relative w-full" style={{ height: H }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full">
           <defs>
@@ -604,31 +725,33 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
           {pathD && <path d={pathD} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
           {points.map((p, i) => (
             <g key={i} className="group cursor-pointer">
-              <circle cx={p.x} cy={p.y} r="5" fill={color} stroke="#12131a" strokeWidth="2" />
-              <circle cx={p.x} cy={p.y} r="12" fill="transparent" />
-              <text x={p.x} y={p.y - 10} fill="white" fontSize="9" textAnchor="middle" fontWeight="bold" className="hidden group-hover:block">{p.val}</text>
-              <text x={p.x} y={H - 10} fill="#64748b" fontSize="8" fontWeight="bold" textAnchor="middle">{p.label}</text>
+              <circle cx={p.x} cy={p.y} r="4" fill={color} stroke="#12131a" strokeWidth="2" />
+              <circle cx={p.x} cy={p.y} r="10" fill="transparent" />
+              <text x={p.x} y={p.y - 8} fill="white" fontSize="9" textAnchor="middle" fontWeight="bold" className="hidden group-hover:block">{p.val}</text>
+              <text x={p.x} y={H - 4} fill="#64748b" fontSize="8" fontWeight="bold" textAnchor="middle">{p.label}</text>
             </g>
           ))}
         </svg>
       </div>
-      <div className="flex items-center gap-1.5 justify-center mt-1 text-[10px] font-bold" style={{ color }}>
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+      <div className="flex items-center gap-1 justify-center mt-1.5 text-[9px] font-bold" style={{ color }}>
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
         {label}
       </div>
     </div>
   )
 }
 
-// Chart Section Wrapper
-function ChartCard({ title, icon: Icon, iconColor, children, wide }) {
+// Chart Section Wrapper (Compacted)
+function ChartCard({ title, icon: Icon, iconColor, children }) {
   return (
-    <div className={`card p-5 border border-white/5 bg-ink-950/40 space-y-4 ${wide ? 'md:col-span-2' : ''}`}>
-      <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-        {Icon && <Icon size={15} className={iconColor} />}
-        {title}
-      </h3>
-      {children}
+    <div className="card p-3 border border-white/5 bg-ink-950/40 flex flex-col justify-between hover:border-white/10 transition-all duration-200">
+      <h4 className="font-display font-bold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 border-b border-white/5 pb-2 mb-2">
+        {Icon && <Icon size={12} className={iconColor} />}
+        <span className="truncate">{title}</span>
+      </h4>
+      <div className="flex-1 flex items-center justify-center min-h-[120px] w-full">
+        {children}
+      </div>
     </div>
   )
 }
@@ -799,183 +922,126 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role }) {
   const deptAvgTAT = Object.entries(tatDeptMap).map(([label, v]) => ({ label, value: Math.round(v.total / v.count), unit: 'days' }))
 
   return (
-    <div className="space-y-12 pt-8 border-t border-white/5 mt-10">
-      <div>
-        <h2 className="font-display font-extrabold text-white text-xl tracking-tight flex items-center gap-2">
-          <Activity className="text-accent animate-pulse" size={20} />
-          Performance & Analytics Reports
-        </h2>
-        <p className="text-xs text-slate-500 mt-1">
-          Detailed metrics and pipeline breakdowns generated from live tracker data.
-        </p>
-      </div>
+    <div className="space-y-4">
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${role === 'hr' ? '' : 'xl:grid-cols-3'}`}>
 
-      {/* ── SECTION 1: Recruitment & Hiring Funnel ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">1. Recruitment & Hiring Funnel</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="MRF Pipeline Overview" icon={BarChart3} iconColor="text-accent">
-            <ReportBarChart data={[
-              { label: 'Pending', value: pending },
-              { label: 'Approved', value: approved },
-              { label: 'Rejected', value: rejected },
-            ]} colorFn={(i) => ['#f59e0b','#10b981','#ef4444'][i]} />
-          </ChartCard>
-          <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
-            <HBarChart data={[
-              { label: 'Total Vacancies',   value: totalVacs, color: '#06b6d4' },
-              { label: 'Offered Candidates', value: offered,  color: '#6366f1' },
-              { label: 'Joined / Onboarded', value: filled,   color: '#10b981' },
-            ]} />
-          </ChartCard>
-        </div>
-      </div>
+        <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+          <HBarChart data={[
+            { label: 'Total Vacancies',   value: totalVacs, color: '#06b6d4' },
+            { label: 'Offered Candidates', value: offered,  color: '#6366f1' },
+            { label: 'Joined / Onboarded', value: filled,   color: '#10b981' },
+          ]} />
+        </ChartCard>
 
-      {/* ── SECTION 2: Departmental Vacancies & Positions ── */}
-      {role !== 'department_head' && (
-        <div className="space-y-6">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">2. Departmental Vacancies & Positions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ChartCard title="Department-wise Open Positions" icon={BarChart3} iconColor="text-cyan-400">
+        {role !== 'department_head' && (
+          <>
+            <ChartCard title="Dept Open Positions" icon={BarChart3} iconColor="text-cyan-400">
               <ReportBarChart data={deptLabels.map(l => ({ label: l, value: deptOpen[l] || 0 }))} colorFn={() => '#06b6d4'} />
             </ChartCard>
-            <ChartCard title="Department-wise Filled Positions" icon={BarChart3} iconColor="text-emerald-400">
+            <ChartCard title="Dept Filled Positions" icon={BarChart3} iconColor="text-emerald-400">
               <ReportBarChart data={deptLabels.map(l => ({ label: l, value: deptFilled[l] || 0 }))} colorFn={() => '#10b981'} />
             </ChartCard>
-            <ChartCard title="Department-wise Total Vacancy Count" icon={PieChart} iconColor="text-indigo-400" wide>
+            <ChartCard title="Dept Total Vacancies" icon={PieChart} iconColor="text-indigo-400">
               <ReportDonutChart data={top5.map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
             </ChartCard>
-          </div>
-        </div>
-      )}
+          </>
+        )}
 
-      {/* ── SECTION 3: Vacancy & Requirement Status ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '2. Vacancy & Requirement Status' : '3. Vacancy & Requirement Status'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="Position Status Distribution" icon={PieChart} iconColor="text-indigo-400">
-            <ReportDonutChart data={posData} />
-          </ChartCard>
-          <ChartCard title="Requirement Status Distribution" icon={PieChart} iconColor="text-cyan-400">
-            <ReportDonutChart data={reqData} />
-          </ChartCard>
-        </div>
-      </div>
+        <ChartCard title="Position Status" icon={PieChart} iconColor="text-indigo-400">
+          <ReportDonutChart data={posData} />
+        </ChartCard>
 
-      {/* ── SECTION 4: MRF Status Breakdown ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '3. MRF Status Breakdown' : '4. MRF Status Breakdown'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="MRF Status Breakdown" icon={PieChart} iconColor="text-amber-400">
-            <ReportDonutChart data={[
-              { label: 'Pending Review', value: mrfPending,  color: '#f59e0b' },
-              { label: 'Approved',       value: mrfApproved, color: '#10b981' },
-              { label: 'Rejected',       value: mrfRejected, color: '#ef4444' },
-              { label: 'Draft',          value: mrfDraft,    color: '#64748b' },
-            ].filter(d => d.value > 0)} />
-          </ChartCard>
-          {role !== 'department_head' && (
-            <ChartCard title="MRFs by Department" icon={BarChart3} iconColor="text-accent">
-              <ReportBarChart data={deptData.map(([label, value]) => ({ label, value }))} />
-            </ChartCard>
-          )}
-        </div>
-      </div>
+        <ChartCard title="Requirement Status" icon={PieChart} iconColor="text-cyan-400">
+          <ReportDonutChart data={reqData} />
+        </ChartCard>
 
-      {/* ── SECTION 5: Staff Attrition & Exit Trends ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '4. Staff Attrition & Exit Trends' : '5. Staff Attrition & Exit Trends'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="Upcoming Retirements by Month" icon={Calendar} iconColor="text-pink-400" wide>
-            <ReportLineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements per month" />
-          </ChartCard>
-          {role !== 'department_head' && (
-            <ChartCard title="Retirements by Department" icon={BarChart3} iconColor="text-rose-400">
-              <ReportBarChart data={Object.entries(exitDeptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
-            </ChartCard>
-          )}
-          <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
-            <ReportDonutChart data={[
-              { label: 'Exit Replacement', value: exits.length, color: '#ec4899' },
-              { label: 'New Positions',    value: totalVacs - exits.length, color: '#64748b' },
-            ].filter(d => d.value > 0)} />
-          </ChartCard>
-        </div>
-      </div>
+        <ChartCard title="MRF Status Breakdown" icon={PieChart} iconColor="text-amber-400">
+          <ReportDonutChart data={[
+            { label: 'Pending Review', value: mrfPending,  color: '#f59e0b' },
+            { label: 'Approved',       value: mrfApproved, color: '#10b981' },
+            { label: 'Rejected',       value: mrfRejected, color: '#ef4444' },
+            { label: 'Draft',          value: mrfDraft,    color: '#64748b' },
+          ].filter(d => d.value > 0)} />
+        </ChartCard>
 
-      {/* ── SECTION 6: Resignation Analysis ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '5. Resignation Analysis' : '6. Resignation Analysis'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="Resignation / Exit Replacements Trend" icon={TrendingUp} iconColor="text-orange-400" wide>
-            <ReportLineChart data={RESIGN_MONTHS.map(m => ({ label: m, value: resignMonthMap[m] }))} color="#f97316" label="Exit replacements over months" />
+        {role !== 'department_head' && (
+          <ChartCard title="MRFs by Department" icon={BarChart3} iconColor="text-accent">
+            <ReportBarChart data={deptData.map(([label, value]) => ({ label, value }))} />
           </ChartCard>
-          <ChartCard title="Replacement Hire Source" icon={PieChart} iconColor="text-amber-400">
-            <ReportDonutChart data={Object.entries(exitSourceMap).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
-          </ChartCard>
-        </div>
-      </div>
+        )}
 
-      {/* ── SECTION 7: Source of Hiring ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '6. Source of Hiring' : '7. Source of Hiring'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="All Hiring Sources Distribution" icon={PieChart} iconColor="text-emerald-400">
-            <ReportDonutChart data={srcData} />
-          </ChartCard>
-          <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
-            <ReportBarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
-          </ChartCard>
-        </div>
-      </div>
+        <ChartCard title="Retirements by Month" icon={Calendar} iconColor="text-pink-400">
+          <ReportLineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements" />
+        </ChartCard>
 
-      {/* ── SECTION 8: Offer vs Joining ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '7. Offer vs Joining' : '8. Offer vs Joining'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
-            <ReportDonutChart data={Object.entries(offerSummaryMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
+        {role !== 'department_head' && (
+          <ChartCard title="Retirements by Dept" icon={BarChart3} iconColor="text-rose-400">
+            <ReportBarChart data={Object.entries(exitDeptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
           </ChartCard>
-          <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
-            <HBarChart data={[
-              { label: 'Total Offered',    value: offered,  color: '#f59e0b' },
-              { label: 'Actually Joined',  value: filled,   color: '#10b981' },
-            ]} />
-          </ChartCard>
-        </div>
-      </div>
+        )}
 
-      {/* ── SECTION 9: TAT Analysis ── */}
-      <div className="space-y-6">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">{role === 'department_head' ? '8. TAT Analysis' : '9. TAT Analysis'}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ChartCard title="TAT Distribution Buckets" icon={PieChart} iconColor="text-rose-400">
-            <ReportDonutChart data={Object.entries(tatBuckets).map(([label, value], i) => ({ label, value, color: ['#10b981','#06b6d4','#f59e0b','#ef4444'][i] })).filter(d => d.value > 0)} />
+        <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
+          <ReportDonutChart data={[
+            { label: 'Exit Replacement', value: exits.length, color: '#ec4899' },
+            { label: 'New Positions',    value: totalVacs - exits.length, color: '#64748b' },
+          ].filter(d => d.value > 0)} />
+        </ChartCard>
+
+        <ChartCard title="Resignation Trend" icon={TrendingUp} iconColor="text-orange-400">
+          <ReportLineChart data={RESIGN_MONTHS.map(m => ({ label: m, value: resignMonthMap[m] }))} color="#f97316" label="Exit replacements" />
+        </ChartCard>
+
+        <ChartCard title="Replacement Hire Source" icon={PieChart} iconColor="text-amber-400">
+          <ReportDonutChart data={Object.entries(exitSourceMap).map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
+        </ChartCard>
+
+        <ChartCard title="All Hiring Sources" icon={PieChart} iconColor="text-emerald-400">
+          <ReportDonutChart data={srcData} />
+        </ChartCard>
+
+        <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
+          <ReportBarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
+        </ChartCard>
+
+        <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
+          <ReportDonutChart data={Object.entries(offerSummaryMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
+        </ChartCard>
+
+        <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+          <HBarChart data={[
+            { label: 'Total Offered',    value: offered,  color: '#f59e0b' },
+            { label: 'Actually Joined',  value: filled,   color: '#10b981' },
+          ]} />
+        </ChartCard>
+
+        <ChartCard title="TAT Distribution Buckets" icon={PieChart} iconColor="text-rose-400">
+          <ReportDonutChart data={Object.entries(tatBuckets).map(([label, value], i) => ({ label, value, color: ['#10b981','#06b6d4','#f59e0b','#ef4444'][i] })).filter(d => d.value > 0)} />
+        </ChartCard>
+
+        {role !== 'department_head' && (
+          <ChartCard title="Average TAT by Dept" icon={BarChart3} iconColor="text-amber-400">
+            <ReportBarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
           </ChartCard>
-          {role !== 'department_head' && (
-            <ChartCard title="Average TAT by Department" icon={BarChart3} iconColor="text-amber-400">
-              <ReportBarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
-            </ChartCard>
-          )}
-          <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400" wide>
-            <div className="flex items-center justify-center gap-8 py-6">
-              <div className="text-center">
-                <p className="text-5xl font-display font-bold text-cyan-400">{avgTAT}</p>
-                <p className="text-sm text-slate-500 mt-2 font-semibold">Avg. Days</p>
-              </div>
-              <div className="text-center">
-                <p className="text-5xl font-display font-bold text-emerald-400">{withTAT.length}</p>
-                <p className="text-sm text-slate-500 mt-2 font-semibold">MRFs Tracked</p>
-              </div>
-              <div className="text-center">
-                <p className="text-5xl font-display font-bold text-amber-400">
-                  {Math.min(...withTAT.map(r => parseInt(r['TAT (Turnaround Time)']))) || 0}
-                </p>
-                <p className="text-sm text-slate-500 mt-2 font-semibold">Fastest (days)</p>
-              </div>
+        )}
+
+        <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400">
+          <div className="flex items-center justify-around py-3 w-full">
+            <div className="text-center">
+              <p className="text-2xl font-display font-bold text-cyan-400 leading-none">{avgTAT}</p>
+              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Avg. Days</p>
             </div>
-          </ChartCard>
-        </div>
+            <div className="text-center">
+              <p className="text-2xl font-display font-bold text-emerald-400 leading-none">{withTAT.length}</p>
+              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Tracked</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-display font-bold text-amber-400 leading-none">
+                {withTAT.length ? Math.min(...withTAT.map(r => parseInt(r['TAT (Turnaround Time)']))) : 0}
+              </p>
+              <p className="text-[9px] text-slate-500 mt-1 font-semibold">Fastest</p>
+            </div>
+          </div>
+        </ChartCard>
       </div>
     </div>
   )
@@ -995,6 +1061,21 @@ export default function OverviewDashboard() {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
   const [toast, setToast] = useState(null)
+  const [updatingSheet, setUpdatingSheet] = useState(false)
+
+  const handleUpdateSheetId = async (newId) => {
+    if (!newId || !newId.trim()) return
+    setUpdatingSheet(true)
+    try {
+      await sheetApi.updateConfig(newId.trim())
+      setSheetId(newId.trim())
+      await loadDashboardData()
+    } catch (e) {
+      console.error('Failed to update Google Sheet config:', e)
+    } finally {
+      setUpdatingSheet(false)
+    }
+  }
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -1301,17 +1382,41 @@ export default function OverviewDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {googleSheetUrl && (
-              <a
-                href={googleSheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+            {googleSheetUrl ? (
+              <>
+                <a
+                  href={googleSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                >
+                  <FileSpreadsheet size={14} />
+                  View Linked Sheet
+                  <ExternalLink size={12} />
+                </a>
+                <button
+                  onClick={() => {
+                    const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
+                    if (newId !== null) handleUpdateSheetId(newId)
+                  }}
+                  disabled={updatingSheet}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                >
+                  Change Sheet
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  const newId = prompt("Enter Google Spreadsheet ID:")
+                  if (newId !== null) handleUpdateSheetId(newId)
+                }}
+                disabled={updatingSheet}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <FileSpreadsheet size={14} />
-                View Linked Sheet
-                <ExternalLink size={12} />
-              </a>
+                <Plus size={14} />
+                Link Google Sheet
+              </button>
             )}
             <button
               onClick={loadDashboardData}
@@ -1334,161 +1439,17 @@ export default function OverviewDashboard() {
           </div>
         ) : (
           <>
-            {/* KPI Cards Grid */}
+            {/* KPI Metrics Panel on Top */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
-              {/* Hero Card: Pending Approvals */}
-              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Pending Approvals</span>
-                  <Clock size={16} className="text-amber-400" />
-                </div>
-                <div className="mt-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="font-display font-extrabold text-4xl text-amber-400 leading-none">{pendingMRFs}</p>
-                    {pendingMRFs === 0 ? (
-                      <p className="text-[10px] text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
-                        All caught up! 🎉 No approvals pending.
-                      </p>
-                    ) : (
-                      <p className="text-[10px] text-amber-500/80 font-semibold mt-1.5">
-                        Requires action from admin owners
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => navigate('/mrf-approvals')}
-                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white border border-amber-500/20 text-xs font-semibold transition-all duration-150 w-fit"
-                  >
-                    Review Pending
-                    <ArrowRight size={12} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2: Approved Requisitions */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Approved Requisitions</span>
-                  <CheckCircle2 size={16} className="text-emerald-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-emerald-400 leading-none">{approvedMRFs}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
-                    <TrendingUp size={10} /> Active hires
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 3: Total Open Positions */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-cyan-500/10 border-cyan-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Open Positions</span>
-                  <Briefcase size={16} className="text-cyan-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-cyan-400 leading-none">{openVacancies}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
-                    <TrendingUp size={10} /> Across departments
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 4: Total Employees */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-indigo-500/10 border-indigo-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Total Employees</span>
-                  <Users size={16} className="text-indigo-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-indigo-400 leading-none">{totalEmployeesCount}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Live head count
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 5: Active Departments */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-pink-500/10 border-pink-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Active Depts</span>
-                  <Building2 size={16} className="text-pink-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-pink-400 leading-none">{activeDeptsCount}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Synced from sheet
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 6: System Users */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-purple-500/10 border-purple-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">System Users</span>
-                  <ShieldCheck size={16} className="text-purple-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-purple-400 leading-none">{systemUsersCount}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Authorized roles
-                  </p>
-                </div>
-              </div>
+              {adminKPI.map((item, idx) => (
+                <CompactKPICard key={idx} item={item} />
+              ))}
             </div>
 
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-up-2">
-              {/* Workforce Overview Bar Chart */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Building2 size={15} className="text-slate-400" /> Workforce Overview
-                </h3>
-                <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
-                  <BarChart data={workforceData} />
-                </div>
-              </div>
-
-              {/* Requisition Status Donut */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Activity size={15} className="text-accent" /> Requisition Status
-                </h3>
-                <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
-                  <DonutChart data={statusChartData} />
-                </div>
-              </div>
-
-              {/* Recent System Activities List */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Bell size={15} className="text-amber-400" /> Recent System Activities
-                </h3>
-                <div className="mt-4 flex-1 space-y-3.5 divide-y divide-white/5">
-                  {[
-                    { text: 'New user added: John Doe (HR Manager)', time: '10 min ago', icon: UserCheck, color: 'text-slate-400 bg-slate-500/10 border-slate-500/20' },
-                    { text: 'Department updated: Engineering', time: '1 hour ago', icon: Building2, color: 'text-slate-400 bg-slate-600/10 border-slate-600/20' },
-                    { text: 'New requisition approved: Senior Frontend Developer', time: '2 hours ago', icon: CheckCircle2, color: 'text-accent bg-accent/10 border-accent/20' },
-                    { text: 'System backup completed successfully', time: 'Yesterday', icon: ShieldCheck, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' }
-                  ].map((act, idx) => {
-                    const ActIcon = act.icon
-                    return (
-                      <div key={idx} className="pt-3.5 first:pt-0 flex items-start gap-3 text-xs">
-                        <div className={`p-1.5 rounded-lg border ${act.color} flex-shrink-0 mt-0.5`}>
-                          <ActIcon size={12} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-slate-300 font-medium leading-relaxed">{act.text}</p>
-                          <span className="text-[10px] text-slate-500 font-semibold mt-0.5 block">{act.time}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+            {/* Performance Reports grid full width */}
+            <div className="fade-up-2 mt-6">
+              <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
             </div>
-
-            {/* Analytics & Performance Reports Section */}
-            <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
           </>
         )}
       </div>
@@ -1544,17 +1505,41 @@ export default function OverviewDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            {googleSheetUrl && (
-              <a
-                href={googleSheetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+            {googleSheetUrl ? (
+              <>
+                <a
+                  href={googleSheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150"
+                >
+                  <FileSpreadsheet size={14} />
+                  View Linked Sheet
+                  <ExternalLink size={12} />
+                </a>
+                <button
+                  onClick={() => {
+                    const newId = prompt("Enter Google Spreadsheet ID:", sheetId)
+                    if (newId !== null) handleUpdateSheetId(newId)
+                  }}
+                  disabled={updatingSheet}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+                >
+                  Change Sheet
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  const newId = prompt("Enter Google Spreadsheet ID:")
+                  if (newId !== null) handleUpdateSheetId(newId)
+                }}
+                disabled={updatingSheet}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white text-xs font-semibold transition-all shadow-glow-sm disabled:opacity-50"
               >
-                <FileSpreadsheet size={14} />
-                View Linked Sheet
-                <ExternalLink size={12} />
-              </a>
+                <Plus size={14} />
+                Link Google Sheet
+              </button>
             )}
             <button
               onClick={loadDashboardData}
@@ -1577,156 +1562,26 @@ export default function OverviewDashboard() {
           </div>
         ) : (
           <>
-            {/* 5 Recruiter KPI Cards Grid */}
+            {/* KPI Metrics Panel on Top */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
-              {/* Hero Card: Active Openings */}
-              <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Active Openings</span>
-                  <Briefcase size={16} className="text-emerald-400" />
-                </div>
-                <div className="mt-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="font-display font-extrabold text-4xl text-emerald-400 leading-none">{openVacancies}</p>
-                    {openVacancies === 0 ? (
-                      <p className="text-[10px] text-amber-400 font-semibold mt-1.5">
-                        No active requisitions live.
-                      </p>
-                    ) : (
-                      <p className="text-[10px] text-emerald-400 font-semibold mt-1.5">
-                        Actively sourcing & screening
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => navigate('/recruitment')}
-                    className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-semibold transition-all duration-150 w-fit"
-                  >
-                    Manage Recruitment
-                    <ArrowRight size={12} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2: Candidates Pipeline */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-cyan-500/10 border-cyan-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Candidates</span>
-                  <Users size={16} className="text-cyan-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-cyan-400 leading-none">{candidatePipelineCount}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
-                    Synced candidates
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 3: Interviews Scheduled */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-indigo-500/10 border-indigo-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Interviews</span>
-                  <Calendar size={16} className="text-indigo-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-indigo-400 leading-none">
-                    {interviewsScheduledCount}
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    In progress stages
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 4: Offers Released */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-pink-500/10 border-pink-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Offers Released</span>
-                  <Award size={16} className="text-pink-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-pink-400 leading-none">
-                    {offersReleasedCount}
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Awaiting signatures
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 5: Positions Filled */}
-              <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
-                <div className="flex justify-between items-start">
-                  <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Hired & Joined</span>
-                  <UserCheck size={16} className="text-amber-400" />
-                </div>
-                <div className="mt-4">
-                  <p className="font-display font-extrabold text-3xl text-amber-400 leading-none">
-                    {positionsFilledCount}
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                    Total onboarding
-                  </p>
-                </div>
-              </div>
+              {hrKPI.map((item, idx) => (
+                <CompactKPICard key={idx} item={item} />
+              ))}
             </div>
 
-            {/* Line Chart, Donut Chart, and Candidate Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-up-2">
-              {/* Requisitions Overview Line Chart */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <TrendingUp size={15} className="text-purple-400" /> Requisitions Overview (6 Weeks)
-                </h3>
-                <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
-                  <LineChart data={trendData} />
-                </div>
+            {/* Below KPIs Layout Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start fade-up-2 mt-6">
+              {/* Performance Reports grid on the left */}
+              <div className="lg:col-span-3">
+                <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
               </div>
 
-              {/* Candidates by Stage Donut Chart */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Users size={15} className="text-cyan-400" /> Candidates by Stage
-                </h3>
-                <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
-                  <DonutChart data={stageData} />
-                </div>
-              </div>
-
-              {/* Recent Recruiter Activities */}
-              <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-                <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                  <Sparkles size={15} className="text-indigo-400" /> Recent Recruiter Activities
-                </h3>
-                <div className="mt-4 flex-1 space-y-3.5 divide-y divide-white/5">
-                  {[
-                    { text: 'New candidate applied for Senior Frontend Developer', score: '94% match score', time: '15 min ago', icon: Sparkles, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
-                    { text: 'Interview scheduled with candidate Amit Patel', score: '88% match score', time: '1 hour ago', icon: Calendar, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' },
-                    { text: 'Offer released for candidate Priya Sharma', score: '91% match score', time: '3 hours ago', icon: Award, color: 'text-pink-400 bg-pink-500/10 border-pink-500/20' },
-                    { text: 'Candidate Priya Sharma accepted the offer', score: 'Offer stage', time: 'Yesterday', icon: CheckCircle2, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' }
-                  ].map((act, idx) => {
-                    const ActIcon = act.icon
-                    return (
-                      <div key={idx} className="pt-3.5 first:pt-0 flex items-start gap-3 text-xs">
-                        <div className={`p-1.5 rounded-lg border ${act.color} flex-shrink-0 mt-0.5`}>
-                          <ActIcon size={12} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-slate-300 font-medium leading-relaxed">{act.text}</p>
-                          <div className="flex justify-between items-center mt-1">
-                            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[9px] font-bold border border-emerald-500/15">{act.score}</span>
-                            <span className="text-[9px] text-slate-500 font-semibold">{act.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+              {/* Recent Candidates & Upcoming Joining Dates Tables on the right */}
+              <div className="lg:col-span-1 space-y-6">
+                <RecentCandidatesCard candidates={normalizedCandidates} />
+                <UpcomingJoiningDatesCard tracker={normalizedTracker} />
               </div>
             </div>
-
-            {/* Analytics & Performance Reports Section */}
-            <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
           </>
         )}
       </div>
@@ -1776,27 +1631,37 @@ export default function OverviewDashboard() {
     m.reasonForRequest === 'Resignation' ||
     (m.employeeName && m.employeeName !== 'None' && m.employeeName !== '')
   ).length
-
   const dhKPI = [
-    { label: 'Open Positions', value: myOpenPositions, change: 'Active vacancies', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Briefcase },
-    { label: 'Hiring Requests', value: myDeptMRFs.length, change: 'Total submitted', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: FileText },
-    { label: 'Pending Approvals', value: pendingApprovalsCount, change: 'Awaiting feedback', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Clock },
-    { label: 'Team Strength', value: activeTeamStrength, change: 'Active head count', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Users },
-    { label: 'Upcoming Exits', value: myUpcomingExits, change: 'Next 30 days', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Calendar }
+    {
+      label: 'Pending Approvals',
+      value: pendingApprovalsCount,
+      change: 'Awaiting head feedback',
+      color: 'text-purple-400',
+      bg: 'bg-purple-500/10 border-purple-500/20',
+      icon: Clock,
+      action: {
+        onClick: () => navigate('/my-mrfs'),
+        text: 'Review Applications',
+        className: 'bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-white border-purple-500/20'
+      }
+    },
+    {
+      label: 'Hiring Requests',
+      value: myDeptMRFs.length,
+      change: 'Total submitted requests',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10 border-amber-500/20',
+      icon: FileText,
+      action: {
+        onClick: () => navigate('/my-mrfs', { state: { openNewRequest: true } }),
+        text: 'Create Requisition',
+        className: 'bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white border-amber-500/20'
+      }
+    },
+    { label: 'Open Positions', value: myOpenPositions, change: 'Active vacancies', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', icon: Briefcase },
+    { label: 'Team Strength', value: activeTeamStrength, change: 'Current head count', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: Users },
+    { label: 'Upcoming Exits', value: myUpcomingExits, change: 'Next 30 days', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', icon: Calendar }
   ]
-
-  const dhStatusData = [
-    { label: 'Approved', value: myApproved, color: '#4F8EF7' },
-    { label: 'Pending', value: myPending, color: '#7E8CA8' },
-    { label: 'Rejected', value: myRejected, color: '#4A5870' }
-  ]
-
-  const MRF_STATUS_CFG = {
-    'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-white/5 border-white/8', dot: 'bg-slate-400' },
-    'Pending Owner Approval': { label: 'Pending Review', color: 'text-slate-300', bg: 'bg-white/5 border-white/10', dot: 'bg-slate-400' },
-    'Approved': { label: 'Approved', color: 'text-accent', bg: 'bg-accent/10 border-accent/20', dot: 'bg-accent' },
-    'Rejected': { label: 'Rejected', color: 'text-slate-500', bg: 'bg-white/5 border-white/8', dot: 'bg-slate-600' },
-  }
 
   const googleSheetUrl = sheetId ? `https://docs.google.com/spreadsheets/d/${sheetId}/edit` : null
 
@@ -1846,165 +1711,17 @@ export default function OverviewDashboard() {
         </div>
       ) : (
         <>
-          {/* HOD KPI Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 fade-up-1">
-            {/* Hero Card: Pending Approvals */}
-            <div className="col-span-2 sm:col-span-3 lg:col-span-2 card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-purple-500/10 border-purple-500/20 overflow-hidden">
-              <div className="flex justify-between items-start">
-                <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Pending Approvals</span>
-                <Clock size={16} className="text-purple-400" />
-              </div>
-              <div className="mt-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <p className="font-display font-extrabold text-4xl text-purple-400 leading-none">{pendingApprovalsCount}</p>
-                  {pendingApprovalsCount === 0 ? (
-                    <p className="text-[10px] text-emerald-400 font-semibold mt-1.5 flex items-center gap-1">
-                      All caught up! 🎉 No approvals pending.
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-purple-400/80 font-semibold mt-1.5">
-                      Candidates awaiting head feedback
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => navigate('/my-mrfs')}
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500 text-purple-400 hover:text-white border border-purple-500/20 text-xs font-semibold transition-all duration-150 w-fit"
-                >
-                  Review Applications
-                  <ArrowRight size={12} />
-                </button>
-              </div>
-            </div>
-
-            {/* Card 2: Hiring Requests */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-amber-500/10 border-amber-500/20 overflow-hidden">
-              <div className="flex justify-between items-start">
-                <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Hiring Requests</span>
-                <FileText size={16} className="text-amber-400" />
-              </div>
-              <div className="mt-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <p className="font-display font-extrabold text-3xl text-amber-400 leading-none">{myDeptMRFs.length}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold mt-1.5">Total requisitions</p>
-                </div>
-                <button
-                  onClick={() => navigate('/my-mrfs', { state: { openNewRequest: true } })}
-                  className="mt-3 text-[10px] text-amber-400 font-bold hover:underline flex items-center gap-0.5 text-left"
-                >
-                  + Create Requisition
-                </button>
-              </div>
-            </div>
-
-            {/* Card 3: Open Positions */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-blue-500/10 border-blue-500/20 overflow-hidden">
-              <div className="flex justify-between items-start">
-                <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Open Positions</span>
-                <Briefcase size={16} className="text-blue-400" />
-              </div>
-              <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-blue-400 leading-none">{myOpenPositions}</p>
-                <p className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
-                  <TrendingUp size={10} /> Active vacancies
-                </p>
-              </div>
-            </div>
-
-            {/* Card 4: Team Strength */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-emerald-500/10 border-emerald-500/20 overflow-hidden">
-              <div className="flex justify-between items-start">
-                <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Team Strength</span>
-                <Users size={16} className="text-emerald-400" />
-              </div>
-              <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-emerald-400 leading-none">{activeTeamStrength}</p>
-                <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                  Current head count
-                </p>
-              </div>
-            </div>
-
-            {/* Card 5: Upcoming Exits */}
-            <div className="card p-6 border flex flex-col justify-between hover:-translate-y-0.5 transition-all duration-200 shadow-glow-sm bg-pink-500/10 border-pink-500/20 overflow-hidden">
-              <div className="flex justify-between items-start">
-                <span className="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Upcoming Exits</span>
-                <Calendar size={16} className="text-pink-400" />
-              </div>
-              <div className="mt-4">
-                <p className="font-display font-extrabold text-3xl text-pink-400 leading-none">{myUpcomingExits}</p>
-                <p className="text-[10px] text-slate-500 font-semibold mt-1.5">
-                  Next 30 days
-                </p>
-              </div>
-            </div>
+          {/* KPI Metrics Panel on Top */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 fade-up-1">
+            {dhKPI.map((item, idx) => (
+              <CompactKPICard key={idx} item={item} />
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-up-2">
-            {/* Left side: Hiring Requests Status Donut */}
-            <div className="card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2 border-b border-white/5 pb-3">
-                <Activity size={15} className="text-accent" /> Hiring Requests Status
-              </h3>
-              <div className="mt-6 flex-1 flex items-center justify-center min-h-[180px]">
-                <DonutChart data={dhStatusData} />
-              </div>
-            </div>
-
-            {/* Right side: Recent Requisitions Table */}
-            <div className="lg:col-span-2 card p-6 border border-white/5 bg-ink-950/40 flex flex-col justify-between overflow-hidden">
-              <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <h3 className="font-display font-bold text-white text-base flex items-center gap-2">
-                  <FileText size={16} className="text-accent" /> Recent Hiring Requests
-                </h3>
-                <Link to="/my-mrfs" className="text-xs text-accent font-semibold hover:underline flex items-center gap-1">
-                  View All <ArrowRight size={12} />
-                </Link>
-              </div>
-
-              {myDeptMRFs.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 italic text-xs">
-                  No requisitions created yet. Click "Create Requisition" to submit your first request.
-                </div>
-              ) : (
-                <div className="divide-y divide-white/5 flex-1">
-                  {[...myDeptMRFs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4).map(mrf => {
-                    const sCfg = MRF_STATUS_CFG[mrf.mrfStatus] || MRF_STATUS_CFG['Draft']
-                    const isPosted = mrf.mrfStatus === 'Approved' && (mrf.positionStatus === 'Open' || mrf.positionStatus === 'In Progress')
-                    return (
-                      <div key={mrf._id} className="py-3.5 flex items-center justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold text-white text-sm truncate">{mrf.designation}</p>
-                            {isPosted && (
-                              <span className="px-1.5 py-0.5 text-[8px] font-bold rounded bg-accent/15 text-accent border border-accent/25">
-                                LIVE
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            {mrf.department}{mrf.location ? ` · ${mrf.location}` : ''} · {mrf.noOfPositions || 1} position(s)
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          <span className={`px-2 py-0.5 rounded border text-[10px] font-bold flex items-center gap-1 ${sCfg.bg} ${sCfg.color}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${sCfg.dot}`} />
-                            {sCfg.label}
-                          </span>
-                          <span className="text-[10px] text-slate-600">
-                            {new Date(mrf.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
+          {/* Performance Reports grid full width */}
+          <div className="fade-up-2 mt-6">
+            <PerformanceReportsSection mrfs={myDeptMRFs} sheetData={sheetData} user={user} role={role} />
           </div>
-
-          {/* Analytics & Performance Reports Section */}
-          <PerformanceReportsSection mrfs={myDeptMRFs} sheetData={sheetData} user={user} role={role} />
         </>
       )}
     </div>
