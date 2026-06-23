@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BarChart3, PieChart, TrendingUp, Calendar, ChevronDown, Info, Loader2, AlertCircle } from 'lucide-react'
 import { mrfApi, sheetApi } from '../services/api.js'
 
-// ── Dummy fallback data (5 sample records) ─────────────────────────────────
-const DUMMY_SHEET = [
-  { 'Location': 'Mumbai', 'Designation': 'Senior Software Engineer', 'Department': 'Engineering', 'Number of Vacancies': '2', 'Position Status': 'In Progress', 'Requirement Status': 'In Progress', 'Offer Status': 'Offered', 'Source of Hiring': 'Naukri', 'Tentative Date of Joining (DOJ)': '2026-06-15', 'Actual DOJ': '2026-06-12', 'TAT (Turnaround Time)': '25', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Suresh Mehta', 'Position Start Date': '2026-05-01', 'Offered CTC': '1600000', 'Last CTC': '1200000' },
-  { 'Location': 'Bangalore', 'Designation': 'Product Manager', 'Department': 'Product Management', 'Number of Vacancies': '1', 'Position Status': 'Open', 'Requirement Status': 'In Progress', 'Offer Status': 'Joined', 'Source of Hiring': 'LinkedIn', 'Tentative Date of Joining (DOJ)': '2026-05-10', 'Actual DOJ': '2026-05-10', 'TAT (Turnaround Time)': '35', 'Employee Name (Retirement/Resignation/Transfer Out)': 'None', 'Position Start Date': '2026-04-01', 'Offered CTC': '2400000', 'Last CTC': '1800000' },
-  { 'Location': 'Delhi', 'Designation': 'HR Executive', 'Department': 'Human Resources', 'Number of Vacancies': '1', 'Position Status': 'Closed', 'Requirement Status': 'Fulfilled', 'Offer Status': 'Joined', 'Source of Hiring': 'Campus Drive', 'Tentative Date of Joining (DOJ)': '2026-06-01', 'Actual DOJ': '2026-06-01', 'TAT (Turnaround Time)': '20', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Priya Patel', 'Position Start Date': '2026-04-20', 'Offered CTC': '600000', 'Last CTC': '350000' },
-  { 'Location': 'Hyderabad', 'Designation': 'DevOps Engineer', 'Department': 'Engineering', 'Number of Vacancies': '1', 'Position Status': 'In Progress', 'Requirement Status': 'In Progress', 'Offer Status': 'Accepted', 'Source of Hiring': 'Referral', 'Tentative Date of Joining (DOJ)': '2026-06-25', 'Actual DOJ': '', 'TAT (Turnaround Time)': '40', 'Employee Name (Retirement/Resignation/Transfer Out)': 'Amit Saxena', 'Position Start Date': '2026-03-05', 'Offered CTC': '1900000', 'Last CTC': '1400000' },
-  { 'Location': 'Pune', 'Designation': 'QA Lead', 'Department': 'Quality Assurance', 'Number of Vacancies': '1', 'Position Status': 'On Hold', 'Requirement Status': 'On Hold', 'Offer Status': 'Declined', 'Source of Hiring': 'Consultant', 'Tentative Date of Joining (DOJ)': '2026-05-15', 'Actual DOJ': '', 'TAT (Turnaround Time)': '45', 'Employee Name (Retirement/Resignation/Transfer Out)': 'None', 'Position Start Date': '2026-02-15', 'Offered CTC': '2000000', 'Last CTC': '1500000' },
-]
+
 
 // ── Color palettes ─────────────────────────────────────────────────────────
 const PALETTE = ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b']
@@ -30,21 +23,21 @@ function DonutChart({ data, size = 180, title }) {
       {title && <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
       <div className="flex flex-col sm:flex-row items-center gap-6">
         <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-          <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
-            <circle cx="80" cy="80" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
+          <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
+            <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
             {data.map((item, i) => {
               const pct = item.value / total
               const dashOffset = circ - pct * circ
               const rot = (acc / total) * 360
               acc += item.value
               const midAngle = (rot + pct * 180) * Math.PI / 180
-              const tx = 80 + Math.cos(midAngle) * (r + 22)
-              const ty = 80 + Math.sin(midAngle) * (r + 22)
+              const tx = 100 + Math.cos(midAngle) * (r + 22)
+              const ty = 100 + Math.sin(midAngle) * (r + 22)
               return (
                 <g key={i}>
-                  <circle cx="80" cy="80" r={r} fill="transparent" stroke={item.color}
+                  <circle cx="100" cy="100" r={r} fill="transparent" stroke={item.color}
                     strokeWidth="16" strokeDasharray={circ} strokeDashoffset={dashOffset}
-                    transform={`rotate(${rot} 80 80)`} className="transition-all duration-700" />
+                    transform={`rotate(${rot} 100 100)`} className="transition-all duration-700" />
                   {pct > 0.06 && (
                     <g style={{ transform: `rotate(90deg)`, transformOrigin: `${tx}px ${ty}px` }}>
                       <text x={tx} y={ty} fill={item.color} fontSize="9" fontWeight="bold"
@@ -215,13 +208,13 @@ function ChartCard({ title, icon: Icon, iconColor, children, wide }) {
 // ─────────────────────────────────────────────────────────────────────────────
 const REPORTS = [
   { key: 'recruitment_summary', label: 'Recruitment Summary',   icon: BarChart3,   color: 'text-accent' },
-  { key: 'department_hiring',   label: 'Department Hiring',     icon: BarChart3,   color: 'text-cyan-400' },
+  { key: 'department_hiring',   label: 'Department Hiring',     icon: BarChart3,   color: 'text-slate-400' },
   { key: 'vacancy_status',      label: 'Vacancy Status',        icon: PieChart,    color: 'text-indigo-400' },
   { key: 'mrf_status',          label: 'MRF Status',            icon: ClipboardList, color: 'text-amber-400' },
-  { key: 'retirement_analysis', label: 'Retirement Analysis',   icon: Calendar,    color: 'text-pink-400' },
-  { key: 'resignation_analysis',label: 'Resignation Analysis',  icon: TrendingUp,  color: 'text-orange-400' },
-  { key: 'source_of_hiring',    label: 'Source of Hiring',      icon: PieChart,    color: 'text-emerald-400' },
-  { key: 'offer_vs_joining',    label: 'Offer vs Joining',      icon: BarChart3,   color: 'text-purple-400' },
+  { key: 'retirement_analysis', label: 'Retirement Analysis',   icon: Calendar,    color: 'text-slate-400' },
+  { key: 'resignation_analysis',label: 'Resignation Analysis',  icon: TrendingUp,  color: 'text-slate-400' },
+  { key: 'source_of_hiring',    label: 'Source of Hiring',      icon: PieChart,    color: 'text-accent' },
+  { key: 'offer_vs_joining',    label: 'Offer vs Joining',      icon: BarChart3,   color: 'text-slate-400' },
   { key: 'tat_analysis',        label: 'TAT Analysis',          icon: TrendingUp,  color: 'text-rose-400' },
 ]
 
@@ -246,7 +239,7 @@ function RecruitmentSummaryReport({ mrfs, records }) {
           { label: 'Rejected', value: rejected },
         ]} colorFn={(i) => ['#f59e0b','#10b981','#ef4444'][i]} />
       </ChartCard>
-      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-accent">
         <HBarChart data={[
           { label: 'Total Vacancies',   value: totalVacs, color: '#06b6d4' },
           { label: 'Offered Candidates', value: offered,  color: '#6366f1' },
@@ -272,10 +265,10 @@ function DepartmentHiringReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Department-wise Open Positions" icon={BarChart3} iconColor="text-cyan-400">
+      <ChartCard title="Department-wise Open Positions" icon={BarChart3} iconColor="text-slate-400">
         <BarChart data={labels.map(l => ({ label: l, value: deptOpen[l] || 0 }))} colorFn={() => '#06b6d4'} />
       </ChartCard>
-      <ChartCard title="Department-wise Filled Positions" icon={BarChart3} iconColor="text-emerald-400">
+      <ChartCard title="Department-wise Filled Positions" icon={BarChart3} iconColor="text-accent">
         <BarChart data={labels.map(l => ({ label: l, value: deptFilled[l] || 0 }))} colorFn={() => '#10b981'} />
       </ChartCard>
       <ChartCard title="Department-wise Total Vacancy Count" icon={PieChart} iconColor="text-indigo-400" wide>
@@ -304,7 +297,7 @@ function VacancyStatusReport({ records }) {
       <ChartCard title="Position Status Distribution" icon={PieChart} iconColor="text-indigo-400">
         <DonutChart data={posData} />
       </ChartCard>
-      <ChartCard title="Requirement Status Distribution" icon={PieChart} iconColor="text-cyan-400">
+      <ChartCard title="Requirement Status Distribution" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={reqData} />
       </ChartCard>
     </div>
@@ -364,13 +357,13 @@ function RetirementAnalysisReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Upcoming Retirements by Month" icon={Calendar} iconColor="text-pink-400" wide>
+      <ChartCard title="Upcoming Retirements by Month" icon={Calendar} iconColor="text-slate-400" wide>
         <LineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements per month" />
       </ChartCard>
       <ChartCard title="Retirements by Department" icon={BarChart3} iconColor="text-rose-400">
         <BarChart data={Object.entries(deptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
       </ChartCard>
-      <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
+      <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={[
           { label: 'With Exit Replacement', value: exits.length, color: '#ec4899' },
           { label: 'New Positions',          value: records.length - exits.length, color: '#64748b' },
@@ -404,7 +397,7 @@ function ResignationAnalysisReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Resignation / Exit Replacements Trend" icon={TrendingUp} iconColor="text-orange-400" wide>
+      <ChartCard title="Resignation / Exit Replacements Trend" icon={TrendingUp} iconColor="text-slate-400" wide>
         <LineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#f97316" label="Exit replacements over months" />
       </ChartCard>
       <ChartCard title="Replacement Hire Source" icon={PieChart} iconColor="text-amber-400">
@@ -429,10 +422,10 @@ function SourceOfHiringReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="All Hiring Sources Distribution" icon={PieChart} iconColor="text-emerald-400">
+      <ChartCard title="All Hiring Sources Distribution" icon={PieChart} iconColor="text-accent">
         <DonutChart data={srcData} />
       </ChartCard>
-      <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
+      <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-slate-400">
         <BarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
       </ChartCard>
     </div>
@@ -456,10 +449,10 @@ function OfferVsJoiningReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
+      <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={Object.entries(offerMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
       </ChartCard>
-      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-accent">
         <HBarChart data={[
           { label: 'Total Offered',    value: offered,  color: '#f59e0b' },
           { label: 'Accepted Offers',  value: accepted, color: '#6366f1' },
@@ -503,14 +496,14 @@ function TATAnalysisReport({ records }) {
       <ChartCard title="Average TAT by Department" icon={BarChart3} iconColor="text-amber-400">
         <BarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
       </ChartCard>
-      <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400" wide>
+      <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-slate-400" wide>
         <div className="flex items-center justify-center gap-8 py-6">
           <div className="text-center">
-            <p className="text-5xl font-display font-bold text-cyan-400">{avgTAT}</p>
+            <p className="text-5xl font-display font-bold text-slate-400">{avgTAT}</p>
             <p className="text-sm text-slate-500 mt-2 font-semibold">Avg. Days</p>
           </div>
           <div className="text-center">
-            <p className="text-5xl font-display font-bold text-emerald-400">{withTAT.length}</p>
+            <p className="text-5xl font-display font-bold text-accent">{withTAT.length}</p>
             <p className="text-sm text-slate-500 mt-2 font-semibold">MRFs Tracked</p>
           </div>
           <div className="text-center">
@@ -561,8 +554,10 @@ export default function AdminReportsPage() {
     load()
   }, [])
 
-  const isDummy = sheetData.length === 0 || !sheetData.some(r => r['Designation'] || r['Location'])
-  const records = isDummy ? DUMMY_SHEET : sheetData
+  const records = (sheetData && sheetData.recruitmentTracker && sheetData.recruitmentTracker.length > 0)
+    ? sheetData.recruitmentTracker
+    : []
+  const hasData = records.length > 0
 
   const role = localStorage.getItem('hr_role') || ''
   const roleLabel = role === 'admin' ? 'HR Admin Analytics' : role === 'hr' ? 'HR Manager Reports' : 'Department Reports'
@@ -570,77 +565,65 @@ export default function AdminReportsPage() {
   const currentReport = REPORTS.find(r => r.key === selectedReport) || REPORTS[0]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-8 space-y-6">
 
-      {/* Header */}
-      <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-white/5 pb-6">
-        <div>
-          <span className="section-tag mb-2">
-            <BarChart3 size={11} /> {roleLabel}
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-            Reports &amp; Analytics
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Select a report type to load relevant charts and metrics.
-          </p>
+      {!hasData && !loading && (
+        <div className="fade-up flex justify-center py-24">
+          <div className="text-center space-y-3">
+            <AlertCircle size={36} className="text-slate-600 mx-auto" />
+            <p className="text-slate-400 font-semibold">No Google Sheet data available</p>
+            <p className="text-slate-600 text-xs">Connect your Google Sheet to see live analytics & charts.</p>
+          </div>
         </div>
+      )}
 
-        {isDummy && (
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold flex-shrink-0">
-            <Info size={12} className="animate-pulse" /> Showing Sample Data — Connect Google Sheet for live data
-          </div>
-        )}
-      </div>
+      {/* Report Selector + Content — only when sheet data is available */}
+      {hasData && (
+        <>
+          {/* Report Selector Dropdown */}
+          <div className="fade-up-1 relative z-20 max-w-sm">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Select Report</label>
+            <button
+              onClick={() => setDropdownOpen(o => !o)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white font-semibold text-sm hover:bg-white/8 hover:border-accent/30 transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <currentReport.icon size={15} className={currentReport.color} />
+                {currentReport.label}
+              </div>
+              <ChevronDown size={15} className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-      {/* Report Selector Dropdown */}
-      <div className="fade-up-1 relative z-20 max-w-sm">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Select Report</label>
-        <button
-          onClick={() => setDropdownOpen(o => !o)}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white font-semibold text-sm hover:bg-white/8 hover:border-accent/30 transition-all"
-        >
-          <div className="flex items-center gap-2.5">
-            <currentReport.icon size={15} className={currentReport.color} />
-            {currentReport.label}
-          </div>
-          <ChevronDown size={15} className={`text-slate-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
-        </button>
-
-        {dropdownOpen && (
-          <div className="absolute top-full mt-1 w-full bg-ink-950 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-            {REPORTS.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => { setSelectedReport(r.key); setDropdownOpen(false) }}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all
-                  ${selectedReport === r.key
-                    ? 'bg-accent/15 text-accent font-semibold'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-              >
-                <r.icon size={14} className={r.color} />
-                {r.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Report content */}
-      {loading ? (
-        <div className="card p-24 flex items-center justify-center">
-          <Loader2 size={24} className="animate-spin text-accent" />
-        </div>
-      ) : (
-        <div className="fade-up-2">
-          {/* Report title */}
-          <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-white/5">
-            <currentReport.icon size={18} className={currentReport.color} />
-            <h2 className="font-display font-bold text-white text-xl">{currentReport.label}</h2>
+            {dropdownOpen && (
+              <div className="absolute top-full mt-1 w-full bg-ink-950 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                {REPORTS.map((r) => (
+                  <button
+                    key={r.key}
+                    onClick={() => { setSelectedReport(r.key); setDropdownOpen(false) }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all
+                      ${selectedReport === r.key
+                        ? 'bg-accent/15 text-accent font-semibold'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                  >
+                    <r.icon size={14} className={r.color} />
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {RENDERERS[selectedReport]?.(mrfs, records)}
-        </div>
+          {/* Report content */}
+          {loading ? (
+            <div className="card p-24 flex items-center justify-center">
+              <Loader2 size={24} className="animate-spin text-accent" />
+            </div>
+          ) : (
+            <div className="fade-up-2">
+              {RENDERERS[selectedReport]?.(mrfs, records)}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

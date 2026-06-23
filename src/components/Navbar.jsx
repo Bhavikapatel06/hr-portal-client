@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList,
-  Menu, X, LogOut, Activity, User, ShieldCheck
+  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown,
+  BarChart3, FileSpreadsheet, Settings, Users, Check, Trash2
 } from 'lucide-react'
+import { notificationApi } from '../services/api'
 import ThemeToggle from '../context/ThemeToggle.jsx'
 
 export default function Navbar() {
@@ -15,14 +17,61 @@ export default function Navbar() {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })
 
+  const [notifications, setNotifications] = useState([])
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  const loadNotifications = async () => {
+    if (!user) return
+    try {
+      const data = await notificationApi.list()
+      setNotifications(data)
+    } catch (e) {
+      console.error('Failed to load notifications', e)
+    }
+  }
+
   useEffect(() => {
     const handleStorageChange = () => {
       setRole(localStorage.getItem('hr_role') || '')
       try { setUser(JSON.parse(localStorage.getItem('hr_user'))) } catch { setUser(null) }
     }
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+    loadNotifications()
+    const intv = setInterval(loadNotifications, 30000)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(intv)
+    }
+  }, [user?.email])
+
+  const handleMarkRead = async (id) => {
+    try {
+      await notificationApi.markRead(id)
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n))
+    } catch (e) { console.error(e) }
+  }
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationApi.markAllRead()
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+    } catch (e) { console.error(e) }
+  }
+
+  const handleDelete = async (id, e) => {
+    e.stopPropagation()
+    try {
+      await notificationApi.delete(id)
+      setNotifications(prev => prev.filter(n => n._id !== id))
+    } catch (e) { console.error(e) }
+  }
+
+  const handleClearAll = async () => {
+    try {
+      await notificationApi.clearAll()
+      setNotifications([])
+    } catch (e) { console.error(e) }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('hr_token')
@@ -33,18 +82,38 @@ export default function Navbar() {
     navigate('/login')
   }
 
-<<<<<<< Updated upstream
-  const navItems = role === 'admin'
-    ? [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'All Openings' },
-        { to: '/resume-tracker', icon: ClipboardList,   label: 'Candidate Details' },
+const getNavItems = () => {
+  switch (role) {
+    case 'admin':
+      return [
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/mrf-approvals', icon: ClipboardList, label: 'Requisitions' },
+        { to: '/analytics', icon: Activity, label: 'Reports & Analytics' },
       ]
-    : [
-        { to: '/dashboard',      icon: LayoutDashboard, label: 'Job Openings' },
-        { to: '/status',         icon: Activity,        label: 'My Applications' },
+    case 'department_head':
+      return [
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/my-mrfs', icon: ClipboardList, label: 'Requisitions' },
+        { to: '/analytics', icon: Activity, label: 'Reports & Analytics' },
       ]
-=======
-  const getNavItems = () => {
+    case 'hr':
+      return [
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/recruitment', icon: BriefcaseBusiness, label: 'Recruitment' },
+        { to: '/my-mrfs', icon: ClipboardList, label: 'Requisitions' },
+        { to: '/analytics', icon: Activity, label: 'Reports & Analytics' },
+      ]
+    case 'candidate':
+      return [
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Job Openings' },
+        { to: '/status', icon: Activity, label: 'My Applications' },
+      ]
+    default:
+      return []
+  }
+}
+
+const navItems = getNavItems()  const getNavItems = () => {
     switch (role) {
       case 'admin':
         return [
@@ -113,8 +182,6 @@ export default function Navbar() {
 
   const roleDetails = getRoleDetails()
   const RoleIcon = roleDetails.icon
->>>>>>> Stashed changes
-
   if (pathname === '/login') return null
 
   const initials = user?.name
@@ -161,29 +228,101 @@ export default function Navbar() {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-<<<<<<< Updated upstream
-          {/* Role badge */}
-          <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold ${
-            role === 'admin'
-              ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-              : 'bg-accent/10 border-accent/20 text-accent'
-          }`}>
-            {role === 'admin' ? <ShieldCheck size={12} /> : <User size={12} />}
-            {role === 'admin' ? 'HR Admin' : 'Candidate'}
-=======
-          {/* Notification bell */}
-          <div className="relative">
+{/* Notification bell */}
+<div className="relative">
+  <button
+    onClick={() => setShowNotifications(!showNotifications)}
+    className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+    style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
+  >
+    <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
+    {notifications.some(n => !n.isRead) && (
+      <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+    )}
+  </button>
+
+  {showNotifications && (
+    <div className="fixed top-[64px] left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:right-0 sm:mt-2 sm:w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+      <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <h3 className="text-sm font-semibold text-white">Notifications</h3>
+        <div className="flex items-center gap-3">
+          {notifications.some(n => !n.isRead) && (
             <button
+              onClick={handleMarkAllRead}
+              className="text-[11px] font-medium text-accent hover:text-accent-light transition-colors"
+            >
+              Mark all read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="text-[11px] font-medium text-red-400 hover:text-red-300 transition-colors"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto">
+        {notifications.length === 0 ? (
+          <div className="p-8 text-center flex flex-col items-center justify-center">
+            <Bell size={24} className="text-white/10 mb-2" />
+            <div className="text-sm text-slate-400">No notifications</div>
+          </div>
+        ) : (
+          notifications.map(n => (
+            <div
+              key={n._id}
+              onClick={() => {
+                handleMarkRead(n._id)
+                if (n.link) navigate(n.link)
+                setShowNotifications(false)
+              }}
+              className={`group relative p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${
+                !n.isRead ? 'bg-white/5 border-l-2 border-l-accent' : ''
+              }`}
+            >
+              <div className="flex justify-between items-start mb-1 pr-6">
+                <p className={`text-sm font-medium ${!n.isRead ? 'text-white' : 'text-slate-300'}`}>
+                  {n.title}
+                </p>
+                <span className="text-[10px] text-slate-500 whitespace-nowrap ml-2 flex-shrink-0">
+                  {new Date(n.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-400 line-clamp-2 pr-6">
+                {n.message}
+              </p>
+
+              <button
+                onClick={(e) => handleDelete(n._id, e)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-all sm:opacity-0 opacity-100"
+                title="Remove notification"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )}
+</div>          {/* Notification bell */}
+          <div className="relative">
+            <button 
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
             >
               <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
               {notifications.some(n => !n.isRead) && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-500 rounded-full" />
               )}
             </button>
-
+            
             {showNotifications && (
               <div className="fixed top-[64px] left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:right-0 sm:mt-2 sm:w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
                 <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -206,7 +345,7 @@ export default function Navbar() {
                   ) : (
                     notifications.map(n => (
                       <div key={n._id} onClick={() => { handleMarkRead(n._id); if (n.link) navigate(n.link); setShowNotifications(false); }}
-                        className={`group relative p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${!n.isRead ? 'bg-white/5 border-l-2 border-l-accent' : ''}`}>
+                           className={`group relative p-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${!n.isRead ? 'bg-white/5 border-l-2 border-l-accent' : ''}`}>
                         <div className="flex justify-between items-start mb-1 pr-6">
                           <p className={`text-sm font-medium ${!n.isRead ? 'text-white' : 'text-slate-300'}`}>{n.title}</p>
                           <span className="text-[10px] text-slate-500 whitespace-nowrap ml-2 flex-shrink-0">
@@ -227,31 +366,24 @@ export default function Navbar() {
                 </div>
               </div>
             )}
->>>>>>> Stashed changes
           </div>
-
-          {/* Notification bell */}
-          <button
-            className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hidden sm:flex"
-            style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
-          >
-            <Bell size={15} style={{ color: 'var(--text-secondary)' }} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
-          </button>
 
           {/* User avatar */}
           {user && (
-            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg"
+            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1 rounded-lg"
               style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
             >
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
-              <span className="text-xs font-medium max-w-[80px] truncate" style={{ color: 'var(--text-primary)' }}>
-                {user.name}
-              </span>
+              <div className="flex flex-col text-left">
+                <span className="text-xs font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+                  {user.name}
+                </span>
+                <span className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">
+                  {roleDetails.label}
+                </span>
+              </div>
             </div>
           )}
 
@@ -284,9 +416,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3 px-4 py-3 mb-2 border-b"
               style={{ borderColor: 'var(--border-color)' }}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                role === 'admin' ? 'bg-purple-500' : 'bg-accent'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${roleDetails.avatarCls}`}>
                 {initials}
               </div>
               <div>

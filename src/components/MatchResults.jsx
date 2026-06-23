@@ -45,7 +45,8 @@ function DimBar({ label, value, color }) {
       <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${value}%`, backgroundColor: color.replace('text-', '') === color ? '#4F8EF7' : undefined,
+          style={{
+            width: `${value}%`, backgroundColor: color.replace('text-', '') === color ? '#4F8EF7' : undefined,
             background: value >= 80 ? '#34d399' : value >= 60 ? '#4F8EF7' : value >= 35 ? '#F5A623' : '#94a3b8'
           }}
         />
@@ -74,7 +75,7 @@ function MatchCard({ candidate, rank }) {
             {initials}
           </div>
           {rank <= 3 && (
-            <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-gold border border-ink-800 flex items-center justify-center">
+            <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-slate-500 border border-ink-800 flex items-center justify-center">
               <Star size={8} className="text-ink-900 fill-ink-900" />
             </div>
           )}
@@ -114,16 +115,16 @@ function MatchCard({ candidate, rank }) {
       {expanded && (
         <div className="border-t border-white/8 p-4 bg-ink-900/40 space-y-3">
           <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Score Breakdown</p>
-          <DimBar label="Skills Match"        value={matchBreakdown.skills       ?? 0} color="text-accent" />
-          <DimBar label="Experience"          value={matchBreakdown.experience   ?? 0} color="text-accent" />
-          <DimBar label="Qualification"       value={matchBreakdown.qualification ?? 0} color="text-accent" />
-          <DimBar label="Job Title Match"     value={matchBreakdown.jobTitle     ?? 0} color="text-accent" />
+          <DimBar label="Skills Match" value={matchBreakdown.skills ?? 0} color="text-accent" />
+          <DimBar label="Experience" value={matchBreakdown.experience ?? 0} color="text-accent" />
+          <DimBar label="Qualification" value={matchBreakdown.qualification ?? 0} color="text-accent" />
+          <DimBar label="Job Title Match" value={matchBreakdown.jobTitle ?? 0} color="text-accent" />
 
           {/* Candidate details */}
           <div className="pt-3 border-t border-white/8 grid grid-cols-2 gap-2">
             {[
               ['Qualification', details.highestQual],
-              ['Phone',         details.phone],
+              ['Phone', details.phone],
               ['Skills / Notes', details.notes],
             ].map(([lbl, val]) => val ? (
               <div key={lbl} className="col-span-1">
@@ -143,8 +144,8 @@ function MatchCard({ candidate, rank }) {
 function EmptyNoManpower({ navigate }) {
   return (
     <div className="card p-10 flex flex-col items-center justify-center gap-4 text-center fade-up">
-      <div className="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center mb-2">
-        <AlertTriangle size={28} className="text-gold" />
+      <div className="w-16 h-16 rounded-2xl bg-slate-500/10 border border-slate-500/25 flex items-center justify-center mb-2">
+        <AlertTriangle size={28} className="text-slate-500" />
       </div>
       <h3 className="font-display font-bold text-lg text-white">No Manpower File Loaded</h3>
       <p className="text-slate-400 text-sm max-w-xs">
@@ -206,8 +207,8 @@ export default function MatchResults({ candidates = [], requirements = null }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Total Candidates', value: candidates.length, color: 'text-accent', bg: 'bg-accent/10 border-accent/20' },
-          { label: 'Average Score', value: avgScore + '%', color: 'text-gold', bg: 'bg-gold/10 border-gold/20' },
-          { label: 'Strong Matches', value: counts.Strong || 0, color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20' },
+          { label: 'Average Score', value: avgScore + '%', color: 'text-slate-500', bg: 'bg-slate-500/10 border-slate-500/20' },
+          { label: 'Strong Matches', value: counts.Strong || 0, color: 'text-accent', bg: 'bg-accent/10 border-accent/20' },
           { label: 'Good Matches', value: counts.Good || 0, color: 'text-accent', bg: 'bg-accent/10 border-accent/20' },
         ].map(({ label, value, color, bg }) => (
           <div key={label} className="card p-4 text-center">
@@ -227,13 +228,12 @@ export default function MatchResults({ candidates = [], requirements = null }) {
             <button
               key={level}
               onClick={() => setFilterLevel(level)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 ${
-                active
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150 ${active
                   ? level === 'All'
                     ? 'bg-accent text-white border-accent shadow-glow-sm'
                     : `${colors?.bg} ${colors?.text} ${colors?.border}`
                   : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               {level} {counts[level] !== undefined ? `(${counts[level]})` : ''}
             </button>

@@ -83,8 +83,8 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
   const urgencyColor = form.urgency === 'High'
     ? 'bg-danger/15 text-danger border-danger/30'
     : form.urgency === 'Medium'
-    ? 'bg-gold/15 text-gold border-gold/30'
-    : 'bg-success/15 text-success border-success/30'
+      ? 'bg-slate-500/15 text-slate-500 border-slate-500/30'
+      : 'bg-accent/15 text-accent border-accent/30'
 
   const salary = form.proposedSalaryMin || form.proposedSalaryMax
     ? `${form.proposedSalaryMin ? '₹' + form.proposedSalaryMin : ''}${form.proposedSalaryMin && form.proposedSalaryMax ? ' – ' : ''}${form.proposedSalaryMax ? '₹' + form.proposedSalaryMax : ''} LPA`
@@ -167,12 +167,12 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
           {/* Section: Position */}
           <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Position Details</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-            <PreviewRow icon={Briefcase}     label="Reports To"           value={form.reportsTo} />
-            <PreviewRow icon={Users}          label="No. of Positions"     value={form.noOfPositions} />
-            <PreviewRow icon={Target}         label="Replacement For"      value={form.replacementFor} />
-            <PreviewRow icon={Calendar}       label="Gender Preference"    value={form.genderPreference} />
-            <PreviewRow icon={Calendar}       label="Age Range"            value={ageRange} />
-            <PreviewRow icon={Zap}            label="IT Requirements"      value={form.itRequirements} />
+            <PreviewRow icon={Briefcase} label="Reports To" value={form.reportsTo} />
+            <PreviewRow icon={Users} label="No. of Positions" value={form.noOfPositions} />
+            <PreviewRow icon={Target} label="Replacement For" value={form.replacementFor} />
+            <PreviewRow icon={Calendar} label="Gender Preference" value={form.genderPreference} />
+            <PreviewRow icon={Calendar} label="Age Range" value={ageRange} />
+            <PreviewRow icon={Zap} label="IT Requirements" value={form.itRequirements} />
           </div>
 
           {/* Section: Job Description */}
@@ -181,9 +181,9 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
               <div className="border-t border-white/8 mt-4 pt-4">
                 <p className="text-xs text-teal-400 font-semibold uppercase tracking-widest mb-3">Job Description</p>
                 <div className="space-y-0">
-                  <PreviewRow icon={Target}     label="Purpose of Job"              value={form.purposeOfJob} color="text-teal-400" full />
+                  <PreviewRow icon={Target} label="Purpose of Job" value={form.purposeOfJob} color="text-teal-400" full />
                   <PreviewRow icon={ClipboardList} label="Roles & Responsibilities" value={form.rolesAndResponsibilities} color="text-teal-400" full />
-                  <PreviewRow icon={AlertCircle}  label="Justification"             value={form.justification} color="text-teal-400" full />
+                  <PreviewRow icon={AlertCircle} label="Justification" value={form.justification} color="text-teal-400" full />
                 </div>
               </div>
             </>
@@ -193,11 +193,11 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
           {(form.minimumQualification || form.otherKeySkills || form.preferredIndustries) && (
             <>
               <div className="border-t border-white/8 mt-4 pt-4">
-                <p className="text-xs text-emerald-400 font-semibold uppercase tracking-widest mb-3">Qualifications & Skills</p>
+                <p className="text-xs text-accent font-semibold uppercase tracking-widest mb-3">Qualifications & Skills</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-                  <PreviewRow icon={GraduationCap} label="Minimum Qualification"   value={form.minimumQualification} color="text-emerald-400" />
-                  <PreviewRow icon={Briefcase}      label="Preferred Industries"    value={form.preferredIndustries} color="text-emerald-400" />
-                  <PreviewRow icon={Zap}            label="Key Skills Required"     value={form.otherKeySkills} color="text-emerald-400" full />
+                  <PreviewRow icon={GraduationCap} label="Minimum Qualification" value={form.minimumQualification} color="text-accent" />
+                  <PreviewRow icon={Briefcase} label="Preferred Industries" value={form.preferredIndustries} color="text-accent" />
+                  <PreviewRow icon={Zap} label="Key Skills Required" value={form.otherKeySkills} color="text-accent" full />
                 </div>
               </div>
             </>
@@ -207,7 +207,7 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
           {form.otherKeySkills && (
             <div className="mt-3 flex flex-wrap gap-2">
               {form.otherKeySkills.split(/[,;]/).map(s => s.trim()).filter(Boolean).map((skill, i) => (
-                <span key={i} className="px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-300 text-xs">
+                <span key={i} className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs">
                   {skill}
                 </span>
               ))}
@@ -217,8 +217,8 @@ function MRFPreview({ form, onEdit, onConfirm, submitting }) {
       </div>
 
       {/* Warning note */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-gold/8 border border-gold/20">
-        <AlertCircle size={15} className="text-gold mt-0.5 flex-shrink-0" />
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-slate-500/8 border border-slate-500/20">
+        <AlertCircle size={15} className="text-slate-500 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-slate-300">
           Please review all details carefully. Once you click{' '}
           <span className="text-white font-semibold">Confirm & Create Job Opening</span>,
@@ -261,8 +261,8 @@ function MRFUpload({ onParsed }) {
   const [draggingJd, setDraggingJd] = useState(false)
   const [mrfFile, setMrfFile] = useState(null)
   const [jdFile, setJdFile] = useState(null)
-  const [parsing, setParsing]   = useState(false)
-  const [error, setError]       = useState('')
+  const [parsing, setParsing] = useState(false)
+  const [error, setError] = useState('')
   const mrfInputRef = useRef(null)
   const jdInputRef = useRef(null)
 
@@ -443,10 +443,10 @@ function MRFUpload({ onParsed }) {
 // ─── Main export ───────────────────────────────────────────────────────────────
 
 export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initialData = null }) {
-  const [mode, setMode]           = useState('fill')
-  const [step, setStep]           = useState('form')   // 'form' | 'preview' | 'success'
-  const [form, setForm]           = useState(initialData || INITIAL)
-  const [errors, setErrors]       = useState({})
+  const [mode, setMode] = useState('fill')
+  const [step, setStep] = useState('form')   // 'form' | 'preview' | 'success'
+  const [form, setForm] = useState(initialData || INITIAL)
+  const [errors, setErrors] = useState({})
   const [prefillBanner, setPrefillBanner] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
@@ -459,16 +459,16 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
   const handleParsed = (parsed) => {
     setForm(f => ({
       ...f,
-      designation:              parsed.designation            || f.designation,
-      department:               parsed.department             || f.department,
-      location:                 parsed.location               || f.location,
-      experience:               parsed.experience             || f.experience,
-      noOfPositions:            parsed.noOfPositions          || f.noOfPositions,
-      urgency:                  parsed.urgency                || f.urgency,
-      purposeOfJob:             parsed.purposeOfJob           || f.purposeOfJob,
-      otherKeySkills:           parsed.otherKeySkills         || f.otherKeySkills,
-      minimumQualification:     parsed.minimumQualification   || f.minimumQualification,
-      preferredIndustries:      parsed.preferredIndustries    || f.preferredIndustries,
+      designation: parsed.designation || f.designation,
+      department: parsed.department || f.department,
+      location: parsed.location || f.location,
+      experience: parsed.experience || f.experience,
+      noOfPositions: parsed.noOfPositions || f.noOfPositions,
+      urgency: parsed.urgency || f.urgency,
+      purposeOfJob: parsed.purposeOfJob || f.purposeOfJob,
+      otherKeySkills: parsed.otherKeySkills || f.otherKeySkills,
+      minimumQualification: parsed.minimumQualification || f.minimumQualification,
+      preferredIndustries: parsed.preferredIndustries || f.preferredIndustries,
       rolesAndResponsibilities: parsed.rolesAndResponsibilities || parsed.purposeOfJob || f.rolesAndResponsibilities,
     }))
     setPrefillBanner(true)
@@ -477,12 +477,12 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
 
   const validate = () => {
     const e = {}
-    if (!form.designation.trim())          e.designation = 'Required'
-    if (!form.department.trim())           e.department = 'Required'
-    if (!form.location.trim())             e.location = 'Required'
-    if (!form.requestType)                 e.requestType = 'Required'
-    if (!form.noOfPositions)               e.noOfPositions = 'Required'
-    if (!form.purposeOfJob.trim())         e.purposeOfJob = 'Required'
+    if (!form.designation.trim()) e.designation = 'Required'
+    if (!form.department.trim()) e.department = 'Required'
+    if (!form.location.trim()) e.location = 'Required'
+    if (!form.requestType) e.requestType = 'Required'
+    if (!form.noOfPositions) e.noOfPositions = 'Required'
+    if (!form.purposeOfJob.trim()) e.purposeOfJob = 'Required'
     if (!form.minimumQualification.trim()) e.minimumQualification = 'Required'
     return e
   }
@@ -526,7 +526,7 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
     return (
       <div className="card p-1 flex gap-1 w-fit mb-6">
         {[
-          { id: 'fill',   label: 'Fill Form',      icon: ClipboardList },
+          { id: 'fill', label: 'Fill Form', icon: ClipboardList },
           { id: 'upload', label: 'Upload MRF File', icon: Upload },
         ].map(({ id, label, icon: Icon }) => (
           <button
@@ -580,10 +580,10 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
         <ModeToggle />
         <div className="card p-10 flex flex-col items-center justify-center gap-4">
           <div
-            className="w-16 h-16 rounded-full bg-success/15 border border-success/30 flex items-center justify-center mb-2"
+            className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center mb-2"
             style={{ animation: 'glow-pulse 2s ease infinite' }}
           >
-            <CheckCircle2 size={32} className="text-success" />
+            <CheckCircle2 size={32} className="text-accent" />
           </div>
           <h3 className="font-display font-bold text-xl text-white">Job Opening Created!</h3>
           <p className="text-slate-400 text-sm text-center max-w-xs">
@@ -608,8 +608,8 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
 
       {/* Prefill banner */}
       {prefillBanner && (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-success/8 border border-success/20 text-sm text-slate-300 mb-5 fade-up">
-          <CheckCircle2 size={15} className="text-success mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 text-sm text-slate-300 mb-5 fade-up">
+          <CheckCircle2 size={15} className="text-accent mt-0.5 flex-shrink-0" />
           <span>
             Form prefilled from uploaded MRF file.{' '}
             <span className="text-white font-medium">Please review and correct any fields before previewing.</span>
@@ -688,13 +688,12 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
               {['High', 'Medium', 'Low'].map(u => (
                 <button type="button" key={u}
                   onClick={() => setForm(f => ({ ...f, urgency: u }))}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-150 ${
-                    form.urgency === u
-                      ? u === 'High'   ? 'bg-danger/20 border-danger/50 text-danger'
-                      : u === 'Medium' ? 'bg-gold/15 border-gold/40 text-gold'
-                      :                  'bg-success/15 border-success/35 text-success'
-                      : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                  }`}>
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-150 ${form.urgency === u
+                    ? u === 'High' ? 'bg-danger/20 border-danger/50 text-danger'
+                      : u === 'Medium' ? 'bg-slate-500/15 border-slate-500/40 text-slate-500'
+                        : 'bg-accent/15 border-accent/35 text-accent'
+                    : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                    }`}>
                   {u}
                 </button>
               ))}
@@ -798,11 +797,10 @@ export default function MRFForm({ onSubmitSuccess, showModeToggle = true, initia
                 {['Any', 'Male', 'Female'].map(g => (
                   <button type="button" key={g}
                     onClick={() => setForm(f => ({ ...f, genderPreference: g }))}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${
-                      form.genderPreference === g
-                        ? 'bg-accent/15 border-accent/40 text-accent'
-                        : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                    }`}>
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${form.genderPreference === g
+                      ? 'bg-accent/15 border-accent/40 text-accent'
+                      : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
+                      }`}>
                     {g}
                   </button>
                 ))}

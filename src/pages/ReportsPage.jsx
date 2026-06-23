@@ -4,199 +4,7 @@ import {
 } from 'lucide-react'
 import { mrfApi, sheetApi } from '../services/api.js'
 
-// ── Fallback 5 Dummy Records representing all 36 fields ─────────────────────
-const DUMMY_DATA = [
-  {
-    'Location': 'Mumbai',
-    'Designation': 'Senior Software Engineer',
-    'Department': 'Engineering',
-    'Section': 'R&D',
-    'Number of Vacancies': '2',
-    'Position Status': 'In Progress',
-    'Requirement Status': 'In Progress',
-    'Offer Status': 'Offered',
-    'Vacancy Remarks': 'Replacement for Suresh Mehta due to relocation',
-    'Process Owner Name': 'Anil Kumar',
-    'Requirement Type (Lateral/Campus)': 'Lateral',
-    'Pre-Employment Medical Status': 'Cleared',
-    'Offer Date': '2026-05-15',
-    'Tentative Date of Joining (DOJ)': '2026-06-15',
-    'TAT (Turnaround Time)': '25',
-    'Offered Candidate Name': 'Rahul Sharma',
-    'Offered Designation': 'Senior Software Engineer',
-    'Actual DOJ': '2026-06-12',
-    'Source of Hiring': 'Naukri',
-    'Internal Reference Name': 'None',
-    'Qualification': 'B.Tech CSE',
-    'Last Organization': 'TCS',
-    'Location (Candidate)': 'Pune',
-    'Last Designation': 'Software Engineer',
-    'Total Previous Experience': '4 Years',
-    'Last CTC': '1200000',
-    'Offered CTC': '1600000',
-    'Cost of Company (COC)': '1750000',
-    'CTC Difference Amount': '400000',
-    'CTC Difference (%)': '33.3%',
-    'Recruitment Remarks': 'Selected after 3 technical rounds; joining within notice',
-    'Employee Name (Retirement/Resignation/Transfer Out)': 'Suresh Mehta',
-    'Employee Designation': 'Senior Developer',
-    'Position Start Date': '2026-05-01',
-    'Additional Remarks': 'Immediate joiner preferred, relocate expense approved',
-    'Company Name': 'AIA Tech'
-  },
-  {
-    'Location': 'Bangalore',
-    'Designation': 'Product Manager',
-    'Department': 'Product Management',
-    'Section': 'Growth',
-    'Number of Vacancies': '1',
-    'Position Status': 'Open',
-    'Requirement Status': 'In Progress',
-    'Offer Status': 'Joined',
-    'Vacancy Remarks': 'New headcount approved for growth team expansion',
-    'Process Owner Name': "Sarah D'Souza",
-    'Requirement Type (Lateral/Campus)': 'Lateral',
-    'Pre-Employment Medical Status': 'Cleared',
-    'Offer Date': '2026-04-10',
-    'Tentative Date of Joining (DOJ)': '2026-05-10',
-    'TAT (Turnaround Time)': '35',
-    'Offered Candidate Name': 'Priya Nair',
-    'Offered Designation': 'Product Manager',
-    'Actual DOJ': '2026-05-10',
-    'Source of Hiring': 'LinkedIn',
-    'Internal Reference Name': 'Rohan Sen',
-    'Qualification': 'MBA Marketing',
-    'Last Organization': 'Razorpay',
-    'Location (Candidate)': 'Bangalore',
-    'Last Designation': 'Associate Product Manager',
-    'Total Previous Experience': '3 Years',
-    'Last CTC': '1800000',
-    'Offered CTC': '2400000',
-    'Cost of Company (COC)': '2600000',
-    'CTC Difference Amount': '600000',
-    'CTC Difference (%)': '33.3%',
-    'Recruitment Remarks': 'Strong product sense and analytical skills',
-    'Employee Name (Retirement/Resignation/Transfer Out)': 'None',
-    'Employee Designation': 'None',
-    'Position Start Date': '2026-04-01',
-    'Additional Remarks': 'No exit replacement required',
-    'Company Name': 'AIA Solutions'
-  },
-  {
-    'Location': 'Delhi',
-    'Designation': 'HR Executive',
-    'Department': 'Human Resources',
-    'Section': 'Operations',
-    'Number of Vacancies': '1',
-    'Position Status': 'Closed',
-    'Requirement Status': 'Fulfilled',
-    'Offer Status': 'Joined',
-    'Vacancy Remarks': 'Replacement for Priya Patel',
-    'Process Owner Name': 'Meenakshi Iyer',
-    'Requirement Type (Lateral/Campus)': 'Campus',
-    'Pre-Employment Medical Status': 'Cleared',
-    'Offer Date': '2026-05-01',
-    'Tentative Date of Joining (DOJ)': '2026-06-01',
-    'TAT (Turnaround Time)': '20',
-    'Offered Candidate Name': 'Neha Gupta',
-    'Offered Designation': 'HR Executive',
-    'Actual DOJ': '2026-06-01',
-    'Source of Hiring': 'Campus Drive',
-    'Internal Reference Name': 'None',
-    'Qualification': 'MBA HR',
-    'Last Organization': 'None',
-    'Location (Candidate)': 'Delhi',
-    'Last Designation': 'Intern',
-    'Total Previous Experience': 'Fresher',
-    'Last CTC': '350000',
-    'Offered CTC': '600000',
-    'Cost of Company (COC)': '650000',
-    'CTC Difference Amount': '250000',
-    'CTC Difference (%)': '71.4%',
-    'Recruitment Remarks': 'Excellent academic record and presentation',
-    'Employee Name (Retirement/Resignation/Transfer Out)': 'Priya Patel',
-    'Employee Designation': 'HR Analyst',
-    'Position Start Date': '2026-04-20',
-    'Additional Remarks': 'Immediate onboarding success',
-    'Company Name': 'AIA Tech'
-  },
-  {
-    'Location': 'Hyderabad',
-    'Designation': 'DevOps Engineer',
-    'Department': 'Engineering',
-    'Section': 'Cloud Operations',
-    'Number of Vacancies': '1',
-    'Position Status': 'In Progress',
-    'Requirement Status': 'In Progress',
-    'Offer Status': 'Accepted',
-    'Vacancy Remarks': 'Resignation replacement for Amit Saxena',
-    'Process Owner Name': 'Rajesh Rao',
-    'Requirement Type (Lateral/Campus)': 'Lateral',
-    'Pre-Employment Medical Status': 'Pending',
-    'Offer Date': '2026-05-20',
-    'Tentative Date of Joining (DOJ)': '2026-06-25',
-    'TAT (Turnaround Time)': '40',
-    'Offered Candidate Name': 'Vikram Reddy',
-    'Offered Designation': 'DevOps Engineer',
-    'Actual DOJ': '',
-    'Source of Hiring': 'Referral',
-    'Internal Reference Name': 'Kiran Kumar',
-    'Qualification': 'B.Tech IT',
-    'Last Organization': 'Infosys',
-    'Location (Candidate)': 'Hyderabad',
-    'Last Designation': 'Senior Systems Engineer',
-    'Total Previous Experience': '5 Years',
-    'Last CTC': '1400000',
-    'Offered CTC': '1900000',
-    'Cost of Company (COC)': '2100000',
-    'CTC Difference Amount': '500000',
-    'CTC Difference (%)': '35.7%',
-    'Recruitment Remarks': 'AWS and Kubernetes expert',
-    'Employee Name (Retirement/Resignation/Transfer Out)': 'Amit Saxena',
-    'Employee Designation': 'DevOps Lead',
-    'Position Start Date': '2026-05-05',
-    'Additional Remarks': 'Candidate will join post notice period',
-    'Company Name': 'AIA Tech'
-  },
-  {
-    'Location': 'Pune',
-    'Designation': 'QA Lead',
-    'Department': 'Quality Assurance',
-    'Section': 'Automation',
-    'Number of Vacancies': '1',
-    'Position Status': 'On Hold',
-    'Requirement Status': 'On Hold',
-    'Offer Status': 'Declined',
-    'Vacancy Remarks': 'New expansion budget division',
-    'Process Owner Name': 'Vikram Jaiswal',
-    'Requirement Type (Lateral/Campus)': 'Lateral',
-    'Pre-Employment Medical Status': 'Not Started',
-    'Offer Date': '2026-04-05',
-    'Tentative Date of Joining (DOJ)': '2026-05-15',
-    'TAT (Turnaround Time)': '45',
-    'Offered Candidate Name': 'Aditya Joshi',
-    'Offered Designation': 'QA Lead',
-    'Actual DOJ': '',
-    'Source of Hiring': 'Consultant',
-    'Internal Reference Name': 'None',
-    'Qualification': 'MCA',
-    'Last Organization': 'Wipro',
-    'Location (Candidate)': 'Pune',
-    'Last Designation': 'Senior QA Engineer',
-    'Total Previous Experience': '6 Years',
-    'Last CTC': '1500000',
-    'Offered CTC': '2000000',
-    'Cost of Company (COC)': '2200000',
-    'CTC Difference Amount': '500000',
-    'CTC Difference (%)': '33.3%',
-    'Recruitment Remarks': 'Declined the offer for a counter-offer',
-    'Employee Name (Retirement/Resignation/Transfer Out)': 'None',
-    'Employee Designation': 'None',
-    'Position Start Date': '2026-03-15',
-    'Additional Remarks': 'Position put on hold temporarily',
-    'Company Name': 'AIA Systems'
-  }
-];
+
 
 // ── Chart 1: Professional SVG Donut with Percentage Labels ─────────────────
 function DonutChart({ data, size = 200 }) {
@@ -208,8 +16,8 @@ function DonutChart({ data, size = 200 }) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-8 justify-center p-4">
       <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
-        <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
-          <circle cx="80" cy="80" r={radius} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
+        <svg viewBox="0 0 200 200" className="w-full h-full transform -rotate-90">
+          <circle cx="100" cy="100" r={radius} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="16" />
           {data.map((item, idx) => {
             const pct = (item.value / total) * 100
             const strokeDashoffset = circ - (pct / 100) * circ
@@ -218,14 +26,14 @@ function DonutChart({ data, size = 200 }) {
 
             // Calculate center angle of the slice for percentage text placement
             const midAngle = ((rotate + (pct / 2) * 3.6) * Math.PI) / 180
-            const textX = 80 + Math.cos(midAngle) * (radius + 20)
-            const textY = 80 + Math.sin(midAngle) * (radius + 20)
+            const textX = 100 + Math.cos(midAngle) * (radius + 20)
+            const textY = 100 + Math.sin(midAngle) * (radius + 20)
 
             return (
               <g key={idx}>
                 <circle
-                  cx="80"
-                  cy="80"
+                  cx="100"
+                  cy="100"
                   r={radius}
                   fill="transparent"
                   stroke={item.color}
@@ -233,7 +41,7 @@ function DonutChart({ data, size = 200 }) {
                   strokeDasharray={circ}
                   strokeDashoffset={strokeDashoffset}
                   className="transition-all duration-700 ease-out"
-                  transform={`rotate(${rotate} 80 80)`}
+                  transform={`rotate(${rotate} 100 100)`}
                 />
                 {pct > 5 && (
                   <g className="transform rotate-90" style={{ transformOrigin: `${textX}px ${textY}px` }}>
@@ -362,7 +170,7 @@ function GroupedBarChart({ data, height = 200 }) {
                 <div className="flex items-end gap-1 w-full justify-center h-full pb-px">
                   {/* Open Bar */}
                   <div 
-                    className="w-4 bg-cyan-500/70 hover:bg-cyan-500 rounded-t transition-all duration-300 relative"
+                    className="w-4 bg-slate-500/70 hover:bg-slate-500 rounded-t transition-all duration-300 relative"
                     style={{ height: `${openPct}%` }}
                     title={`Open: ${item.open}`}
                   >
@@ -372,7 +180,7 @@ function GroupedBarChart({ data, height = 200 }) {
                   </div>
                   {/* Filled Bar */}
                   <div 
-                    className="w-4 bg-emerald-500/70 hover:bg-emerald-500 rounded-t transition-all duration-300 relative"
+                    className="w-4 bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative"
                     style={{ height: `${filledPct}%` }}
                     title={`Filled: ${item.filled}`}
                   >
@@ -395,11 +203,11 @@ function GroupedBarChart({ data, height = 200 }) {
       {/* Legend */}
       <div className="flex justify-center gap-4 text-[10px] font-bold">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-cyan-500/70" />
+          <span className="w-2.5 h-2.5 rounded-sm bg-slate-500/70" />
           <span className="text-slate-400">Open Positions</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/70" />
+          <span className="w-2.5 h-2.5 rounded-sm bg-accent/70" />
           <span className="text-slate-400">Filled Positions</span>
         </div>
       </div>
@@ -471,8 +279,8 @@ function LineChart({ data, width = 500, height = 200 }) {
           ))}
         </svg>
       </div>
-      <div className="flex items-center gap-1.5 text-[10px] text-pink-400 font-bold justify-center">
-        <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
+      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold justify-center">
+        <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
         <span>Exit Replacement requisitions over time</span>
       </div>
     </div>
@@ -533,8 +341,10 @@ export default function ReportsPage() {
     loadReportData()
   }, [])
 
-  const isDummy = sheetData.length === 0 || !sheetData.some(row => row['Designation'] || row['Location'])
-  const records = isDummy ? DUMMY_DATA : sheetData
+  const records = (sheetData && sheetData.recruitmentTracker && sheetData.recruitmentTracker.length > 0)
+    ? sheetData.recruitmentTracker
+    : []
+  const hasData = records.length > 0
 
   // 1. Donut: Vacancy Status Distribution
   const posStatusMap = {}
@@ -573,7 +383,7 @@ export default function ReportsPage() {
   const pipelineData = [
     { label: 'Offered Hires', value: offerCounts.Offered + offerCounts.Accepted + offerCounts.Joined + offerCounts.Declined, color: 'bg-amber-400' },
     { label: 'Offers Accepted', value: offerCounts.Accepted + offerCounts.Joined, color: 'bg-blue-400' },
-    { label: 'Joined / Onboarded', value: offerCounts.Joined, color: 'bg-emerald-400' }
+    { label: 'Joined / Onboarded', value: offerCounts.Joined, color: 'bg-accent' }
   ]
 
   // 4. Grouped: Open vs Filled
@@ -602,19 +412,9 @@ export default function ReportsPage() {
       filled: counts.filled
     }))
 
-  // 5. Line: Exits over time (Trends representing last 5 months)
-  const exitsTrend = [
-    { label: 'Jan', value: 1 },
-    { label: 'Feb', value: 3 },
-    { label: 'Mar', value: 2 },
-    { label: 'Apr', value: 4 },
-    { label: 'May', value: 1 },
-    { label: 'Jun', value: 3 }
-  ]
-  // Update dynamic trend values if exit dates are present
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  const exitCounts = { Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0, Jun: 0 }
-  let hasDynamicExits = false
+  // 5. Line: Exits over time — real data from sheet only
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const exitCounts = Object.fromEntries(months.map(m => [m, 0]))
 
   records.forEach(row => {
     const exitDate = row['Position Start Date']
@@ -622,109 +422,94 @@ export default function ReportsPage() {
     if (isExit && exitDate) {
       try {
         const d = new Date(exitDate)
-        const monthIndex = d.getMonth()
-        if (monthIndex >= 0 && monthIndex <= 5) {
-          exitCounts[months[monthIndex]] += 1
-          hasDynamicExits = true
-        }
+        const monthName = months[d.getMonth()]
+        if (monthName) exitCounts[monthName] += 1
       } catch {}
     }
   })
 
-  const exitsData = hasDynamicExits
-    ? months.map(m => ({ label: m, value: exitCounts[m] }))
-    : exitsTrend
+  const exitsData = months.map(m => ({ label: m, value: exitCounts[m] }))
+
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-      {/* Header */}
-      <div className="fade-up flex justify-between items-center border-b border-white/5 pb-3">
-        <div>
-          <span className="section-tag mb-2">
-            <BarChart3 size={11} /> Analytics Workspace
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white mt-1">
-            Reports & Analytics Dashboard
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Auditing status, pipelines, department splits, and exit replacements trends.
-          </p>
+      {!hasData && !loading && (
+        <div className="flex justify-center py-24 fade-up">
+          <div className="text-center space-y-3">
+            <AlertCircle size={36} className="text-slate-600 mx-auto" />
+            <p className="text-slate-400 font-semibold">No Google Sheet data available</p>
+            <p className="text-slate-600 text-xs">Connect your Google Sheet to see live analytics &amp; charts.</p>
+          </div>
         </div>
+      )}
 
-        {/* Fallback indicator */}
-        {isDummy && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
-            <Info size={12} className="animate-pulse" />
-            Showing Sample Data
+      {hasData && (
+        loading ? (
+          <div className="card p-24 flex items-center justify-center">
+            <Loader2 size={24} className="animate-spin text-accent" />
           </div>
-        )}
-      </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Chart 1: Donut Vacancies Status */}
+            <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
+              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
+                <PieChart size={15} className="text-slate-400" />
+                Vacancy Status Distribution
+              </h3>
+              {posStatusData.length > 0 ? (
+                <DonutChart data={posStatusData} />
+              ) : (
+                <div className="py-12 text-center text-slate-500 italic">No position status recorded.</div>
+              )}
+            </div>
 
-      {loading ? (
-        <div className="card p-24 flex items-center justify-center">
-          <Loader2 size={24} className="animate-spin text-accent" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Chart 1: Donut Vacancies Status */}
-          <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
-            <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-              <PieChart size={15} className="text-cyan-400" />
-              Vacancy Status Distribution
-            </h3>
-            {posStatusData.length > 0 ? (
-              <DonutChart data={posStatusData} />
-            ) : (
-              <div className="py-12 text-center text-slate-500 italic">No position status recorded.</div>
-            )}
+            {/* Chart 2: Bar department comparisons */}
+            <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
+              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
+                <BarChart3 size={15} className="text-accent" />
+                Department-wise Hiring (Total Vacancies)
+              </h3>
+              {deptData.length > 0 ? (
+                <BarChart data={deptData} />
+              ) : (
+                <div className="py-12 text-center text-slate-500 italic">No department vacancy data recorded.</div>
+              )}
+            </div>
+
+            {/* Chart 3: Pipeline Stages */}
+            <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
+              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
+                <TrendingUp size={15} className="text-amber-400" />
+                Sourcing Recruitment Pipeline
+              </h3>
+              <FunnelChart data={pipelineData} />
+            </div>
+
+            {/* Chart 4: Grouped Bar Open vs Filled */}
+            <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
+              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
+                <BarChart3 size={15} className="text-accent" />
+                Open vs Filled Positions by Department
+              </h3>
+              {openFilledData.length > 0 ? (
+                <GroupedBarChart data={openFilledData} />
+              ) : (
+                <div className="py-12 text-center text-slate-500 italic">No vacancy status data logged.</div>
+              )}
+            </div>
+
+            {/* Chart 5: Line Exits Trend */}
+            <div className="card md:col-span-2 p-5 border border-white/5 bg-ink-950/40 space-y-4">
+              <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
+                <Calendar size={15} className="text-slate-400" />
+                Exit Replacements Trend (Retirement &amp; Resignations)
+              </h3>
+              <LineChart data={exitsData} />
+            </div>
+
           </div>
-
-          {/* Chart 2: Bar department comparisons */}
-          <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
-            <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-              <BarChart3 size={15} className="text-accent" />
-              Department-wise Hiring (Total Vacancies)
-            </h3>
-            {deptData.length > 0 ? (
-              <BarChart data={deptData} />
-            ) : (
-              <div className="py-12 text-center text-slate-500 italic">No department vacancy data recorded.</div>
-            )}
-          </div>
-
-          {/* Chart 3: Pipeline Stages */}
-          <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
-            <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-              <TrendingUp size={15} className="text-amber-400" />
-              Sourcing Recruitment Pipeline
-            </h3>
-            <FunnelChart data={pipelineData} />
-          </div>
-
-          {/* Chart 4: Grouped Bar Open vs Filled */}
-          <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
-            <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-              <BarChart3 size={15} className="text-emerald-400" />
-              Open vs Filled Positions by Department
-            </h3>
-            {openFilledData.length > 0 ? (
-              <GroupedBarChart data={openFilledData} />
-            ) : (
-              <div className="py-12 text-center text-slate-500 italic">No vacancy status data logged.</div>
-            )}
-          </div>
-
-          {/* Chart 5: Line Exits Trend (Exits/Resignations/Retirements over time) */}
-          <div className="card md:col-span-2 p-5 border border-white/5 bg-ink-950/40 space-y-4">
-            <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-              <Calendar size={15} className="text-pink-400" />
-              Exit Replacements Trend (Retirement & Resignations)
-            </h3>
-            <LineChart data={exitsData} />
-          </div>
-
-        </div>
+        )
       )}
     </div>
   )

@@ -79,12 +79,12 @@ function CandidateCard({ entry, onRemove, onUpdate, requirements }) {
 
         <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
           {status === 'parsed' && (
-            <span className="badge bg-success/15 text-success border border-success/25">
+            <span className="badge bg-accent/15 text-accent border border-accent/25">
               <CheckCircle2 size={11} /> Parsed
             </span>
           )}
           {status === 'pending' && (
-            <span className="badge bg-gold/15 text-gold border border-gold/25">
+            <span className="badge bg-slate-500/15 text-slate-500 border border-slate-500/25">
               <AlertCircle size={11} /> Pending
             </span>
           )}
@@ -241,16 +241,16 @@ export default function ResumeUpload({ onCandidatesChange, requirements }) {
 
       {/* Manpower requirements notice */}
       {!requirements ? (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-gold/8 border border-gold/20 text-sm text-slate-300">
-          <AlertCircle size={16} className="text-gold mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-slate-500/8 border border-slate-500/20 text-sm text-slate-300">
+          <AlertCircle size={16} className="text-slate-500 mt-0.5 flex-shrink-0" />
           <span>
             No manpower file loaded. Upload one from the{' '}
             <span className="text-white font-medium">Manpower File</span> page for automatic matching.
           </span>
         </div>
       ) : (
-        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-success/8 border border-success/20 text-sm text-slate-300">
-          <CheckCircle2 size={16} className="text-success mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-accent/8 border border-accent/20 text-sm text-slate-300">
+          <CheckCircle2 size={16} className="text-accent mt-0.5 flex-shrink-0" />
           <span>
             Matching against: <span className="text-white font-medium">{requirements.designation || 'Role'}</span>
             {requirements.experience && <> · {requirements.experience} experience</>}
@@ -307,13 +307,13 @@ export default function ResumeUpload({ onCandidatesChange, requirements }) {
             </span>
             <span className="text-slate-600">·</span>
             <span className="text-slate-400">
-              <span className="text-success font-semibold">{parsedCount}</span> parsed
+              <span className="text-accent font-semibold">{parsedCount}</span> parsed
             </span>
             {requirements && strongCount > 0 && (
               <>
                 <span className="text-slate-600">·</span>
                 <span className="text-slate-400">
-                  <span className="text-emerald-400 font-semibold">{strongCount}</span> strong match{strongCount !== 1 ? 'es' : ''}
+                  <span className="text-accent font-semibold">{strongCount}</span> strong match{strongCount !== 1 ? 'es' : ''}
                 </span>
               </>
             )}

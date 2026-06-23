@@ -24,9 +24,9 @@ const FORM_FIELDS = [
 ]
 
 const URGENCY_COLOR = {
-  High:   'text-red-400 bg-red-400/10 border-red-400/25',
-  Medium: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/25',
-  Low:    'text-slate-400 bg-slate-400/10 border-slate-400/20',
+  High:   'text-slate-200 bg-white/10 border border-white/20',
+  Medium: 'text-slate-300 bg-white/5 border border-white/10',
+  Low:    'text-slate-400 bg-white/5 border border-white/8',
 }
 
 export default function CandidateApplyPage() {
@@ -186,10 +186,10 @@ if (parsed.matchScore !== undefined) {
     return (
       <div className="max-w-xl mx-auto px-4 py-16">
         <div className="card p-10 text-center space-y-5 relative overflow-hidden fade-up">
-          <div className="absolute inset-0 bg-gradient-to-br from-success/5 to-transparent pointer-events-none" />
-          <div className="w-20 h-20 rounded-full bg-success/15 border border-success/30 flex items-center justify-center mx-auto"
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+          <div className="w-20 h-20 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center mx-auto"
                style={{ animation: 'glow-pulse 2s ease infinite' }}>
-            <CheckCircle2 size={36} className="text-success" />
+            <CheckCircle2 size={36} className="text-accent" />
           </div>
           <div>
             <h2 className="font-display font-bold text-2xl text-white">Application Submitted!</h2>
@@ -231,7 +231,7 @@ if (parsed.matchScore !== undefined) {
 
       {/* ── Job Card ────────────────────────────────────────────────────────── */}
       <div className="card overflow-hidden relative fade-up">
-        <div className="h-1 bg-gradient-to-r from-accent via-purple-500 to-pink-500 w-full" />
+        <div className="h-1 bg-accent w-full" />
         <div className="p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
@@ -317,7 +317,7 @@ if (parsed.matchScore !== undefined) {
         <div className="flex items-center justify-between">
           <h3 className="font-display font-semibold text-white text-sm">Step 1: Upload Your Resume</h3>
           {resumeInfo.fileName && (
-            <span className="badge bg-success/12 text-success border border-success/25 text-[11px]">
+            <span className="badge bg-accent/10 text-accent border border-accent/20 text-[11px]">
               <CheckCircle2 size={11} /> Parsed
             </span>
           )}
@@ -349,8 +349,8 @@ if (parsed.matchScore !== undefined) {
             />
           </div>
         ) : (
-          <div className="p-4 border border-success/20 bg-success/5 rounded-xl flex items-center gap-3 fade-up">
-            <div className="w-8 h-8 rounded-lg bg-success/15 border border-success/30 flex items-center justify-center flex-shrink-0 text-success">
+          <div className="p-4 border border-accent/20 bg-accent/5 rounded-xl flex items-center gap-3 fade-up">
+            <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/25 flex items-center justify-center flex-shrink-0 text-accent">
               <CheckCircle2 size={16} />
             </div>
             <div className="flex-1 min-w-0">

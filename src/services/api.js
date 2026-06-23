@@ -181,6 +181,9 @@ export const candidateApi = {
       body: JSON.stringify(formData),
     }),
 
+  /** Get single candidate details by ID */
+  get: (candidateId) => request(`/candidates/${candidateId}`),
+
   /** Get all candidates globally */
   list: () => request('/candidates'),
 
@@ -224,4 +227,22 @@ export const candidateApi = {
 
   /** Get all applications/statuses for a candidate by email */
   getStatusByEmail: (email) => request(`/candidates/status/${encodeURIComponent(email)}`),
+};
+
+// ── Notifications ────────────────────────────────────────────────
+export const notificationApi = {
+  /** Fetch all notifications for current user */
+  list: () => request('/notifications'),
+
+  /** Mark a specific notification as read */
+  markRead: (id) => request(`/notifications/${id}/read`, { method: 'PATCH' }),
+
+  /** Mark all notifications as read */
+  markAllRead: () => request('/notifications/read-all', { method: 'PATCH' }),
+
+  /** Delete a notification */
+  delete: (id) => request(`/notifications/${id}`, { method: 'DELETE' }),
+
+  /** Clear all notifications */
+  clearAll: () => request('/notifications/clear-all', { method: 'DELETE' }),
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Search, Filter, MapPin, Building2, Users, Loader2, AlertCircle, FileSpreadsheet,
-  Download, ArrowUpDown, Clock
+  Download, ArrowUpDown, Clock, ChevronDown
 } from 'lucide-react'
 import { mrfApi, sheetApi } from '../services/api.js'
 
@@ -57,18 +57,7 @@ export default function VacancyTrackerPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      {/* Header */}
-      <div className="fade-up">
-        <span className="section-tag mb-2.5">
-          <FileSpreadsheet size={11} className="text-success" /> Google Sheet Sync Ledger
-        </span>
-        <h1 className="font-display font-bold text-2xl sm:text-3xl text-white">
-          Vacancy Operational Tracker
-        </h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Search, filter, and audit live open positions synced with the Google Sheet.
-        </p>
-      </div>
+
 
       {/* Control Panel: Filters */}
       <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4 fade-up-1">
@@ -91,49 +80,61 @@ export default function VacancyTrackerPage() {
           {/* Dept Filter */}
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</span>
-            <select
-              value={deptFilter}
-              onChange={(e) => setDeptFilter(e.target.value)}
-              className="w-full bg-white/4 border border-white/10 rounded-lg px-2.5 py-2 text-slate-300 focus:outline-none focus:border-accent/30 appearance-none cursor-pointer"
-            >
-              {departments.map(d => <option key={d} className="bg-ink-950 text-slate-300">{d}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+                className="field appearance-none pr-8 cursor-pointer text-xs !py-2 !px-3"
+              >
+                {departments.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            </div>
           </div>
 
           {/* Location Filter */}
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Location</span>
-            <select
-              value={locFilter}
-              onChange={(e) => setLocFilter(e.target.value)}
-              className="w-full bg-white/4 border border-white/10 rounded-lg px-2.5 py-2 text-slate-300 focus:outline-none focus:border-accent/30 appearance-none cursor-pointer"
-            >
-              {locations.map(l => <option key={l} className="bg-ink-950 text-slate-300">{l}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={locFilter}
+                onChange={(e) => setLocFilter(e.target.value)}
+                className="field appearance-none pr-8 cursor-pointer text-xs !py-2 !px-3"
+              >
+                {locations.map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+              <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            </div>
           </div>
 
           {/* Position Status Filter */}
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Position Status</span>
-            <select
-              value={posFilter}
-              onChange={(e) => setPosFilter(e.target.value)}
-              className="w-full bg-white/4 border border-white/10 rounded-lg px-2.5 py-2 text-slate-300 focus:outline-none focus:border-accent/30 appearance-none cursor-pointer"
-            >
-              {positionStatuses.map(ps => <option key={ps} className="bg-ink-950 text-slate-300">{ps}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={posFilter}
+                onChange={(e) => setPosFilter(e.target.value)}
+                className="field appearance-none pr-8 cursor-pointer text-xs !py-2 !px-3"
+              >
+                {positionStatuses.map(ps => <option key={ps} value={ps}>{ps}</option>)}
+              </select>
+              <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            </div>
           </div>
 
           {/* Requirement Status Filter */}
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Requirement Status</span>
-            <select
-              value={reqFilter}
-              onChange={(e) => setReqFilter(e.target.value)}
-              className="w-full bg-white/4 border border-white/10 rounded-lg px-2.5 py-2 text-slate-300 focus:outline-none focus:border-accent/30 appearance-none cursor-pointer"
-            >
-              {requirementStatuses.map(rs => <option key={rs} className="bg-ink-950 text-slate-300">{rs}</option>)}
-            </select>
+            <div className="relative">
+              <select
+                value={reqFilter}
+                onChange={(e) => setReqFilter(e.target.value)}
+                className="field appearance-none pr-8 cursor-pointer text-xs !py-2 !px-3"
+              >
+                {requirementStatuses.map(rs => <option key={rs} value={rs}>{rs}</option>)}
+              </select>
+              <ChevronDown size={13} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            </div>
           </div>
 
         </div>
@@ -168,19 +169,19 @@ export default function VacancyTrackerPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {filtered.map((mrf) => {
-                  let posColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20'
-                  if (mrf.positionStatus === 'Closed') posColor = 'text-slate-500 bg-slate-400/10 border-slate-400/20'
-                  if (mrf.positionStatus === 'On Hold') posColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                  let posColor = 'text-accent bg-accent/10 border-accent/20'
+                  if (mrf.positionStatus === 'Closed') posColor = 'text-slate-500 bg-white/5 border-white/8'
+                  if (mrf.positionStatus === 'On Hold') posColor = 'text-slate-400 bg-white/5 border-white/10'
                   
-                  let reqColor = 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
-                  if (mrf.requirementStatus === 'Fulfilled') reqColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-                  if (mrf.requirementStatus === 'Cancelled') reqColor = 'text-red-400 bg-red-500/10 border-red-500/20'
+                  let reqColor = 'text-slate-300 bg-white/5 border-white/10'
+                  if (mrf.requirementStatus === 'Fulfilled') reqColor = 'text-accent bg-accent/10 border-accent/20'
+                  if (mrf.requirementStatus === 'Cancelled') reqColor = 'text-slate-500 bg-white/5 border-white/8'
 
                   return (
                     <tr key={mrf._id} className="hover:bg-white/1 transition-colors leading-relaxed">
                       <td className="p-4 min-w-[150px]">
                         <p className="font-semibold text-white text-sm">{mrf.designation}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Exp: {mrf.experience || '—'} · Req: {mrf.requestType || 'MRF'}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Exp: {mrf.experience || '—'} · Req: {mrf.requestType === 'MRF' ? 'Requisition' : mrf.requestType || 'Requisition'}</p>
                       </td>
                       <td className="p-4 text-slate-300">
                         <span className="font-medium">{mrf.department}</span>

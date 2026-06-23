@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Plus, FileText, Clock, CheckCircle2, XCircle, AlertCircle,
   Building2, MapPin, Users, Loader2, Send, Save, Trash2,
   Briefcase, Upload, Eye, ShieldCheck, Flame, Edit3, ArrowRight, ArrowLeft,
-  ExternalLink, CheckSquare
+  ExternalLink, CheckSquare, Award
 } from 'lucide-react'
-import { mrfApi } from '../services/api.js'
+import { mrfApi, candidateApi } from '../services/api.js'
 import MRFForm from '../components/MRFForm.jsx'
 
 // ── Status config ──────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  'Draft':                    { label: 'Draft',            color: 'text-slate-400',   bg: 'bg-slate-400/10 border-slate-400/25',    icon: FileText },
-  'Pending Owner Approval':   { label: 'Pending Approval', color: 'text-amber-400',   bg: 'bg-amber-400/10  border-amber-400/25',   icon: Clock },
-  'Approved':                 { label: 'Approved',         color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/25', icon: CheckCircle2 },
-  'Rejected':                 { label: 'Rejected',         color: 'text-red-400',     bg: 'bg-red-400/10    border-red-400/25',     icon: XCircle },
+  'Draft': { label: 'Draft', color: 'text-slate-400', bg: 'bg-white/5 border-white/8', icon: FileText },
+  'Pending Owner Approval': { label: 'Pending Approval', color: 'text-slate-300', bg: 'bg-white/5 border-white/10', icon: Clock },
+  'Approved': { label: 'Approved', color: 'text-accent', bg: 'bg-accent/10 border-accent/20', icon: CheckCircle2 },
+  'Rejected': { label: 'Rejected', color: 'text-slate-500', bg: 'bg-white/5 border-white/8', icon: XCircle },
 }
 
 // ── Empty form template ────────────────────────────────────────────────────
@@ -50,265 +50,188 @@ function FormField({ label, required, children, span2 }) {
   )
 }
 
+// ── Helper sub-components ─────────────────────────────────────────────────
+function Cell({ label, value, bold, tall }) {
+  return (
+    <div className="border border-gray-300">
+      <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300 uppercase tracking-wider">{label}</div>
+      <div className={`px-2 py-2 text-sm text-gray-900 ${bold ? 'font-semibold' : ''} ${tall ? 'min-h-[56px]' : 'min-h-[32px]'} whitespace-pre-wrap`}>
+        {value || '—'}
+      </div>
+    </div>
+  )
+}
+
 // ── MRF Paper Template Modal (matches the physical form) ──────────────────
 function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningApproval }) {
   const [rejectNote, setRejectNote] = useState('')
   const [showRejectInput, setShowRejectInput] = useState(false)
   const isPending = mrf.mrfStatus === 'Pending Owner Approval'
 
-  const Row = ({ label, value, wide }) => (
-    <div className={`border border-gray-300 ${wide ? 'col-span-2' : ''}`}>
-      <div className="bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600 uppercase border-b border-gray-300">{label}</div>
-      <div className="px-2 py-2 text-sm text-gray-900 min-h-[32px]">{value || '—'}</div>
-    </div>
-  )
-
-  const SectionHeader = ({ title }) => (
-    <div className="col-span-3 bg-gray-700 text-white text-center py-1.5 text-xs font-bold uppercase tracking-widest mt-1">
-      {title}
-    </div>
-  )
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/70 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full my-4">
-        {/* Modal header */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <FileText size={18} className="text-gray-600" />
-            <span className="font-bold text-gray-800 text-sm">Manpower Request Form — Preview</span>
-            <span className={`ml-2 px-2 py-0.5 rounded text-[10px] font-bold border ${
-              STATUS_CONFIG[mrf.mrfStatus]?.bg || ''} ${STATUS_CONFIG[mrf.mrfStatus]?.color || ''}`}>
-              {mrf.mrfStatus === 'Pending Owner Approval' ? 'Pending Approval' : mrf.mrfStatus}
-            </span>
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-3 bg-black/75 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full my-4 overflow-hidden">
+
+        {/* Modal header bar */}
+        <div 
+          className="flex items-center justify-between px-6 py-3 border-b"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+        >
+          <div className="flex items-center gap-3">
+            <FileText size={16} />
+            <span className="font-bold text-sm tracking-wide">JOB REQUISITION FORM</span>
+            {STATUS_CONFIG[mrf.mrfStatus] && (
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_CONFIG[mrf.mrfStatus].bg} ${STATUS_CONFIG[mrf.mrfStatus].color}`}>
+                {STATUS_CONFIG[mrf.mrfStatus].label}
+              </span>
+            )}
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-lg font-bold leading-none">✕</button>
+          <button onClick={onClose} style={{ color: 'var(--text-muted)' }} className="hover:opacity-70 transition-opacity text-lg leading-none font-bold">✕</button>
         </div>
 
-        {/* Form body — paper style */}
-        <div className="p-6 bg-white">
-          {/* Title */}
-          <div className="border-2 border-gray-800 mb-0">
-            <div className="bg-gray-800 text-white text-center py-2 text-sm font-bold tracking-wider">
-              MANPOWER REQUEST FORM
-            </div>
+        {/* Scrollable form body */}
+        <div className="overflow-y-auto max-h-[70vh] p-6 bg-white">
+
+          {/* Form title */}
+          <div className="border-2 border-gray-800 text-center py-2 text-sm font-bold text-gray-800 tracking-widest mb-0">
+            JOB REQUISITION FORM
+          </div>
+
+          {/* Table-style paper form */}
+          <div className="border-l-2 border-r-2 border-b-2 border-gray-800">
 
             {/* Section 1 */}
-            <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider">
+            <div className="bg-gray-200 border-b border-gray-400 text-center py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
               1. Position Details
             </div>
-            <div className="grid grid-cols-3 border-t border-gray-300">
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Designation</div>
-                <div className="px-2 py-2 text-sm font-semibold text-gray-900 min-h-[36px]">{mrf.designation || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Department & Sub Function</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.department}{mrf.section ? ` / ${mrf.section}` : ''}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Reports To</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.processOwnerName || '—'}</div>
-              </div>
-
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Location</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.location || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Experience</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.experience || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Proposed Salary (CTC Range)</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.proposedSalary || '—'}</div>
-              </div>
-
-              <div className="border border-gray-300 col-span-3 px-3 py-2 flex items-center gap-8">
-                <span className="text-[11px] font-bold text-gray-600">Level of Urgency:</span>
-                {['High', 'Medium', 'Low'].map(u => (
-                  <label key={u} className="flex items-center gap-1.5 text-sm text-gray-800">
-                    <span className={`w-4 h-4 border-2 border-gray-600 rounded-sm flex items-center justify-center text-[10px] font-bold
-                      ${mrf.levelOfUrgency === u ? 'bg-gray-800 text-white' : 'bg-white'}`}>
-                      {mrf.levelOfUrgency === u ? '✓' : ''}
-                    </span>
-                    {u}
-                  </label>
-                ))}
-              </div>
+            <div className="grid grid-cols-3 border-b border-gray-300">
+              <Cell label="Designation" value={mrf.designation} bold />
+              <Cell label="Department &amp; Sub Function" value={`${mrf.department || '—'}${mrf.section ? ' / ' + mrf.section : ''}`} />
+              <Cell label="Reports To" value={mrf.processOwnerName} />
+            </div>
+            <div className="grid grid-cols-3 border-b border-gray-300">
+              <Cell label="Location" value={mrf.location} />
+              <Cell label="Experience" value={mrf.experience} />
+              <Cell label="Proposed Salary (CTC Range)" value={mrf.proposedSalary} />
+            </div>
+            <div className="border-b border-gray-300 px-3 py-2 flex items-center gap-8">
+              <span className="text-[11px] font-bold text-gray-600">Level of Urgency:</span>
+              {['High', 'Medium', 'Low'].map(u => (
+                <label key={u} className="flex items-center gap-1.5 text-sm text-gray-800 cursor-default">
+                  <span className={`w-4 h-4 border-2 border-gray-600 rounded-sm flex items-center justify-center text-[10px] font-bold
+                    ${mrf.levelOfUrgency === u ? 'bg-gray-800 text-white border-gray-800' : 'bg-white'}`}>
+                    {mrf.levelOfUrgency === u ? '✓' : ''}
+                  </span>
+                  {u}
+                </label>
+              ))}
             </div>
 
             {/* Section 2 */}
-            <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider">
+            <div className="bg-gray-200 border-b border-gray-400 text-center py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
               2. Reasons for Request
             </div>
-            <div className="grid grid-cols-3">
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">New / Replacement</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.reasonForRequest || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">No. of Position</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.noOfPositions || 1}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Replacement For</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.replacementFor || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-3">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Justification for this Opening</div>
-                <div className="px-2 py-3 text-sm text-gray-900 min-h-[48px] whitespace-pre-wrap">{mrf.justification || '—'}</div>
-              </div>
+            <div className="grid grid-cols-3 border-b border-gray-300">
+              <Cell label="New / Replacement" value={mrf.reasonForRequest} />
+              <Cell label="No. of Positions" value={mrf.noOfPositions} />
+              <Cell label="Replacement For" value={mrf.replacementFor} />
+            </div>
+            <div className="border-b border-gray-300">
+              <Cell label="Justification for this Opening" value={mrf.justification} tall />
             </div>
 
             {/* Section 3 */}
-            <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider">
+            <div className="bg-gray-200 border-b border-gray-400 text-center py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
               3. Job Description
             </div>
-            <div className="grid grid-cols-1">
-              <div className="border border-gray-300">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Purpose of the Job</div>
-                <div className="px-2 py-3 text-sm text-gray-900 min-h-[40px] whitespace-pre-wrap">{mrf.purposeOfJob || '—'}</div>
-              </div>
-              <div className="border border-gray-300">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Roles and Responsibilities (With Proper Job Description)</div>
-                <div className="px-2 py-3 text-sm text-gray-900 min-h-[60px] whitespace-pre-wrap">{mrf.rolesResponsibilities || '—'}</div>
-              </div>
+            <div className="border-b border-gray-300">
+              <Cell label="Purpose of the Job" value={mrf.purposeOfJob} />
+            </div>
+            <div className="border-b border-gray-300">
+              <Cell label="Roles and Responsibilities (With Proper Job Description)" value={mrf.rolesResponsibilities} tall />
             </div>
 
             {/* Section 4 */}
-            <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider">
+            <div className="bg-gray-200 border-b border-gray-400 text-center py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
               4. Qualification &amp; Other Criteria
             </div>
-            <div className="grid grid-cols-3">
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Minimum Qualification</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.minimumQualification || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Specializations</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.specializations || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-1">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Age in Range</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.ageRange || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-3">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Preferred Industries / Sectors</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.preferredIndustries || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-3">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Other Key Skills &amp; explain the kind of relevant experience</div>
-                <div className="px-2 py-3 text-sm text-gray-900 min-h-[40px] whitespace-pre-wrap">{mrf.otherKeySkills || '—'}</div>
-              </div>
-              <div className="border border-gray-300 col-span-3">
-                <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">IT Requirements (Laptop / Desktop / Special software etc)</div>
-                <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.itRequirements || '—'}</div>
-              </div>
+            <div className="grid grid-cols-3 border-b border-gray-300">
+              <Cell label="Minimum Qualification" value={mrf.minimumQualification} />
+              <Cell label="Specializations" value={mrf.specializations} />
+              <Cell label="Age in Range" value={mrf.ageRange} />
+            </div>
+            <div className="border-b border-gray-300">
+              <Cell label="Preferred Industries / Sectors" value={mrf.preferredIndustries} />
+            </div>
+            <div className="border-b border-gray-300">
+              <Cell label="Other Key Skills &amp; explain the kind of relevant experience" value={mrf.otherKeySkills} tall />
+            </div>
+            <div>
+              <Cell label="IT Requirements (Laptop / Desktop / Special software etc)" value={mrf.itRequirements} />
             </div>
 
-            {/* Additional metadata row */}
-            {(mrf.employeeName || mrf.vacancyRemarks || mrf.companyName) && (
+            {/* Optional section 5 */}
+            {(mrf.employeeName || mrf.companyName || mrf.vacancyRemarks) && (
               <>
-                <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider">
+                <div className="bg-gray-200 border-t border-b border-gray-400 text-center py-1 text-[11px] font-bold uppercase tracking-wider text-gray-700">
                   5. Additional Information
                 </div>
-                <div className="grid grid-cols-3">
-                  <div className="border border-gray-300 col-span-1">
-                    <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Employee Name (Replacement)</div>
-                    <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.employeeName || '—'}</div>
-                  </div>
-                  <div className="border border-gray-300 col-span-1">
-                    <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Employee Designation</div>
-                    <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.employeeDesignation || '—'}</div>
-                  </div>
-                  <div className="border border-gray-300 col-span-1">
-                    <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Company Name</div>
-                    <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.companyName || '—'}</div>
-                  </div>
-                  {mrf.vacancyRemarks && (
-                    <div className="border border-gray-300 col-span-3">
-                      <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">Vacancy Remarks</div>
-                      <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">{mrf.vacancyRemarks}</div>
-                    </div>
-                  )}
+                <div className="grid grid-cols-3 border-b border-gray-300">
+                  <Cell label="Employee Name (Retirement/Resignation)" value={mrf.employeeName} />
+                  <Cell label="Employee Designation" value={mrf.employeeDesignation} />
+                  <Cell label="Company Name" value={mrf.companyName} />
                 </div>
+                {mrf.vacancyRemarks && (
+                  <div>
+                    <Cell label="Vacancy Remarks" value={mrf.vacancyRemarks} />
+                  </div>
+                )}
               </>
-            )}
-
-            {/* Attached Documents row */}
-            {(mrf.mrfFilePath || mrf.jdFilePath) && (
-              <>
-                <div className="border-b border-gray-400 bg-gray-200 text-center py-1 text-[11px] font-bold uppercase tracking-wider mt-1">
-                  Attached Documents
-                </div>
-                <div className="grid grid-cols-2">
-                  <div className="border border-gray-300 col-span-1">
-                    <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">MRF Document</div>
-                    <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">
-                      {mrf.mrfFilePath ? (
-                        <a href={getFileUrl(mrf.mrfFilePath)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-blue-600 hover:underline font-semibold">
-                          <FileText size={14} /> {mrf.mrfFileName || 'Download MRF'}
-                        </a>
-                      ) : '—'}
-                    </div>
-                  </div>
-                  <div className="border border-gray-300 col-span-1">
-                    <div className="bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 border-b border-gray-300">JD Document</div>
-                    <div className="px-2 py-2 text-sm text-gray-900 min-h-[36px]">
-                      {mrf.jdFilePath ? (
-                        <a href={getFileUrl(mrf.jdFilePath)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-blue-600 hover:underline font-semibold">
-                          <FileText size={14} /> {mrf.jdFileName || 'Download JD'}
-                        </a>
-                      ) : '—'}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Rejection note if any */}
-            {mrf.mrfStatus === 'Rejected' && mrf.rejectionNote && (
-              <div className="bg-red-50 border-t-2 border-red-400 px-4 py-3">
-                <p className="text-xs font-bold text-red-600 uppercase mb-1">Rejection Note</p>
-                <p className="text-sm text-red-800">{mrf.rejectionNote}</p>
-              </div>
             )}
           </div>
 
-          {/* Submitted by / date */}
-          <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
-            <span>Submitted by: <strong className="text-gray-700">{mrf.submittedBy || 'Unknown'}</strong></span>
+          {/* Submitted by / date info */}
+          <div className="flex items-center justify-between mt-3 px-1 text-xs text-gray-500">
+            <span>Requested By: <strong className="text-gray-700">{mrf.submittedBy || 'Unknown'}</strong></span>
+            <span>MRF ID: <strong className="text-gray-700 font-mono">{mrf._id?.slice(-8).toUpperCase()}</strong></span>
             <span>Date: <strong className="text-gray-700">{new Date(mrf.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></span>
           </div>
+
+          {/* Rejection note (if rejected) */}
+          {mrf.mrfStatus === 'Rejected' && mrf.rejectionNote && (
+            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-xs font-bold text-red-600 uppercase mb-1">Admin Rejection Comment</p>
+              <p className="text-sm text-red-800">{mrf.rejectionNote}</p>
+            </div>
+          )}
         </div>
 
-        {/* Admin Actions Footer */}
-        {role === 'admin' && isPending && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg space-y-3">
-            {showRejectInput ? (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-gray-600">Enter rejection reason:</p>
+        {/* Actions Footer */}
+        <div className="px-6 py-4 border-t" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+          {role === 'admin' && isPending ? (
+            showRejectInput ? (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-gray-600">Enter rejection comment for Department Head:</p>
                 <textarea
                   value={rejectNote}
                   onChange={(e) => setRejectNote(e.target.value)}
-                  rows={2}
-                  placeholder="State the reason for rejection..."
+                  rows={3}
+                  placeholder="Explain why the MRF is being rejected, what needs to be corrected..."
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
                 />
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => setShowRejectInput(false)}
-                    className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-200 transition-colors"
+                    className="btn-ghost px-4 py-2 text-xs"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => onReject(mrf._id, rejectNote)}
                     disabled={actioningApproval}
-                    className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                    className="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
                   >
-                    {actioningApproval ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
+                    {actioningApproval ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={13} />}
                     Confirm Rejection
                   </button>
                 </div>
@@ -318,33 +241,30 @@ function MRFTemplateModal({ mrf, onClose, onApprove, onReject, role, actioningAp
                 <button
                   onClick={() => onApprove(mrf._id)}
                   disabled={actioningApproval}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                  className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
-                  {actioningApproval ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={15} />}
-                  Approve MRF
+                  {actioningApproval ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                  Approve Requisition
                 </button>
                 <button
                   onClick={() => setShowRejectInput(true)}
-                  className="flex-1 py-2.5 rounded-xl bg-red-500/90 hover:bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                  className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                 >
-                  <XCircle size={15} /> Reject MRF
+                  <XCircle size={16} /> Reject Requisition
                 </button>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Close button when already approved/rejected */}
-        {(role !== 'admin' || !isPending) && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-6 py-2 rounded-xl bg-gray-700 hover:bg-gray-800 text-white font-semibold text-sm transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        )}
+            )
+          ) : (
+            <div className="flex justify-end">
+              <button
+                onClick={onClose}
+                className="btn-ghost"
+              >
+                Close
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -371,7 +291,7 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm overflow-y-auto">
       <div className="bg-ink-950 border border-white/10 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-scaleUp">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/3 flex-shrink-0">
           <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent">
@@ -412,10 +332,7 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
         </div>
 
         {/* Footer — only Edit option; user must click Submit Request at the bottom of the form */}
-        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center gap-3 flex-shrink-0">
-          <div className="flex-1 text-xs text-slate-500">
-            <span className="text-amber-400 font-semibold">📋 Review complete?</span>&nbsp; Close this preview and click <strong className="text-white">Submit Request</strong> at the bottom when both MRF &amp; JD are ready.
-          </div>
+        <div className="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center justify-end gap-3 flex-shrink-0">
           <button
             onClick={onEditCancel}
             className="px-5 py-2.5 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-bold hover:bg-accent hover:text-white transition-all flex items-center gap-1.5"
@@ -432,7 +349,11 @@ function UploadConfirmationModal({ details, onConfirm, onEditCancel }) {
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function MyMRFsPage() {
   const locationState = useLocation().state
+  const navigate = useNavigate()
+  const user = (() => { try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null } })()
   const [mrfs, setMrfs] = useState([])
+  const [candidates, setCandidates] = useState([])
+  const [selectedMrfForCandidates, setSelectedMrfForCandidates] = useState(null)
   const [loading, setLoading] = useState(true)
 
   // MRF Creation variables (Dept Head)
@@ -490,19 +411,38 @@ export default function MyMRFsPage() {
     }
   }, [locationState, role])
 
+  useEffect(() => {
+    if (extractedDetails || viewingMrf) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [extractedDetails, viewingMrf])
+
   const loadMRFs = async () => {
     setLoading(true)
     try {
-      const all = await mrfApi.list()
+      const [all, allCands] = await Promise.all([
+        mrfApi.list(),
+        candidateApi.list().catch(() => [])
+      ])
+      
       if (role === 'department_head') {
         // HOD sees their drafts and submitted MRFs
         setMrfs(all.filter(m => m.submittedBy === userName || !m.submittedBy))
+        setCandidates(allCands.filter(c => 
+          (c.stage === 'Pending Head Approval' || c.stage === 'Shared with HOD') &&
+          (c.jobOpeningId?.department === user?.department || !user?.department)
+        ))
       } else if (role === 'admin') {
         // Admin sees all non-draft MRFs to review
         setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
       } else {
-        // HR sees only approved MRFs
-        setMrfs(all.filter(m => m.mrfStatus === 'Approved'))
+        // HR sees all submitted MRFs (non-draft)
+        setMrfs(all.filter(m => m.mrfStatus !== 'Draft'))
       }
     } catch (e) {
       showToast('Failed to load MRFs: ' + e.message, 'error')
@@ -536,13 +476,11 @@ export default function MyMRFsPage() {
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('MRF uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
         console.warn('MRF parse unavailable:', parseErr.message)
         // No popup needed — just mark file ready
         setMrfFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, mrfFileName: res.fileName, mrfFilePath: res.filePath }))
-        showToast('MRF file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('MRF upload error:', err)
@@ -568,12 +506,10 @@ export default function MyMRFsPage() {
           fileName: res.fileName,
           filePath: res.filePath,
         })
-        showToast('JD uploaded & parsed — review the details below ✓')
       } catch (parseErr) {
         console.warn('JD parse unavailable:', parseErr.message)
         setJdFile({ name: res.fileName, path: res.filePath })
         setForm(prev => ({ ...prev, jdFileName: res.fileName, jdFilePath: res.filePath }))
-        showToast('JD file uploaded. AI parsing unavailable — fill details manually.', 'error')
       }
     } catch (err) {
       console.error('JD upload error:', err)
@@ -625,7 +561,6 @@ export default function MyMRFsPage() {
       setJdFile({ name: details.fileName, path: details.filePath })
       setJdMethod('manual')
     }
-    showToast('Details loaded — review and edit if needed, then click Submit Request.')
   }
 
   const handleSaveDraft = async () => {
@@ -644,7 +579,7 @@ export default function MyMRFsPage() {
         showToast('Draft updated. ✓')
       } else {
         await mrfApi.saveDraft(payload)
-        showToast('MRF saved as Draft. ✓')
+        showToast('Requisition saved as Draft. ✓')
       }
       setShowForm(false)
       setIsCreating(false)
@@ -667,6 +602,7 @@ export default function MyMRFsPage() {
     if (mrfMethod === 'manual' && !form.department?.trim()) return showToast('Department is required.', 'error')
     if (mrfMethod === 'upload' && !mrfFile) return showToast('Please upload an MRF document.', 'error')
     if (jdMethod === 'upload' && !jdFile) return showToast('Please upload a JD document.', 'error')
+    
     setSubmitting(true)
     try {
       const payload = {
@@ -682,7 +618,7 @@ export default function MyMRFsPage() {
         showToast('MRF updated and submitted! ✓')
       } else {
         await mrfApi.submit({ ...payload, mrfStatus: 'Pending Owner Approval' })
-        showToast('MRF submitted for approval! ✓')
+        showToast('Requisition submitted for approval! ✓')
       }
       setShowForm(false)
       setIsCreating(false)
@@ -717,7 +653,7 @@ export default function MyMRFsPage() {
     try {
       setMrfs(prev => prev.filter(m => m._id !== id))
       await mrfApi.delete(id)
-      showToast('MRF deleted.')
+      showToast('Requisition deleted.')
       const all = await mrfApi.list()
       if (role === 'department_head') {
         setMrfs(all.filter(m => m.submittedBy === userName || !m.submittedBy))
@@ -737,7 +673,7 @@ export default function MyMRFsPage() {
     setActioningApproval(true)
     try {
       await mrfApi.approve(id)
-      showToast('MRF approved successfully! ✓')
+      showToast('Requisition approved successfully! ✓')
       setViewingMrf(null)
       loadMRFs()
     } catch (e) {
@@ -751,7 +687,7 @@ export default function MyMRFsPage() {
     setActioningApproval(true)
     try {
       await mrfApi.reject(id, note)
-      showToast('MRF has been rejected.')
+      showToast('Requisition has been rejected.')
       setViewingMrf(null)
       loadMRFs()
     } catch (e) {
@@ -779,8 +715,8 @@ export default function MyMRFsPage() {
   const FILTERS = role === 'department_head'
     ? ['All', 'Draft', 'Pending Owner Approval', 'Approved', 'Rejected']
     : role === 'admin'
-    ? ['All', 'Pending Owner Approval', 'Approved', 'Rejected']
-    : ['All', 'Approved']
+      ? ['All', 'Pending Owner Approval', 'Approved', 'Rejected']
+      : ['All', 'Approved']
 
   const filteredMRFs = filter === 'All'
     ? mrfs
@@ -795,7 +731,7 @@ export default function MyMRFsPage() {
         <div className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-sm font-medium border fade-up
           ${toast.type === 'error'
             ? 'bg-red-500/15 border-red-500/30 text-red-300'
-            : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'}`}>
+            : 'bg-accent/15 border-accent/30 text-accent'}`}>
           {toast.msg}
         </div>
       )}
@@ -812,8 +748,8 @@ export default function MyMRFsPage() {
       {/* Confirmation Modal */}
       {confirmModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="card max-w-sm w-full p-6 border border-emerald-500/25 space-y-4 text-center animate-scaleUp">
-            <CheckCircle2 size={40} className="text-emerald-400 mx-auto" />
+          <div className="card max-w-sm w-full p-6 border border-accent/25 space-y-4 text-center animate-scaleUp">
+            <CheckCircle2 size={40} className="text-accent mx-auto" />
             <div className="space-y-1">
               <h4 className="font-display font-bold text-white text-base">Success</h4>
               <p className="text-xs text-slate-300">{confirmModal.message}</p>
@@ -824,7 +760,7 @@ export default function MyMRFsPage() {
                 setConfirmModal(null)
                 if (onConfirm) onConfirm()
               }}
-              className="w-full btn-primary justify-center bg-emerald-500 hover:bg-emerald-600 border-emerald-500/30 text-white font-bold"
+              className="w-full btn-primary justify-center bg-accent hover:bg-accent border-accent/30 text-white font-bold"
             >
               OK
             </button>
@@ -844,78 +780,21 @@ export default function MyMRFsPage() {
         />
       )}
 
-      {/* Header */}
-      <div className="fade-up flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="section-tag mb-2.5">
-            <Briefcase size={11} /> Requisition Operations
-          </span>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl text-white">
-            {role === 'department_head' ? 'My MRFs' : role === 'admin' ? 'MRF Review & Approvals' : 'Approved MRF Postings'}
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {role === 'department_head'
-              ? 'Draft, edit, and submit your manpower requests for approval.'
-              : role === 'admin'
-              ? 'Review submitted MRFs from department heads. Click View MRF to see full details, then Approve or Reject.'
-              : 'All approved MRFs ready for job posting. Click "Post as Job" to publish for candidates.'}
-          </p>
-        </div>
-        {role === 'department_head' && !isCreating && (
-          <button
-            id="new-mrf-btn"
-            onClick={() => {
-              setEditingId(null)
-              setForm(EMPTY_FORM)
-              setMrfMethod(null)
-              setJdMethod(null)
-              setMrfFile(null)
-              setJdFile(null)
-              setActiveStep(1)
-              setIsCreating(true)
-              setShowForm(true)
-            }}
-            className="btn-primary"
-          >
-            <Plus size={15} /> Create MRF Request
-          </button>
-        )}
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 flex-wrap fade-up-1">
-        {FILTERS.map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
-              ${filter === f
-                ? 'bg-accent text-white border-accent shadow-glow-sm'
-                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
-          >
-            {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
-            {f !== 'All' && (
-              <span className="ml-1 opacity-60">
-                ({mrfs.filter(m => m.mrfStatus === f).length})
-              </span>
-            )}
-          </button>
-        ))}
-        <span className="ml-auto text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
-      </div>
-
-      {/* HOD: Direct Unified Requisition Form */}
-      {showForm && (
+      {showForm ? (
         <div className="card p-6 fade-up border-accent/20 border space-y-8">
-          {/* Header */}
+          {/* Header with Back button */}
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <button
+              onClick={handleCloseForm}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-all font-semibold bg-white/5 hover:bg-white/10 px-3 py-1.5 border border-white/10 rounded-xl"
+            >
+              <ArrowLeft size={13} /> Back to Requisitions
+            </button>
             <h2 className="font-display font-bold text-lg text-white flex items-center gap-2">
               <Plus size={18} className="text-accent" />
-              {editingId ? 'Edit Requisition Draft' : 'Create MRF Request'}
+              {editingId ? 'Edit Requisition Draft' : 'Create Requisition Request'}
             </h2>
-            <button onClick={handleCloseForm} className="text-slate-500 hover:text-white transition-colors text-xs">
-              ✕ Close Form
-            </button>
+            <div className="w-[140px] hidden sm:block"></div> {/* placeholder to help center */}
           </div>
 
           {/* Primary Requisition Details (Required for all MRF requests) */}
@@ -951,30 +830,28 @@ export default function MyMRFsPage() {
                 <h3 className="font-display font-bold text-white text-base">1. Manpower Request Form (MRF) Setup</h3>
                 <p className="text-xs text-slate-400">Fill standard requisition details or upload an existing MRF document.</p>
               </div>
-              
+
               {/* Tab Selector */}
               <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
                 <button
                   type="button"
                   onClick={() => setMrfMethod('manual')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    mrfMethod === 'manual'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${mrfMethod === 'manual'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Fill Manually
                 </button>
                 <button
                   type="button"
                   onClick={() => setMrfMethod('upload')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    mrfMethod === 'upload'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${mrfMethod === 'upload'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
-                  Upload MRF File
+                  Upload Requisition File
                 </button>
               </div>
             </div>
@@ -1001,20 +878,20 @@ export default function MyMRFsPage() {
                         <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto text-slate-400">
                           <Upload size={18} />
                         </div>
-                        <p className="text-xs text-slate-200 font-bold">Click or drag MRF document here</p>
+                        <p className="text-xs text-slate-200 font-bold">Click or drag Requisition document here</p>
                         <p className="text-[10px] text-slate-500 leading-normal">PDF, DOC, or DOCX (Max 5MB)</p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-between gap-3 animate-scaleUp">
+                  <div className="p-4 rounded-xl border border-accent/25 bg-accent/5 flex items-center justify-between gap-3 animate-scaleUp">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
                         <FileText size={16} />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-white truncate">{mrfFile.name}</p>
-                        <p className="text-[10px] text-emerald-400 font-medium">Uploaded Successfully</p>
+                        <p className="text-[10px] text-accent font-medium">Uploaded Successfully</p>
                       </div>
                     </div>
                     <button
@@ -1049,9 +926,9 @@ export default function MyMRFsPage() {
                     <input name="processOwnerName" value={form.processOwnerName} onChange={handleFormChange} placeholder="Reporting manager name" className={inputCls} />
                   </FormField>
                   <FormField label="Level of Urgency">
-                    <select name="levelOfUrgency" value={form.levelOfUrgency} onChange={handleFormChange} className={selectCls}>
-                      <option>High</option>
+                    <select name="levelOfUrgency" value={form.levelOfUrgency || 'Medium'} onChange={handleFormChange} className={selectCls}>
                       <option>Medium</option>
+                      <option>High</option>
                       <option>Low</option>
                     </select>
                   </FormField>
@@ -1091,28 +968,26 @@ export default function MyMRFsPage() {
                 <h3 className="font-display font-bold text-white text-base">2. Job Description (JD) Setup</h3>
                 <p className="text-xs text-slate-400">Specify details manually or upload an existing JD document.</p>
               </div>
-              
+
               {/* Tab Selector */}
               <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
                 <button
                   type="button"
                   onClick={() => setJdMethod('manual')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    jdMethod === 'manual'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${jdMethod === 'manual'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Fill Manually
                 </button>
                 <button
                   type="button"
                   onClick={() => setJdMethod('upload')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    jdMethod === 'upload'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${jdMethod === 'upload'
                       ? 'bg-accent text-white shadow-glow-sm'
                       : 'text-slate-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   Upload JD File
                 </button>
@@ -1147,14 +1022,14 @@ export default function MyMRFsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl border border-emerald-500/25 bg-emerald-500/5 flex items-center justify-between gap-3 animate-scaleUp">
+                  <div className="p-4 rounded-xl border border-accent/25 bg-accent/5 flex items-center justify-between gap-3 animate-scaleUp">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent flex-shrink-0">
                         <FileText size={16} />
                       </div>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-white truncate">{jdFile.name}</p>
-                        <p className="text-[10px] text-emerald-400 font-medium">Uploaded Successfully</p>
+                        <p className="text-[10px] text-accent font-medium">Uploaded Successfully</p>
                       </div>
                     </div>
                     <button
@@ -1202,10 +1077,12 @@ export default function MyMRFsPage() {
             )}
           </div>
 
+
+
           {/* ── Readiness Checklist ────────────────────────────────────── */}
           {(() => {
             const mrfDone = mrfMethod === 'upload' ? !!mrfFile : !!form.designation?.trim()
-            const jdDone  = jdMethod  === 'upload' ? !!jdFile  : !!form.purposeOfJob?.trim() || !!form.rolesResponsibilities?.trim() || !!form.otherKeySkills?.trim()
+            const jdDone = jdMethod === 'upload' ? !!jdFile : !!form.purposeOfJob?.trim() || !!form.rolesResponsibilities?.trim() || !!form.otherKeySkills?.trim()
             const bothReady = mrfDone && jdDone
             return (
               <div className="pt-6 border-t border-white/10 mt-8 space-y-5 animate-fadeIn">
@@ -1213,15 +1090,13 @@ export default function MyMRFsPage() {
                 {/* Status row */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <div className="flex gap-3 flex-1 flex-wrap">
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                      mrfDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
-                    }`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${mrfDone ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-slate-500'
+                      }`}>
                       {mrfDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       MRF {mrfDone ? 'Ready' : 'Incomplete'}
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                      jdDone ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 'bg-white/5 border-white/10 text-slate-500'
-                    }`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${jdDone ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-white/5 border-white/10 text-slate-500'
+                      }`}>
                       {jdDone ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                       JD {jdDone ? 'Ready' : 'Incomplete'}
                     </div>
@@ -1255,11 +1130,10 @@ export default function MyMRFsPage() {
                       onClick={handleSubmit}
                       disabled={submitting || saving || !bothReady}
                       title={!bothReady ? 'Complete both MRF and JD before submitting' : ''}
-                      className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        bothReady
-                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-glow-sm shadow-emerald-500/20 cursor-pointer'
+                      className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${bothReady
+                          ? 'bg-accent hover:bg-accent text-white shadow-glow-sm shadow-accent/20 cursor-pointer'
                           : 'bg-white/5 border border-white/10 text-slate-600 cursor-not-allowed'
-                      }`}
+                        }`}
                     >
                       {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                       {editingId ? 'Update &amp; Submit Request' : 'Submit Request'}
@@ -1270,12 +1144,157 @@ export default function MyMRFsPage() {
             )
           })()}
         </div>
-      )}
+      ) : (
+        <>
+          {/* Filter Tabs & Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 fade-up-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              {FILTERS.map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-150
+                    ${filter === f
+                      ? 'bg-accent text-white border-accent shadow-glow-sm'
+                      : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'}`}
+                >
+                  {f === 'Pending Owner Approval' ? 'Pending Approval' : f}
+                  {f !== 'All' && (
+                    <span className="ml-1 opacity-60">
+                      ({mrfs.filter(m => m.mrfStatus === f).length})
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 ml-auto sm:ml-0 flex-shrink-0">
+              <span className="text-xs text-slate-600">{filteredMRFs.length} requisition(s)</span>
+              {role === 'department_head' && !isCreating && (
+                <button
+                  id="new-mrf-btn"
+                  onClick={() => {
+                    setEditingId(null)
+                    setForm(EMPTY_FORM)
+                    setMrfMethod(null)
+                    setJdMethod(null)
+                    setMrfFile(null)
+                    setJdFile(null)
+                    setActiveStep(1)
+                    setIsCreating(true)
+                    setShowForm(true)
+                  }}
+                  className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1.5"
+                >
+                  <Plus size={13} /> Create Requisition Request
+                </button>
+              )}
+            </div>
+          </div>
 
-      {/* MRF List */}
+          {/* MRF List */}
       {loading ? (
         <div className="card p-24 flex items-center justify-center">
           <Loader2 size={24} className="animate-spin text-accent" />
+        </div>
+      ) : selectedMrfForCandidates ? (
+        <div className="space-y-6 animate-fadeIn fade-up">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+            <div>
+              <button
+                onClick={() => setSelectedMrfForCandidates(null)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-all font-semibold bg-white/5 hover:bg-white/10 px-3 py-1.5 border border-white/10 rounded-xl mb-3"
+              >
+                <ArrowLeft size={13} /> Back to Requisitions
+              </button>
+              <h2 className="font-display font-bold text-lg text-white">
+                Candidates for {selectedMrfForCandidates.designation}
+              </h2>
+            </div>
+            <div className="text-xs text-slate-400 font-medium bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+              Department: <span className="text-amber-400 font-bold">{user?.department || 'Operations'}</span>
+            </div>
+          </div>
+          
+          {(() => {
+            const mrfCandidates = candidates.filter(c => c.jobOpeningId?._id === selectedMrfForCandidates._id || c.jobOpeningId?.id === selectedMrfForCandidates._id || c.jobOpeningId === selectedMrfForCandidates._id);
+            if (mrfCandidates.length === 0) {
+              return (
+                <div className="card p-12 flex flex-col items-center justify-center gap-3 fade-up-1">
+                  <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                    <CheckCircle2 size={24} className="text-slate-500" />
+                  </div>
+                  <p className="text-slate-400 text-sm font-medium">All caught up! No candidates pending your review for this requisition.</p>
+                </div>
+              )
+            }
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 fade-up-1">
+                {mrfCandidates.map(c => {
+                  const score = c.matchScore || c.score || 0;
+                  const isHighMatch = score >= 80;
+                  return (
+                    <div 
+                      key={c._id} 
+                      className="relative group p-5 rounded-2xl border border-white/5 bg-gradient-to-b from-white/5 to-transparent hover:border-accent/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 overflow-hidden flex flex-col"
+                    >
+                      <div className={`absolute top-0 left-0 w-full h-1 ${isHighMatch ? 'bg-accent' : 'bg-[var(--border-color)]'}`} />
+                      
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-lg border ${
+                            isHighMatch ? 'bg-accent/10 border-accent/25 text-accent' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]'
+                          }`}>
+                            {(c.details?.fullName || 'U')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <h4 className="font-display font-bold text-white text-base leading-tight group-hover:text-accent transition-colors">
+                              {c.details?.fullName || c.fileName || 'Unknown Candidate'}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase mt-0.5">
+                              {c.jobOpeningId?.designation || 'Unknown Role'}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end">
+                          <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                            isHighMatch ? 'border-accent text-accent bg-accent/5' : 'border-[var(--border-color)] text-[var(--text-secondary)] bg-[var(--bg-secondary)]'
+                          }`}>
+                            <span className="font-display font-bold text-xs">{score}</span>
+                          </div>
+                          {isHighMatch && (
+                            <span className="text-[8px] font-bold text-accent uppercase tracking-wider mt-1">High Match</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 space-y-2.5 mb-6">
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <Briefcase size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.totalExp || 'Experience not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <MapPin size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.currentLocation || 'Location not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <Award size={12} className="text-slate-500" />
+                          <span className="truncate">{c.details?.highestQual || 'Qualification not specified'}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => navigate(`/recruitment/candidate/${c._id}`)}
+                        className="mt-auto w-full py-2.5 rounded-xl btn-ghost flex items-center justify-center gap-2 group/btn"
+                      >
+                        Review Full Profile <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
         </div>
       ) : filteredMRFs.length === 0 ? (
         <div className="card p-16 flex flex-col items-center gap-4 text-center border border-white/5 bg-ink-950/40">
@@ -1283,7 +1302,7 @@ export default function MyMRFsPage() {
           <p className="text-slate-400 text-sm">No requisitions found in this filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 auto-rows-fr gap-4">
           {filteredMRFs.map((mrf) => {
             const status = STATUS_CONFIG[mrf.mrfStatus] || STATUS_CONFIG['Draft']
             const Icon = status.icon
@@ -1292,17 +1311,16 @@ export default function MyMRFsPage() {
             const isPosted = mrf.positionStatus === 'In Progress'
 
             return (
-              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between gap-4">
+              <div key={mrf._id} className="card p-5 border border-white/5 bg-ink-950/40 hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between h-full gap-4">
 
                 {/* Card Header: title + status badge */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider ${
-                        mrf.requestType === 'JD'
+                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wider ${mrf.requestType === 'JD'
                           ? 'bg-blue-500/15 text-blue-400 border border-blue-500/35'
-                          : 'bg-purple-500/15 text-purple-400 border border-purple-500/35'
-                      }`}>
+                          : 'bg-slate-600/15 text-slate-400 border border-slate-600/35'
+                        }`}>
                         {mrf.requestType || 'MRF'}
                       </span>
                       <h3 className="font-semibold text-white text-[15px] truncate">{mrf.designation}</h3>
@@ -1368,7 +1386,7 @@ export default function MyMRFsPage() {
                               setActiveStep(1)
                               setIsCreating(true)
                               setShowForm(true)
-                              window.scrollTo({top:0,behavior:'smooth'})
+                              window.scrollTo({ top: 0, behavior: 'smooth' })
                             }}
                             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
                           >
@@ -1387,20 +1405,37 @@ export default function MyMRFsPage() {
                     )}
 
                     {/* HOD: candidate count for approved MRFs */}
-                    {role === 'department_head' && isApproved && (
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-xs font-semibold">
-                        <Users size={11} /> {mrf.candidateCount || 0} applied
-                      </span>
-                    )}
+                    {role === 'department_head' && isApproved && (() => {
+                      const mrfCandidates = candidates.filter(c => c.jobOpeningId?._id === mrf._id || c.jobOpeningId?.id === mrf._id || c.jobOpeningId === mrf._id);
+                      return (
+                        <button 
+                          onClick={() => setSelectedMrfForCandidates(mrf)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 border border-accent/25 text-accent text-xs font-semibold transition-all group"
+                        >
+                          <Users size={11} className="group-hover:scale-110 transition-transform" /> 
+                          {mrfCandidates.length > 0 ? `${mrfCandidates.length} Selected Candidates` : 'No Pending Candidates'}
+                        </button>
+                      );
+                    })()}
 
-                    {/* Admin: View MRF button */}
-                    {role === 'admin' && (
-                      <button
-                        onClick={() => setViewingMrf(mrf)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
-                      >
-                        <Eye size={12} /> View MRF
-                      </button>
+                    {/* Admin/HR: View button. Admin only: Delete */}
+                    {(role === 'admin' || role === 'hr') && (
+                      <>
+                        <button
+                          onClick={() => setViewingMrf(mrf)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
+                        >
+                          <Eye size={12} /> View
+                        </button>
+                        {role === 'admin' && (
+                          <button
+                            onClick={() => handleDelete(mrf._id)}
+                            className="flex items-center p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all ml-1"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </>
                     )}
 
                     {/* HR: Post as Job */}
@@ -1408,14 +1443,14 @@ export default function MyMRFsPage() {
                       <button
                         onClick={() => handlePostJob(mrf._id)}
                         disabled={postingJobId === mrf._id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-semibold hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-60"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all disabled:opacity-60"
                       >
                         {postingJobId === mrf._id ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} />}
                         Post as Job
                       </button>
                     )}
                     {role === 'hr' && isApproved && isPosted && (
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 text-accent text-xs font-semibold">
                         <CheckSquare size={11} /> Job Live
                       </span>
                     )}
@@ -1425,6 +1460,8 @@ export default function MyMRFsPage() {
             )
           })}
         </div>
+      )}
+        </>
       )}
     </div>
   )

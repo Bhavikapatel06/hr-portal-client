@@ -12,6 +12,8 @@ import HRManagerPage             from './pages/HRManagerPage.jsx'
 import Login                     from './pages/Login.jsx'
 import CandidateApplyPage        from './pages/CandidateApplyPage.jsx'
 import CandidateStatusPage       from './pages/CandidateStatusPage.jsx'
+import CandidateDetailsPage      from './pages/CandidateDetailsPage.jsx'
+
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 const isLoggedIn = () => !!localStorage.getItem('hr_token')
 const getRole    = () => localStorage.getItem('hr_role') || ''
@@ -35,11 +37,7 @@ function PublicOnly({ children }) {
   return children
 }
 
-// ── Role-based default dashboard ─────────────────────────────────────────────
 function DefaultDashboard() {
-  const role = localStorage.getItem('hr_role') || ''
-  // HR Manager has no dashboard — redirect to recruitment
-  if (role === 'hr') return <Navigate to="/recruitment" replace />
   return <OverviewDashboard />
 }
 
@@ -51,11 +49,10 @@ function ReportsRouteSelector() {
 
 export default function App() {
   return (
-    <div className="min-h-screen grid-bg flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 min-w-0">
         <Routes>
-
           {/* Public routes */}
           <Route path="/login" element={
             <PublicOnly>
@@ -75,6 +72,18 @@ export default function App() {
           <Route path="/recruitment" element={
             <Protected allowedRoles={['hr']}>
               <HRManagerPage />
+            </Protected>
+          } />
+
+          <Route path="/recruitment/job/:jobId" element={
+            <Protected allowedRoles={['hr']}>
+              <HRManagerPage />
+            </Protected>
+          } />
+
+          <Route path="/recruitment/candidate/:candidateId" element={
+            <Protected allowedRoles={['hr', 'admin', 'department_head']}>
+              <CandidateDetailsPage />
             </Protected>
           } />
 
@@ -114,9 +123,6 @@ export default function App() {
             </Protected>
           } />
 
-
-
-
           {/* Protected — Candidate only */}
           <Route path="/apply/:mrfId" element={
             <Protected allowedRoles={['candidate']}>
@@ -137,7 +143,6 @@ export default function App() {
               : <Navigate to="/login" replace />
           } />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-
         </Routes>
       </main>
     </div>
