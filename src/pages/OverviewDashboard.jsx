@@ -933,7 +933,11 @@ export default function OverviewDashboard() {
     .filter(m => m.mrfStatus === 'Approved')
     .reduce((s, m) => s + (parseInt(m.noOfPositions) || 0), 0)
 
-  const pendingApprovalsCount = candidates.filter(c => c.overallStatus === 'Pending Head Approval').length
+  const pendingCandidates = candidates.filter(c => 
+    (c.stage === 'Pending Head Approval' || c.stage === 'Shared with HOD') &&
+    (c.jobOpeningId?.department === user?.department || !user?.department)
+  )
+  const pendingApprovalsCount = pendingCandidates.length
 
   const dhKPI = [
     { label: 'Open Positions',    value: myOpenPositions || 12,        change: '+2 from last month', color: 'text-accent', bg: 'bg-white/5 border-white/10', icon: Briefcase },
@@ -1135,6 +1139,7 @@ export default function OverviewDashboard() {
               )}
             </div>
           </div>
+
         </>
       )}
     </div>
