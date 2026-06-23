@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar                    from './components/Navbar.jsx'
 import OverviewDashboard         from './pages/OverviewDashboard.jsx'
 import MyMRFsPage               from './pages/MyMRFsPage.jsx'
-import VacancyTrackerPage        from './pages/VacancyTrackerPage.jsx'
 import ReportsPage               from './pages/ReportsPage.jsx'
 import AdminMRFApprovalsPage     from './pages/AdminMRFApprovalsPage.jsx'
 import AdminReportsPage          from './pages/AdminReportsPage.jsx'
@@ -108,12 +107,7 @@ export default function App() {
             </Protected>
           } />
 
-          {/* Vacancy Operational Tracker — HR only */}
-          <Route path="/vacancy-tracker" element={
-            <Protected allowedRoles={['hr']}>
-              <VacancyTrackerPage />
-            </Protected>
-          } />
+
 
           {/* Reports — Admin gets dedicated admin reports, others get shared reports */}
           <Route path="/analytics" element={
