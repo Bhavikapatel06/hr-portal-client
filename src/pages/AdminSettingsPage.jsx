@@ -4,8 +4,8 @@ import { Settings, ShieldCheck, Bell, Lock, Users, Database, ChevronRight } from
 const SETTING_GROUPS = [
   {
     icon: ShieldCheck,
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10 border-purple-500/20',
+    color: 'text-slate-400',
+    bg: 'bg-slate-600/10 border-slate-600/20',
     title: 'Role & Permissions',
     desc: 'Manage HR Admin access control and approval authority',
     items: ['View and approve MRF permissions', 'Read-only access to all reports', 'Cannot create MRFs or job postings']
@@ -20,16 +20,16 @@ const SETTING_GROUPS = [
   },
   {
     icon: Lock,
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10 border-cyan-500/20',
+    color: 'text-slate-400',
+    bg: 'bg-slate-500/10 border-slate-500/20',
     title: 'Account Security',
     desc: 'Password, two-factor auth, and login sessions',
     items: ['Change password', 'Enable 2FA', 'Active session management']
   },
   {
     icon: Database,
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    color: 'text-accent',
+    bg: 'bg-accent/10 border-accent/20',
     title: 'Data & Reports',
     desc: 'Configure Google Sheet sync and analytics data sources',
     items: ['Link Google Sheet (Vacancy Tracker)', 'Data refresh interval', 'Export reports as CSV']

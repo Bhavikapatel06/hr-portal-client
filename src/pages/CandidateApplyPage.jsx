@@ -250,7 +250,7 @@ export default function CandidateApplyPage() {
 
       {/* ── Job Card ────────────────────────────────────────────────────────── */}
       <div className="card overflow-hidden relative fade-up">
-        <div className="h-1 bg-gradient-to-r from-accent via-purple-500 to-pink-500 w-full" />
+        <div className="h-1 bg-accent w-full" />
         <div className="p-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex-1 min-w-0">

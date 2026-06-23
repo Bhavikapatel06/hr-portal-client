@@ -170,7 +170,7 @@ function GroupedBarChart({ data, height = 200 }) {
                 <div className="flex items-end gap-1 w-full justify-center h-full pb-px">
                   {/* Open Bar */}
                   <div 
-                    className="w-4 bg-cyan-500/70 hover:bg-cyan-500 rounded-t transition-all duration-300 relative"
+                    className="w-4 bg-slate-500/70 hover:bg-slate-500 rounded-t transition-all duration-300 relative"
                     style={{ height: `${openPct}%` }}
                     title={`Open: ${item.open}`}
                   >
@@ -180,7 +180,7 @@ function GroupedBarChart({ data, height = 200 }) {
                   </div>
                   {/* Filled Bar */}
                   <div 
-                    className="w-4 bg-emerald-500/70 hover:bg-emerald-500 rounded-t transition-all duration-300 relative"
+                    className="w-4 bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative"
                     style={{ height: `${filledPct}%` }}
                     title={`Filled: ${item.filled}`}
                   >
@@ -203,11 +203,11 @@ function GroupedBarChart({ data, height = 200 }) {
       {/* Legend */}
       <div className="flex justify-center gap-4 text-[10px] font-bold">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-cyan-500/70" />
+          <span className="w-2.5 h-2.5 rounded-sm bg-slate-500/70" />
           <span className="text-slate-400">Open Positions</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/70" />
+          <span className="w-2.5 h-2.5 rounded-sm bg-accent/70" />
           <span className="text-slate-400">Filled Positions</span>
         </div>
       </div>
@@ -279,8 +279,8 @@ function LineChart({ data, width = 500, height = 200 }) {
           ))}
         </svg>
       </div>
-      <div className="flex items-center gap-1.5 text-[10px] text-pink-400 font-bold justify-center">
-        <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
+      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold justify-center">
+        <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
         <span>Exit Replacement requisitions over time</span>
       </div>
     </div>
@@ -383,7 +383,7 @@ export default function ReportsPage() {
   const pipelineData = [
     { label: 'Offered Hires', value: offerCounts.Offered + offerCounts.Accepted + offerCounts.Joined + offerCounts.Declined, color: 'bg-amber-400' },
     { label: 'Offers Accepted', value: offerCounts.Accepted + offerCounts.Joined, color: 'bg-blue-400' },
-    { label: 'Joined / Onboarded', value: offerCounts.Joined, color: 'bg-emerald-400' }
+    { label: 'Joined / Onboarded', value: offerCounts.Joined, color: 'bg-accent' }
   ]
 
   // 4. Grouped: Open vs Filled
@@ -454,7 +454,7 @@ export default function ReportsPage() {
             {/* Chart 1: Donut Vacancies Status */}
             <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
               <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-                <PieChart size={15} className="text-cyan-400" />
+                <PieChart size={15} className="text-slate-400" />
                 Vacancy Status Distribution
               </h3>
               {posStatusData.length > 0 ? (
@@ -489,7 +489,7 @@ export default function ReportsPage() {
             {/* Chart 4: Grouped Bar Open vs Filled */}
             <div className="card p-5 border border-white/5 bg-ink-950/40 space-y-4">
               <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-                <BarChart3 size={15} className="text-emerald-400" />
+                <BarChart3 size={15} className="text-accent" />
                 Open vs Filled Positions by Department
               </h3>
               {openFilledData.length > 0 ? (
@@ -502,7 +502,7 @@ export default function ReportsPage() {
             {/* Chart 5: Line Exits Trend */}
             <div className="card md:col-span-2 p-5 border border-white/5 bg-ink-950/40 space-y-4">
               <h3 className="font-display font-bold text-white text-[14px] flex items-center gap-2">
-                <Calendar size={15} className="text-pink-400" />
+                <Calendar size={15} className="text-slate-400" />
                 Exit Replacements Trend (Retirement &amp; Resignations)
               </h3>
               <LineChart data={exitsData} />

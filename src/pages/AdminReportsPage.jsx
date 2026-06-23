@@ -208,13 +208,13 @@ function ChartCard({ title, icon: Icon, iconColor, children, wide }) {
 // ─────────────────────────────────────────────────────────────────────────────
 const REPORTS = [
   { key: 'recruitment_summary', label: 'Recruitment Summary',   icon: BarChart3,   color: 'text-accent' },
-  { key: 'department_hiring',   label: 'Department Hiring',     icon: BarChart3,   color: 'text-cyan-400' },
+  { key: 'department_hiring',   label: 'Department Hiring',     icon: BarChart3,   color: 'text-slate-400' },
   { key: 'vacancy_status',      label: 'Vacancy Status',        icon: PieChart,    color: 'text-indigo-400' },
   { key: 'mrf_status',          label: 'MRF Status',            icon: ClipboardList, color: 'text-amber-400' },
-  { key: 'retirement_analysis', label: 'Retirement Analysis',   icon: Calendar,    color: 'text-pink-400' },
-  { key: 'resignation_analysis',label: 'Resignation Analysis',  icon: TrendingUp,  color: 'text-orange-400' },
-  { key: 'source_of_hiring',    label: 'Source of Hiring',      icon: PieChart,    color: 'text-emerald-400' },
-  { key: 'offer_vs_joining',    label: 'Offer vs Joining',      icon: BarChart3,   color: 'text-purple-400' },
+  { key: 'retirement_analysis', label: 'Retirement Analysis',   icon: Calendar,    color: 'text-slate-400' },
+  { key: 'resignation_analysis',label: 'Resignation Analysis',  icon: TrendingUp,  color: 'text-slate-400' },
+  { key: 'source_of_hiring',    label: 'Source of Hiring',      icon: PieChart,    color: 'text-accent' },
+  { key: 'offer_vs_joining',    label: 'Offer vs Joining',      icon: BarChart3,   color: 'text-slate-400' },
   { key: 'tat_analysis',        label: 'TAT Analysis',          icon: TrendingUp,  color: 'text-rose-400' },
 ]
 
@@ -239,7 +239,7 @@ function RecruitmentSummaryReport({ mrfs, records }) {
           { label: 'Rejected', value: rejected },
         ]} colorFn={(i) => ['#f59e0b','#10b981','#ef4444'][i]} />
       </ChartCard>
-      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-accent">
         <HBarChart data={[
           { label: 'Total Vacancies',   value: totalVacs, color: '#06b6d4' },
           { label: 'Offered Candidates', value: offered,  color: '#6366f1' },
@@ -265,10 +265,10 @@ function DepartmentHiringReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Department-wise Open Positions" icon={BarChart3} iconColor="text-cyan-400">
+      <ChartCard title="Department-wise Open Positions" icon={BarChart3} iconColor="text-slate-400">
         <BarChart data={labels.map(l => ({ label: l, value: deptOpen[l] || 0 }))} colorFn={() => '#06b6d4'} />
       </ChartCard>
-      <ChartCard title="Department-wise Filled Positions" icon={BarChart3} iconColor="text-emerald-400">
+      <ChartCard title="Department-wise Filled Positions" icon={BarChart3} iconColor="text-accent">
         <BarChart data={labels.map(l => ({ label: l, value: deptFilled[l] || 0 }))} colorFn={() => '#10b981'} />
       </ChartCard>
       <ChartCard title="Department-wise Total Vacancy Count" icon={PieChart} iconColor="text-indigo-400" wide>
@@ -297,7 +297,7 @@ function VacancyStatusReport({ records }) {
       <ChartCard title="Position Status Distribution" icon={PieChart} iconColor="text-indigo-400">
         <DonutChart data={posData} />
       </ChartCard>
-      <ChartCard title="Requirement Status Distribution" icon={PieChart} iconColor="text-cyan-400">
+      <ChartCard title="Requirement Status Distribution" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={reqData} />
       </ChartCard>
     </div>
@@ -357,13 +357,13 @@ function RetirementAnalysisReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Upcoming Retirements by Month" icon={Calendar} iconColor="text-pink-400" wide>
+      <ChartCard title="Upcoming Retirements by Month" icon={Calendar} iconColor="text-slate-400" wide>
         <LineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#ec4899" label="Exit Replacements per month" />
       </ChartCard>
       <ChartCard title="Retirements by Department" icon={BarChart3} iconColor="text-rose-400">
         <BarChart data={Object.entries(deptMap).map(([label, value]) => ({ label, value }))} colorFn={() => '#f43f5e'} />
       </ChartCard>
-      <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-pink-400">
+      <ChartCard title="Exit Type Summary" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={[
           { label: 'With Exit Replacement', value: exits.length, color: '#ec4899' },
           { label: 'New Positions',          value: records.length - exits.length, color: '#64748b' },
@@ -397,7 +397,7 @@ function ResignationAnalysisReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Resignation / Exit Replacements Trend" icon={TrendingUp} iconColor="text-orange-400" wide>
+      <ChartCard title="Resignation / Exit Replacements Trend" icon={TrendingUp} iconColor="text-slate-400" wide>
         <LineChart data={MONTHS.map(m => ({ label: m, value: monthMap[m] }))} color="#f97316" label="Exit replacements over months" />
       </ChartCard>
       <ChartCard title="Replacement Hire Source" icon={PieChart} iconColor="text-amber-400">
@@ -422,10 +422,10 @@ function SourceOfHiringReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="All Hiring Sources Distribution" icon={PieChart} iconColor="text-emerald-400">
+      <ChartCard title="All Hiring Sources Distribution" icon={PieChart} iconColor="text-accent">
         <DonutChart data={srcData} />
       </ChartCard>
-      <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-cyan-400">
+      <ChartCard title="Successful Hires by Source" icon={BarChart3} iconColor="text-slate-400">
         <BarChart data={Object.entries(filledBySrc).map(([label, value]) => ({ label, value }))} colorFn={() => '#10b981'} />
       </ChartCard>
     </div>
@@ -449,10 +449,10 @@ function OfferVsJoiningReport({ records }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-purple-400">
+      <ChartCard title="Offer Status Distribution" icon={PieChart} iconColor="text-slate-400">
         <DonutChart data={Object.entries(offerMap).map(([label, value]) => ({ label, value, color: offerColors[label] || '#64748b' }))} />
       </ChartCard>
-      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-emerald-400">
+      <ChartCard title="Offer to Joining Funnel" icon={TrendingUp} iconColor="text-accent">
         <HBarChart data={[
           { label: 'Total Offered',    value: offered,  color: '#f59e0b' },
           { label: 'Accepted Offers',  value: accepted, color: '#6366f1' },
@@ -496,14 +496,14 @@ function TATAnalysisReport({ records }) {
       <ChartCard title="Average TAT by Department" icon={BarChart3} iconColor="text-amber-400">
         <BarChart data={deptAvgTAT} colorFn={() => '#f59e0b'} />
       </ChartCard>
-      <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-cyan-400" wide>
+      <ChartCard title="Average Turnaround Time" icon={TrendingUp} iconColor="text-slate-400" wide>
         <div className="flex items-center justify-center gap-8 py-6">
           <div className="text-center">
-            <p className="text-5xl font-display font-bold text-cyan-400">{avgTAT}</p>
+            <p className="text-5xl font-display font-bold text-slate-400">{avgTAT}</p>
             <p className="text-sm text-slate-500 mt-2 font-semibold">Avg. Days</p>
           </div>
           <div className="text-center">
-            <p className="text-5xl font-display font-bold text-emerald-400">{withTAT.length}</p>
+            <p className="text-5xl font-display font-bold text-accent">{withTAT.length}</p>
             <p className="text-sm text-slate-500 mt-2 font-semibold">MRFs Tracked</p>
           </div>
           <div className="text-center">

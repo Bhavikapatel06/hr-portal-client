@@ -330,7 +330,7 @@ function VerticalSalaryChart({ data, title }) {
                 </div>
                 {/* Cost of Company */}
                 <div 
-                  className="w-3 sm:w-4 bg-emerald-500/70 hover:bg-emerald-500 rounded-t transition-all duration-300 relative"
+                  className="w-3 sm:w-4 bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative"
                   style={{ height: `${cocPct}%` }}
                 >
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
@@ -356,7 +356,7 @@ function VerticalSalaryChart({ data, title }) {
           <span className="text-slate-400">Offered CTC</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/70" />
+          <span className="w-2.5 h-2.5 rounded-sm bg-accent/70" />
           <span className="text-slate-400">Cost of Company (COC)</span>
         </div>
       </div>
@@ -590,7 +590,7 @@ export default function SheetsAnalytics({ data }) {
     { label: 'Failed', value: medicalStatusMap['Failed'] || 0, color: '#ef4444' }
   ].filter(i => i.value > 0)
 
-  const sortAndSliceMap = (m, colors = ['bg-accent/70', 'bg-purple-500/70', 'bg-emerald-500/70', 'bg-pink-500/70', 'bg-orange-500/70']) => 
+  const sortAndSliceMap = (m, colors = ['bg-accent/70', 'bg-slate-600/70', 'bg-accent/70', 'bg-slate-500/70', 'bg-slate-500/70']) => 
     Object.entries(m)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -601,12 +601,12 @@ export default function SheetsAnalytics({ data }) {
       }))
 
   const topDepts = sortAndSliceMap(deptMap)
-  const topLocs = sortAndSliceMap(locationMap, ['bg-blue-500/70', 'bg-cyan-500/70', 'bg-teal-500/70', 'bg-indigo-500/70', 'bg-slate-500/70'])
-  const topCandLocs = sortAndSliceMap(candidateLocMap, ['bg-blue-500/70', 'bg-cyan-500/70', 'bg-teal-500/70', 'bg-indigo-500/70', 'bg-slate-500/70'])
-  const topSources = sortAndSliceMap(sourceMap, ['bg-purple-500/70', 'bg-pink-500/70', 'bg-indigo-500/70', 'bg-sky-500/70', 'bg-amber-500/70'])
+  const topLocs = sortAndSliceMap(locationMap, ['bg-blue-500/70', 'bg-slate-500/70', 'bg-teal-500/70', 'bg-indigo-500/70', 'bg-slate-500/70'])
+  const topCandLocs = sortAndSliceMap(candidateLocMap, ['bg-blue-500/70', 'bg-slate-500/70', 'bg-teal-500/70', 'bg-indigo-500/70', 'bg-slate-500/70'])
+  const topSources = sortAndSliceMap(sourceMap, ['bg-slate-600/70', 'bg-slate-500/70', 'bg-indigo-500/70', 'bg-sky-500/70', 'bg-amber-500/70'])
   const topRefs = sortAndSliceMap(refMap)
   const topQuals = sortAndSliceMap(qualMap)
-  const topLastOrgs = sortAndSliceMap(lastOrgMap, ['bg-cyan-500/70', 'bg-sky-500/70', 'bg-blue-500/70', 'bg-indigo-500/70', 'bg-violet-500/70'])
+  const topLastOrgs = sortAndSliceMap(lastOrgMap, ['bg-slate-500/70', 'bg-sky-500/70', 'bg-blue-500/70', 'bg-indigo-500/70', 'bg-violet-500/70'])
 
   const avgHikePct = totalHikePctCount > 0 ? (totalHikePctSum / totalHikePctCount).toFixed(1) : '0'
   const avgTAT = tatCount > 0 ? Math.round(totalTAT / tatCount) : 0
@@ -615,7 +615,7 @@ export default function SheetsAnalytics({ data }) {
     <div className="space-y-6">
       {/* Fallback Notice Badge */}
       {isDummy && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold select-none">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-600/10 border border-slate-600/20 text-slate-400 text-xs font-semibold select-none">
           <AlertCircle size={14} className="flex-shrink-0 animate-pulse" />
           <span>Showing 5 Sample Records. Configure GOOGLE_SHEET_ID in your server's .env file to visualize live spreadsheet data.</span>
         </div>
@@ -667,12 +667,12 @@ export default function SheetsAnalytics({ data }) {
               </div>
               <div className="card p-4 bg-white/2 border border-white/5">
                 <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Campus Hires</p>
-                <p className="text-2xl font-bold text-pink-400 mt-1">{reqTypeMap['Campus'] || 0}</p>
+                <p className="text-2xl font-bold text-slate-400 mt-1">{reqTypeMap['Campus'] || 0}</p>
                 <p className="text-[10px] text-slate-600 mt-0.5">Req type: Fresher / Campus intake</p>
               </div>
               <div className="card p-4 bg-white/2 border border-white/5">
                 <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Active Entities</p>
-                <p className="text-2xl font-bold text-emerald-400 mt-1">{Object.keys(companyMap).length}</p>
+                <p className="text-2xl font-bold text-accent mt-1">{Object.keys(companyMap).length}</p>
                 <p className="text-[10px] text-slate-600 mt-0.5">Entities: {Object.keys(companyMap).join(', ')}</p>
               </div>
             </div>
@@ -743,7 +743,7 @@ export default function SheetsAnalytics({ data }) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <HorizontalBarList data={topSources} title="Hiring Sources" accentColor="bg-purple-500/70" />
+              <HorizontalBarList data={topSources} title="Hiring Sources" accentColor="bg-slate-600/70" />
               <HorizontalBarList data={topQuals} title="Qualifications Demanded" accentColor="bg-amber-500/70" />
               
               {/* Internal Referral Names */}
@@ -772,7 +772,7 @@ export default function SheetsAnalytics({ data }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="card p-4 bg-white/2 border border-white/5 text-center">
                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Avg Salary Hike (%)</p>
-                <p className="text-3xl font-bold text-success mt-1">{avgHikePct}%</p>
+                <p className="text-3xl font-bold text-accent mt-1">{avgHikePct}%</p>
                 <p className="text-[10px] text-slate-600 mt-0.5">Average CTC delta percentage</p>
               </div>
               <div className="card p-4 bg-white/2 border border-white/5 text-center">
@@ -782,7 +782,7 @@ export default function SheetsAnalytics({ data }) {
               </div>
               <div className="card p-4 bg-white/2 border border-white/5 text-center">
                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total Hike Amount</p>
-                <p className="text-2xl font-bold text-emerald-400 mt-1">₹{(totalHikeAmt / 100000).toFixed(2)}L</p>
+                <p className="text-2xl font-bold text-accent mt-1">₹{(totalHikeAmt / 100000).toFixed(2)}L</p>
                 <p className="text-[10px] text-slate-600 mt-0.5">Offered CTC - Previous CTC sum</p>
               </div>
               <div className="card p-4 bg-white/2 border border-white/5 text-center">
@@ -822,8 +822,8 @@ export default function SheetsAnalytics({ data }) {
                 </div>
               </div>
               <div className="card p-4 bg-white/2 border border-white/5 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center flex-shrink-0">
-                  <Users size={18} className="text-pink-500" />
+                <div className="w-10 h-10 rounded-lg bg-slate-500/10 border border-slate-500/20 flex items-center justify-center flex-shrink-0">
+                  <Users size={18} className="text-slate-400" />
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Exit Replacements</p>
@@ -832,8 +832,8 @@ export default function SheetsAnalytics({ data }) {
                 </div>
               </div>
               <div className="card p-4 bg-white/2 border border-white/5 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                  <Activity size={18} className="text-emerald-500" />
+                <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Activity size={18} className="text-accent" />
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Feedback Annotations</p>
@@ -859,14 +859,14 @@ export default function SheetsAnalytics({ data }) {
                       if (cand.status === 'Joined' && act) {
                         if (tent && act.getTime() <= tent.getTime()) {
                           delayText = 'Joined On-Time'
-                          delayColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                          delayColor = 'text-accent bg-accent/10 border-accent/20'
                         } else if (tent) {
                           const diff = Math.round((act.getTime() - tent.getTime()) / (1000 * 3600 * 24))
                           delayText = `Joined Delayed by ${diff}d`
                           delayColor = 'text-red-400 bg-red-500/10 border-red-500/20'
                         } else {
                           delayText = 'Joined'
-                          delayColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                          delayColor = 'text-accent bg-accent/10 border-accent/20'
                         }
                       } else if (cand.status === 'Declined') {
                         delayText = 'Declined Offer'

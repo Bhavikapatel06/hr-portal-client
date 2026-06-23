@@ -4,16 +4,16 @@ import { Briefcase, Clock, CheckCircle, XCircle, Calendar, AlertCircle, Search, 
 import { relativeDate } from './OverviewDashboard.jsx';
 
 const STATUS_MAP = {
-  new: { label: 'Application Submitted', color: 'text-blue-400', badge: 'bg-blue-400/10 border-blue-400/20 text-blue-400', icon: Clock },
-  shortlisted: { label: 'Under Consideration', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
-  scheduled: { label: 'Interview Requested', color: 'text-purple-400', badge: 'bg-purple-400/10 border-purple-400/20 text-purple-400', icon: Calendar },
-  selected: { label: 'Selected', color: 'text-success', badge: 'bg-success/10 border-success/20 text-success', icon: CheckCircle },
-  rejected: { label: 'Not Selected', color: 'text-red-400', badge: 'bg-red-400/10 border-red-400/20 text-red-400', icon: XCircle },
-  on_hold: { label: 'On Hold', color: 'text-orange-400', badge: 'bg-orange-400/10 border-orange-400/20 text-orange-400', icon: AlertCircle },
-  'Shared with HOD': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
-  'Approved by HOD': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
-  'Pending Head Approval': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
-  'Approved by Head': { label: 'Under Review', color: 'text-yellow-400', badge: 'bg-yellow-400/10 border-yellow-400/20 text-yellow-400', icon: Briefcase },
+  new: { label: 'Application Submitted', color: 'text-slate-500', badge: 'bg-slate-500/10 border-slate-500/20 text-slate-500', icon: Clock },
+  shortlisted: { label: 'Under Consideration', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Briefcase },
+  scheduled: { label: 'Interview Requested', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Calendar },
+  selected: { label: 'Selected', color: 'text-accent', badge: 'bg-accent/10 border-accent/20 text-accent', icon: CheckCircle },
+  rejected: { label: 'Not Selected', color: 'text-slate-500', badge: 'bg-slate-500/10 border-slate-500/20 text-slate-500', icon: XCircle },
+  on_hold: { label: 'On Hold', color: 'text-slate-500', badge: 'bg-slate-500/10 border-slate-500/20 text-slate-500', icon: AlertCircle },
+  'Shared with HOD': { label: 'Under Review', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Briefcase },
+  'Approved by HOD': { label: 'Under Review', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Briefcase },
+  'Pending Head Approval': { label: 'Under Review', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Briefcase },
+  'Approved by Head': { label: 'Under Review', color: 'text-[var(--text-primary)]', badge: 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]', icon: Briefcase },
 };
 
 export default function CandidateStatusPage() {
@@ -117,7 +117,7 @@ export default function CandidateStatusPage() {
                   <div key={app._id} className="card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 hover:-translate-y-0.5 transition-transform duration-200 group">
                     <div className="flex gap-4 items-start md:items-center">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center border shrink-0 ${statusInfo.badge.split(' ').slice(0,2).join(' ')}`}>
-                        <Icon size={18} className={statusInfo.color.replace('text-', '') === 'success' ? 'text-success' : statusInfo.color} />
+                        <Icon size={18} className={statusInfo.color.replace('text-', '') === 'success' ? 'text-accent' : statusInfo.color} />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold font-display text-white group-hover:text-accent transition-colors">
