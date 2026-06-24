@@ -531,8 +531,8 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
   )
 }
 
-// ── Main HRManagerPage ─────────────────────────────────────────────────────
-export default function HRManagerPage() {
+// ── Main HRPage ─────────────────────────────────────────────────────
+export default function HRPage() {
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hr_user')) } catch { return null }
   })

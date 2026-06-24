@@ -13,7 +13,7 @@ const SETTING_GROUPS = [
     color: 'text-slate-400',
     bg: 'bg-slate-600/10 border-slate-600/20',
     title: 'Role & Permissions',
-    desc: 'Manage HR Admin access control and approval authority',
+    desc: 'Manage Admin access control and approval authority',
     items: ['View and approve MRF permissions', 'Read-only access to all reports', 'Cannot create MRFs or job postings']
   },
   {
@@ -317,7 +317,7 @@ export default function AdminSettingsPage() {
 
       {/* Version info */}
       <div className="fade-up-2 text-center pt-4 border-t border-white/5">
-        <p className="text-xs text-slate-600 font-semibold">HR Portal v2.0 · HR Admin Module · Settings panel</p>
+        <p className="text-xs text-slate-600 font-semibold">HR Portal v2.0 · Admin Module · Settings panel</p>
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import OverviewDashboard         from './pages/OverviewDashboard.jsx'
 import MyMRFsPage               from './pages/MyMRFsPage.jsx'
 import AdminMRFApprovalsPage     from './pages/AdminMRFApprovalsPage.jsx'
 import AdminSettingsPage         from './pages/AdminSettingsPage.jsx'
-import HRManagerPage             from './pages/HRManagerPage.jsx'
+import HRPage                    from './pages/HRPage.jsx'
 import Login                     from './pages/Login.jsx'
 import CandidateApplyPage        from './pages/CandidateApplyPage.jsx'
 import CandidateStatusPage       from './pages/CandidateStatusPage.jsx'
@@ -63,16 +63,16 @@ export default function App() {
             </Protected>
           } />
 
-          {/* HR Manager Recruitment Pipeline */}
+          {/* HR Recruitment Pipeline */}
           <Route path="/recruitment" element={
             <Protected allowedRoles={['hr']}>
-              <HRManagerPage />
+              <HRPage />
             </Protected>
           } />
 
           <Route path="/recruitment/job/:jobId" element={
             <Protected allowedRoles={['hr']}>
-              <HRManagerPage />
+              <HRPage />
             </Protected>
           } />
 
