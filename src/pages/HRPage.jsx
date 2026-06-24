@@ -6,7 +6,7 @@ import {
   Loader2, ArrowRight, FileText, Plus, Phone, Mail, MapPin,
   GraduationCap, Building2, DollarSign, Award, Send, X,
   ExternalLink, RefreshCw, UserCheck, Search, Filter,
-  ArrowLeft, Menu
+  ArrowLeft, Menu, Download
 } from 'lucide-react'
 import { mrfApi, candidateApi } from '../services/api.js'
 
@@ -328,7 +328,7 @@ function CandidateCard({ candidate, rank }) {
 }
 
 // ── Job Opening Card ───────────────────────────────────────────────────────
-function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, posting, onCloseJob, closing, isSelected }) {
+function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, posting, onCloseJob, closing, isSelected, onDownloadCSV }) {
   const URGENCY_COLOR = { 
     High: 'text-slate-200 bg-white/10 border border-white/20', 
     Medium: 'text-slate-300 bg-white/5 border border-white/10', 
@@ -501,6 +501,16 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
             <button 
               onClick={(e) => {
                 e.stopPropagation();
+                onDownloadCSV(mrf);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white transition-all flex-shrink-0"
+              title="Download Candidates CSV"
+            >
+              <Download size={12} />
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
                 onCloseJob(mrf._id);
               }} 
               disabled={closing === mrf._id}
@@ -512,19 +522,31 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
         )}
 
         {(isClosed || isFilled) && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewCandidates(mrf);
-            }}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold flex-1 justify-center transition-all ${
-              isSelected 
-                ? 'bg-slate-700 text-white border border-slate-600' 
-                : 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/15'
-            }`}
-          >
-            <Users size={12} /> Candidates History ({candidateCount})
-          </button>
+          <>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewCandidates(mrf);
+              }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold flex-1 justify-center transition-all ${
+                isSelected 
+                  ? 'bg-slate-700 text-white border border-slate-600' 
+                  : 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/15'
+              }`}
+            >
+              <Users size={12} /> Candidates History ({candidateCount})
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onDownloadCSV(mrf);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white transition-all flex-shrink-0"
+              title="Download Candidates CSV"
+            >
+              <Download size={12} />
+            </button>
+          </>
         )}
       </div>
     </div>
@@ -689,6 +711,117 @@ export default function HRPage() {
         loadMRFs()
       }
     } catch (e) { showToast(e.message, 'error') }
+  }
+
+  const handleDownloadJobCSV = async (mrf) => {
+    try {
+      const list = await candidateApi.listByJob(mrf._id)
+      if (!list || !list.length) {
+        showToast("No candidates available for this job to export.", "error")
+        return
+      }
+      
+      const headers = [
+        "Candidate Name", "Email", "Phone", "Location", "Total Experience",
+        "Current Designation", "Current Organization", "Current CTC", "Expected CTC",
+        "Notice Period", "Qualification", "Skills", "Hiring Stage", "Match Score", "HR Notes"
+      ]
+
+      const rows = list.map(c => [
+        c.name || "",
+        c.email || "",
+        c.phone || "",
+        c.currentLocation || "",
+        c.experience || "",
+        c.currentDesignation || "",
+        c.currentOrganization || "",
+        c.currentCTC || "",
+        c.expectedCTC || "",
+        c.noticePeriod || "",
+        c.qualification || "",
+        c.skills || "",
+        c.stage || "",
+        c.matchScore || c.score || 0,
+        c.hrNotes || ""
+      ])
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(row => 
+          row.map(val => {
+            const text = String(val).replace(/"/g, '""')
+            return `"${text}"`
+          }).join(",")
+        )
+      ].join("\n")
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.setAttribute("href", url)
+      const sanitizedJobTitle = (mrf.designation || "Job").replace(/[^a-z0-9]/gi, "_").toLowerCase()
+      link.setAttribute("download", `candidates_${sanitizedJobTitle}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      showToast("CSV downloaded successfully!")
+    } catch (e) {
+      showToast("Failed to download CSV: " + e.message, "error")
+    }
+  }
+
+  const handleDownloadFilteredCSV = () => {
+    if (!filteredCandidates || !filteredCandidates.length) {
+      showToast("No candidates available to export.", "error")
+      return
+    }
+
+    const headers = [
+      "Candidate Name", "Email", "Phone", "Location", "Total Experience",
+      "Current Designation", "Current Organization", "Current CTC", "Expected CTC",
+      "Notice Period", "Qualification", "Skills", "Hiring Stage", "Match Score", "HR Notes"
+    ]
+
+    const rows = filteredCandidates.map(c => [
+      c.name || "",
+      c.email || "",
+      c.phone || "",
+      c.currentLocation || "",
+      c.experience || "",
+      c.currentDesignation || "",
+      c.currentOrganization || "",
+      c.currentCTC || "",
+      c.expectedCTC || "",
+      c.noticePeriod || "",
+      c.qualification || "",
+      c.skills || "",
+      c.stage || "",
+      c.matchScore || c.score || 0,
+      c.hrNotes || ""
+    ])
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => 
+        row.map(val => {
+          const text = String(val).replace(/"/g, '""')
+          return `"${text}"`
+        }).join(",")
+      )
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.setAttribute("href", url)
+    const sanitizedJobTitle = (selectedJob.designation || "Job").replace(/[^a-z0-9]/gi, "_").toLowerCase()
+    link.setAttribute("download", `candidates_${sanitizedJobTitle}_filtered.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    showToast("CSV downloaded successfully!")
   }
 
   const handleTabChange = (tab) => {
@@ -891,6 +1024,16 @@ export default function HRPage() {
                       >
                         <RefreshCw size={13} className={loadingCandidates ? 'animate-spin' : ''} />
                         <span className="hidden sm:inline">Refresh Candidates</span>
+                      </button>
+
+                      {/* Download CSV button */}
+                      <button 
+                        onClick={handleDownloadFilteredCSV}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
+                        title="Download Candidates CSV"
+                      >
+                        <Download size={13} />
+                        <span className="hidden sm:inline">Download CSV</span>
                       </button>
 
                       {/* Hamburger filter menu */}
@@ -1125,6 +1268,7 @@ export default function HRPage() {
                       onCloseJob={handleCloseJob} 
                       closing={closing}
                       isSelected={false} 
+                      onDownloadCSV={handleDownloadJobCSV}
                     />
                   ))}
                 </div>
