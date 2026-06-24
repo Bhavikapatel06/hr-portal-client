@@ -586,8 +586,17 @@ function QuickActionsCard() {
 }
 
 // ── Today's Interviews Card ──────────────────────────────────────────────────
-function TodayInterviewsCard() {
-  const mockInterviews = [
+function TodayInterviewsCard({ candidates = [] }) {
+  const scheduledInterviews = (candidates || [])
+    .filter(c => c.interviewDate && c.interviewStatus === 'Scheduled')
+    .map(c => ({
+      name: c.name || c.details?.fullName || 'Anonymous',
+      role: c.currentDesignation || c.details?.currentTitle || 'Candidate',
+      time: c.interviewTime || '10:00 AM',
+      type: c.interviewRound || 'Interview'
+    }))
+
+  const interviewsToDisplay = scheduledInterviews.length > 0 ? scheduledInterviews : [
     { name: 'Sarah Jenkins', role: 'Frontend Engineer', time: '10:30 AM', type: 'Technical' },
     { name: 'Michael Chen', role: 'Product Manager', time: '01:00 PM', type: 'HR Round' },
     { name: 'Aisha Patel', role: 'UX Designer', time: '03:15 PM', type: 'Final Round' }
@@ -599,7 +608,7 @@ function TodayInterviewsCard() {
         Today's Interviews
       </h4>
       <div className="flex flex-col gap-3 overflow-y-auto custom-scrollbar pr-1 flex-1 min-h-0">
-        {mockInterviews.map((i, idx) => (
+        {interviewsToDisplay.map((i, idx) => (
           <div key={idx} className="flex flex-col gap-1 border-l-2 border-cyan-500/50 pl-3 py-1">
             <div className="flex justify-between items-start">
               <span className="font-semibold text-white text-sm">{i.name}</span>
@@ -922,9 +931,53 @@ function ChartCard({ title, icon: Icon, iconColor, children }) {
 
 // Unified Performance Reports Section
 function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [], tracker = [] }) {
-  const records = (sheetData && sheetData.recruitmentTracker && sheetData.recruitmentTracker.length > 0)
-    ? sheetData.recruitmentTracker
-    : []
+  const sourceData = (tracker && tracker.length > 0) ? tracker : mrfs;
+
+  const records = sourceData.map(t => {
+    // Find matching MRF in mrfs list to get noOfPositions and other details
+    const mrf = mrfs.find(m => String(m._id || m.id) === String(t._id || t.id));
+    
+    // Get designation, department, location from tracker or fallback to MRF
+    const designation = t.designation || (mrf ? mrf.designation : '');
+    const department = t.department || (mrf ? mrf.department : 'General');
+    const location = t.location || (mrf ? mrf.location : 'Unknown');
+    
+    // Get number of vacancies
+    const noOfPositions = t.noOfPositions !== undefined 
+      ? t.noOfPositions 
+      : (mrf ? mrf.noOfPositions : 1);
+
+    // Get offer status and fallback
+    const offerStatus = t.offerStatus || (t.positionStatus === 'Closed' ? 'Joined' : 'Not Offered');
+
+    // Get Turnaround Time (tat)
+    const tatVal = t.tat !== undefined ? t.tat : (t.tatDays !== undefined ? t.tatDays : (t['TAT (Turnaround Time)'] || 0));
+
+    // Get employee name (for exit/retirement analysis)
+    const employeeName = t.employeeName || '';
+
+    // Get position start date / exit date
+    const positionStartDate = t.positionStartDate || t.approvedAt || t.createdAt || (mrf ? (mrf.approvedAt || mrf.createdAt) : null);
+
+    return {
+      'MRF ID': t._id || t.id,
+      'Designation': designation,
+      'Department': department,
+      'Vacancy Location': location,
+      'Number of Vacancies': parseInt(noOfPositions) || 1,
+      'Offer Status': offerStatus,
+      'Position Status': t.positionStatus || 'Open',
+      'Requirement Status': t.requirementStatus || 'Pending',
+      'Source of Hiring': t.sourceOfHiring || 'Direct',
+      'TAT (Turnaround Time)': parseInt(tatVal) || 0,
+      'Employee Name (Retirement/Resignation/Transfer Out)': employeeName,
+      'Position Start Date': positionStartDate,
+      'Tentative DOJ': t.tentativeDOJ,
+      'Actual DOJ': t.actualDOJ,
+      'Offered Candidate Name': t.offeredCandidateName,
+      'Offered Designation': t.offeredDesignation || designation
+    };
+  });
 
   const hasData = records.length > 0
   if (!hasData) {
@@ -941,9 +994,9 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [
         </div>
         <div className="card p-12 flex flex-col items-center justify-center gap-3 text-center border border-white/5 bg-ink-950/40 mt-6">
           <AlertCircle size={32} className="text-slate-600" />
-          <p className="text-slate-400 font-semibold text-sm">No Google Sheet data available</p>
+          <p className="text-slate-400 font-semibold text-sm">No Live Recruitment Data</p>
           <p className="text-slate-600 text-xs max-w-sm">
-            Please connect your Google Sheet in the dashboard header or settings to unlock live analytics & charts.
+            Please connect your Google Sheet in the dashboard header or settings, or submit manpower requisitions to see live recruitment metrics.
           </p>
         </div>
       </div>
@@ -1122,7 +1175,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [
           { label: 'Draft', value: mrfDraft, color: '#64748b' },
         ].filter(d => d.value > 0)} />
       </ChartCard>
-      {role === 'hr' && <TodayInterviewsCard />}
+      {role === 'hr' && <TodayInterviewsCard candidates={candidates} />}
 
 
       {/* Row 5 */}
@@ -1582,7 +1635,14 @@ export default function OverviewDashboard() {
 
             {/* Performance Reports grid full width */}
             <div className="fade-up-2 mt-6">
-              <PerformanceReportsSection mrfs={normalizedMRFs} sheetData={sheetData} user={user} role={role} />
+              <PerformanceReportsSection
+                mrfs={normalizedMRFs}
+                sheetData={sheetData}
+                user={user}
+                role={role}
+                candidates={normalizedCandidates}
+                tracker={normalizedTracker}
+              />
             </div>
           </>
         )}
@@ -1853,7 +1913,14 @@ export default function OverviewDashboard() {
 
           {/* Performance Reports grid full width */}
           <div className="fade-up-2 mt-6">
-            <PerformanceReportsSection mrfs={myDeptMRFs} sheetData={sheetData} user={user} role={role} />
+            <PerformanceReportsSection
+              mrfs={myDeptMRFs}
+              sheetData={sheetData}
+              user={user}
+              role={role}
+              candidates={myDeptCandidates}
+              tracker={myDeptTracker}
+            />
           </div>
         </>
       )}

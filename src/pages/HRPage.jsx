@@ -383,7 +383,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
             </span>
           )}
           {isActive && (
-            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-accent bg-accent/10 border-accent/25">
+            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-white bg-accent/20 border-accent/40">
               ✓ Job Live
             </span>
           )}
@@ -393,7 +393,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
             </span>
           )}
           {isFilled && (
-            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-accent bg-accent/10 border-accent/25">
+            <span className="px-2 py-0.5 rounded border text-[10px] font-bold text-white bg-accent/20 border-accent/40">
               Fulfilled
             </span>
           )}
@@ -493,7 +493,7 @@ function JobCard({ mrf, activeTab, candidateCount, onPostJob, onViewCandidates, 
               className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold flex-1 justify-center transition-all ${
                 isSelected 
                   ? 'bg-accent text-white border border-accent/20' 
-                  : 'bg-accent/10 border border-accent/25 text-accent hover:bg-accent hover:text-white'
+                  : 'bg-accent/20 border border-accent/35 text-white hover:bg-accent hover:text-white'
               }`}
             >
               <Users size={12} /> Candidates ({candidateCount})
@@ -1029,7 +1029,7 @@ export default function HRPage() {
                       {/* Download CSV button */}
                       <button 
                         onClick={handleDownloadFilteredCSV}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent/20 border border-accent/35 text-white text-xs font-semibold hover:bg-accent hover:text-white transition-all"
                         title="Download Candidates CSV"
                       >
                         <Download size={13} />
@@ -1152,9 +1152,9 @@ export default function HRPage() {
                       </div>
                       
                       {stageFilter === 'All' && activeTab === 'active' && (
-                        <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/15 border border-accent/20 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all cursor-pointer shadow-glow-sm flex-shrink-0">
+                        <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent/20 border border-accent/35 text-white text-xs font-semibold hover:bg-accent hover:text-white transition-all cursor-pointer shadow-glow-sm flex-shrink-0">
                           {uploadingResumes ? (
-                            <Loader2 size={13} className="animate-spin text-accent" />
+                            <Loader2 size={13} className="animate-spin" />
                           ) : (
                             <Upload size={13} />
                           )}
