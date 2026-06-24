@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   TrendingUp, Users, Clock, CheckCircle2, AlertCircle,
   Briefcase, Plus, ShieldCheck, FileText, ArrowRight, Activity, Calendar,
   MapPin, GraduationCap, Building2, Flame, Filter, Download, Loader2,
   Award, UserCheck, XCircle, Search, Sparkles, Bell, RefreshCw, FileSpreadsheet, ExternalLink,
-  PieChart, BarChart3, ClipboardList
+  PieChart, BarChart3, ClipboardList, MoreVertical, Maximize2, X
 } from 'lucide-react'
 import { mrfApi, sheetApi, candidateApi } from '../services/api.js'
 
@@ -60,15 +61,16 @@ function getTrendData(mrfList) {
 }
 
 // ── Custom SVG Donut Chart ───────────────────────────────────────────────────
-function DonutChart({ data, size = 120 }) {
+function DonutChart({ data, size = 120, isEnlarged }) {
+  const currentSize = isEnlarged ? 350 : size;
   const total = data.reduce((sum, item) => sum + item.value, 0)
   const radius = 40
   const circumference = 2 * Math.PI * radius
   let accumulatedAngle = 0
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-      <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+    <div className={`flex items-center w-full ${isEnlarged ? 'flex-col justify-center gap-8 py-8' : 'flex-col gap-4 h-full'}`}>
+      <div className="relative flex-shrink-0" style={{ width: currentSize, height: currentSize }}>
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
           <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="8" />
           {total > 0 && data.map((item, idx) => {
@@ -93,15 +95,15 @@ function DonutChart({ data, size = 120 }) {
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-white leading-none font-display">{total}</span>
-          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider mt-1">Total</span>
+          <span className={`${isEnlarged ? 'text-4xl' : 'text-lg'} font-bold text-white leading-none font-display`}>{total}</span>
+          <span className={`${isEnlarged ? 'text-sm mt-2' : 'text-[8px] mt-1'} text-slate-500 font-bold uppercase tracking-wider`}>Total</span>
         </div>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2 w-full mt-1">
         {data.map((item, idx) => {
           const percentage = total > 0 ? Math.round((item.value / total) * 100) : 0
           return (
-            <div key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-300">
+            <div key={idx} className={`flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 ${isEnlarged ? 'text-sm px-4 py-2' : 'text-[10px]'} text-slate-300`}>
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
               <span className="font-medium text-slate-400">{item.label}</span>
               <span className="font-bold text-white">{item.value}</span>
@@ -115,7 +117,10 @@ function DonutChart({ data, size = 120 }) {
 }
 
 // ── Custom SVG Line Chart ────────────────────────────────────────────────────
-function LineChart({ data, width = 500, height = 180 }) {
+function LineChart({ data, width = 500, height = 180, isEnlarged }) {
+  const currentHeight = isEnlarged ? 400 : height;
+  const currentWidth = isEnlarged ? 1000 : width;
+
   if (!data || data.length === 0) {
     return (
       <div className="w-full flex items-center justify-center h-[180px] border border-white/5 rounded-lg bg-ink-950/20 text-slate-500 text-xs">
@@ -129,8 +134,8 @@ function LineChart({ data, width = 500, height = 180 }) {
   const paddingRight = 15
   const paddingTop = 20
   const paddingBottom = 25
-  const chartWidth = width - paddingLeft - paddingRight
-  const chartHeight = height - paddingTop - paddingBottom
+  const chartWidth = currentWidth - paddingLeft - paddingRight
+  const chartHeight = currentHeight - paddingTop - paddingBottom
 
   const points = data.map((d, idx) => {
     const divisor = data.length > 1 ? data.length - 1 : 1
@@ -164,8 +169,8 @@ function LineChart({ data, width = 500, height = 180 }) {
   }
 
   return (
-    <div className="w-full">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
+    <div className={`w-full ${isEnlarged ? 'flex items-center justify-center h-full max-w-6xl' : ''}`}>
+      <svg viewBox={`0 0 ${currentWidth} ${currentHeight}`} className="w-full h-auto overflow-visible">
         <defs>
           <linearGradient id="line-grad-purple" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#a855f7" stopOpacity="0.2" />
@@ -206,7 +211,7 @@ function LineChart({ data, width = 500, height = 180 }) {
           const divisor = data.length > 1 ? data.length - 1 : 1
           const x = paddingLeft + (idx / divisor) * chartWidth
           return (
-            <text key={idx} x={x} y={height - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="8" fontWeight="600">
+            <text key={idx} x={x} y={currentHeight - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="8" fontWeight="600">
               {d.label}
             </text>
           )
@@ -227,7 +232,10 @@ function LineChart({ data, width = 500, height = 180 }) {
 }
 
 // ── Custom SVG Bar Chart ─────────────────────────────────────────────────────
-function BarChart({ data, width = 500, height = 180 }) {
+function BarChart({ data, width = 500, height = 180, isEnlarged }) {
+  const currentHeight = isEnlarged ? 400 : height;
+  const currentWidth = isEnlarged ? 1000 : width;
+
   if (!data || data.length === 0) {
     return (
       <div className="w-full flex items-center justify-center h-[180px] border border-white/5 rounded-lg bg-ink-950/20 text-slate-500 text-xs">
@@ -241,8 +249,8 @@ function BarChart({ data, width = 500, height = 180 }) {
   const paddingRight = 15
   const paddingTop = 20
   const paddingBottom = 25
-  const chartWidth = width - paddingLeft - paddingRight
-  const chartHeight = height - paddingTop - paddingBottom
+  const chartWidth = currentWidth - paddingLeft - paddingRight
+  const chartHeight = currentHeight - paddingTop - paddingBottom
 
   const gridLinesCount = 4
   const gridLines = []
@@ -254,8 +262,8 @@ function BarChart({ data, width = 500, height = 180 }) {
   const gap = (chartWidth - barWidth * data.length) / (data.length + 1)
 
   return (
-    <div className="w-full text-center">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
+    <div className={`w-full text-center ${isEnlarged ? 'flex items-center justify-center h-full max-w-6xl' : ''}`}>
+      <svg viewBox={`0 0 ${currentWidth} ${currentHeight}`} className="w-full h-auto overflow-visible">
         <defs>
           <linearGradient id="bar-grad-purple" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#a855f7" />
@@ -299,7 +307,7 @@ function BarChart({ data, width = 500, height = 180 }) {
                   {d.value}
                 </text>
               </g>
-              <text x={x + barWidth / 2} y={height - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="8" fontWeight="600">
+              <text x={x + barWidth / 2} y={currentHeight - 4} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="8" fontWeight="600">
                 {d.label}
               </text>
             </g>
@@ -651,17 +659,18 @@ function OpenRequisitionsCard({ mrfs }) {
 }
 
 // Report Donut / Pie chart (Compacted)
-function ReportDonutChart({ data, size = 150, title }) {
+function ReportDonutChart({ data, size = 150, title, isEnlarged }) {
+  const currentSize = isEnlarged ? 400 : size;
   const total = data.reduce((s, d) => s + d.value, 0) || 1
   const r = 62
   const circ = 2 * Math.PI * r
   let acc = 0
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full h-full justify-center">
-      {title && <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{title}</p>}
-      <div className="flex items-center gap-6 w-full justify-center">
-        <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+    <div className={`flex flex-col items-center gap-3 w-full justify-center ${isEnlarged ? 'max-w-3xl mx-auto py-8' : 'h-full'}`}>
+      {title && <p className={`${isEnlarged ? 'text-xl mb-4' : 'text-sm'} font-bold text-slate-400 uppercase tracking-wider`}>{title}</p>}
+      <div className={`flex items-center gap-6 w-full justify-center ${isEnlarged ? 'flex-col gap-10' : ''}`}>
+        <div className="relative flex-shrink-0" style={{ width: currentSize, height: currentSize }}>
           <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
             <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
             {data.map((item, i) => {
@@ -690,13 +699,13 @@ function ReportDonutChart({ data, size = 150, title }) {
             })}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-bold text-white leading-none">{total}</span>
-            <span className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">Total</span>
+            <span className={`${isEnlarged ? 'text-6xl' : 'text-3xl'} font-bold text-white leading-none`}>{total}</span>
+            <span className={`${isEnlarged ? 'text-lg mt-2' : 'text-xs mt-1'} text-slate-500 uppercase tracking-widest font-bold`}>Total</span>
           </div>
         </div>
-        <div className="space-y-3 flex-1 min-w-0">
-          {data.slice(0, 5).map((item, i) => (
-            <div key={i} className="flex items-center justify-between text-[13px] border-b border-white/5 pb-1.5 last:border-0">
+        <div className={`space-y-3 flex-1 min-w-0 ${isEnlarged ? 'space-y-6 w-full max-w-sm' : ''}`}>
+          {data.slice(0, isEnlarged ? 10 : 5).map((item, i) => (
+            <div key={i} className={`flex items-center justify-between border-b border-white/5 pb-1.5 last:border-0 ${isEnlarged ? 'text-lg pb-3' : 'text-[13px]'}`}>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                 <span className="text-slate-300 truncate font-medium">{item.label}</span>
@@ -713,14 +722,15 @@ function ReportDonutChart({ data, size = 150, title }) {
 }
 
 // Report Vertical bar chart (Compacted)
-function ReportBarChart({ data, height = 180, colorFn }) {
+function ReportBarChart({ data, height = 180, colorFn, isEnlarged }) {
+  const currentHeight = isEnlarged ? 450 : height;
   const maxVal = Math.max(...data.map(d => d.value), 1)
   const Y_STEPS = 3
   const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
 
   return (
-    <div className="w-full h-full flex flex-col justify-end">
-      <div className="flex gap-3" style={{ height }}>
+    <div className={`w-full h-full flex flex-col justify-end ${isEnlarged ? 'max-w-5xl mx-auto pt-10' : ''}`}>
+      <div className="flex gap-3" style={{ height: currentHeight }}>
         <div className="flex flex-col justify-between text-xs text-slate-500 font-bold w-8 items-end pr-1">
           {gridLines.map((g, i) => <span key={i}>{g}</span>)}
         </div>
@@ -754,7 +764,8 @@ function ReportBarChart({ data, height = 180, colorFn }) {
 }
 
 // Combined Department Position Summary Bar Chart (Side-by-Side Double Bars)
-function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180 }) {
+function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180, isEnlarged }) {
+  const currentHeight = isEnlarged ? 450 : height;
   const data = deptLabels.map(l => ({
     label: l,
     open: deptOpen[l] || 0,
@@ -766,8 +777,8 @@ function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180 })
   const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
 
   return (
-    <div className="w-full h-full flex flex-col justify-end pt-2">
-      <div className="flex gap-3" style={{ height }}>
+    <div className={`w-full h-full flex flex-col justify-end pt-2 ${isEnlarged ? 'max-w-5xl mx-auto pt-10' : ''}`}>
+      <div className="flex gap-3" style={{ height: currentHeight }}>
         {/* Y Axis labels */}
         <div className="flex flex-col justify-between text-xs text-slate-500 font-bold w-8 items-end pr-1">
           {gridLines.map((g, i) => <span key={i}>{g}</span>)}
@@ -786,7 +797,7 @@ function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180 })
                 {/* Side-by-side bars */}
                 <div className="flex items-end gap-2 h-full w-full justify-center px-1">
                   {/* Open Positions (blue) */}
-                  <div className="flex-1 max-w-[16px] group relative h-full flex flex-col justify-end">
+                  <div className={`flex-1 group relative h-full flex flex-col justify-end ${isEnlarged ? 'max-w-[40px]' : 'max-w-[16px]'}`}>
                     <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
                       bg-ink-950 border border-white/10 rounded px-2 py-1 text-xs font-bold text-white whitespace-nowrap z-10 shadow-xl">
                       {item.open} Open
@@ -795,7 +806,7 @@ function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180 })
                       style={{ height: `${openPct}%` }} />
                   </div>
                   {/* Filled Positions (green) */}
-                  <div className="flex-1 max-w-[16px] group relative h-full flex flex-col justify-end">
+                  <div className={`flex-1 group relative h-full flex flex-col justify-end ${isEnlarged ? 'max-w-[40px]' : 'max-w-[16px]'}`}>
                     <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block
                       bg-ink-950 border border-white/10 rounded px-2 py-1 text-xs font-bold text-white whitespace-nowrap z-10 shadow-xl">
                       {item.filled} Filled
@@ -855,8 +866,8 @@ function HBarChart({ data }) {
 }
 
 // Report Line chart (trends) (Compacted)
-function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
-  const W = 500, H = 180, PAD = 20
+function ReportLineChart({ data, color = '#ec4899', label = 'Count', isEnlarged }) {
+  const W = isEnlarged ? 1000 : 500, H = isEnlarged ? 400 : 180, PAD = 20
   const vals = data.map(d => d.value)
   const maxVal = Math.max(...vals, 1)
   const divisor = data.length > 1 ? data.length - 1 : 1
@@ -873,7 +884,7 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
     : ''
 
   return (
-    <div className="w-full h-full flex flex-col justify-between pt-2">
+    <div className={`w-full h-full flex flex-col justify-between pt-2 ${isEnlarged ? 'max-w-5xl mx-auto pt-10' : ''}`}>
       <div className="relative w-full" style={{ height: H }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full overflow-visible">
           <defs>
@@ -907,16 +918,100 @@ function ReportLineChart({ data, color = '#ec4899', label = 'Count' }) {
 
 // Chart Section Wrapper (Compacted)
 function ChartCard({ title, icon: Icon, iconColor, children }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEnlarged, setIsEnlarged] = useState(false);
+  const cardRef = useRef(null);
+  const modalContentRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if (showMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  useEffect(() => {
+    if (isEnlarged) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    }
+  }, [isEnlarged]);
+
   return (
-    <div className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden">
-      <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2 border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
-        {Icon && <Icon size={16} className={iconColor} />}
-        <span className="truncate">{title}</span>
-      </h4>
-      <div className="flex-1 flex items-center justify-center w-full min-h-0">
-        {children}
+    <>
+      <div ref={cardRef} className="card p-4 border border-white/5 bg-ink-950/40 flex flex-col hover:border-white/10 transition-all duration-200 h-full overflow-hidden relative">
+        <div className="flex items-start justify-between border-b border-white/5 pb-2.5 mb-3 flex-shrink-0">
+          <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider flex items-center gap-2">
+            {Icon && <Icon size={16} className={iconColor} />}
+            <span className="truncate">{title}</span>
+          </h4>
+          
+          <div className="relative">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+              className="p-1 rounded-md hover:bg-white/10 text-slate-400 transition-colors"
+            >
+              <MoreVertical size={16} />
+            </button>
+            
+            {showMenu && (
+              <div 
+                className="absolute right-0 top-full mt-1 w-40 bg-ink-900 border border-white/10 rounded-lg shadow-2xl z-20 py-1"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={() => { setShowMenu(false); setIsEnlarged(true); }}
+                  className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white flex items-center gap-2 transition-colors"
+                >
+                  <Maximize2 size={13} className="text-accent" /> View Enlarged
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center w-full min-h-0">
+          {children}
+        </div>
       </div>
-    </div>
+
+      {isEnlarged && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div ref={modalContentRef} className="bg-ink-900 border border-white/10 rounded-2xl w-[95vw] max-w-7xl h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+              <h3 className="text-2xl font-display font-bold text-white flex items-center gap-3">
+                {Icon && <Icon size={28} className={iconColor} />}
+                {title}
+              </h3>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsEnlarged(false)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 p-8 overflow-auto bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent">
+              <div className="w-full min-h-full flex items-center justify-center">
+                {React.Children.map(children, child => {
+                  if (React.isValidElement(child)) {
+                    return React.cloneElement(child, { isEnlarged: true });
+                  }
+                  return child;
+                })}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   )
 }
 

@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import {
   LayoutDashboard, Building2, MapPin, Users, Target,
   Coins, Clock, ArrowRightLeft, GraduationCap, Briefcase,
-  ChevronDown, ChevronUp, FileSpreadsheet, Activity, HelpCircle, AlertCircle
+  ChevronDown, ChevronUp, FileSpreadsheet, Activity, HelpCircle, AlertCircle,
+  MoreVertical, Maximize2, Download, X, FileSpreadsheet
 } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 // ── 5 Canonical Dummy Records representing all 36 fields ─────────────────────
 const DUMMY_DATA = [
@@ -201,15 +203,58 @@ const DUMMY_DATA = [
 
 // ── Shared Visual Sub-Components ─────────────────────────────────────────────
 
-function DonutChart({ data, size = 130 }) {
+function DonutChart({ data, size = 130, title = 'Chart Details' }) {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const [isEnlarged, setIsEnlarged] = React.useState(false);
+  const cardRef = React.useRef(null);
+  const modalContentRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if (showMenu) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  React.useEffect(() => {
+    if (isEnlarged) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; }
+  }, [isEnlarged]);
+
+  const currentSize = isEnlarged ? 400 : size;
   const total = data.reduce((s, item) => s + item.value, 0) || 1;
   const radius = 46;
   const circ = 2 * Math.PI * radius;
   let accumulatedPercent = 0;
 
-  return (
-    <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-white/2 border border-white/5">
-      <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
+  const chartContent = (
+    <div ref={cardRef} className={`flex items-center p-4 rounded-xl bg-white/2 border border-white/5 relative group ${isEnlarged ? 'flex-col w-full justify-center gap-10 max-w-3xl mx-auto my-auto py-8' : 'flex-col sm:flex-row gap-5'}`}>
+      {/* Three dots menu */}
+      <div className="absolute top-2 right-2 z-10">
+         <div className="relative">
+           <button 
+             onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+             className="p-1 rounded bg-white/5 hover:bg-white/20 text-slate-400 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+           >
+             <MoreVertical size={14} />
+           </button>
+           {showMenu && (
+             <div 
+               className="absolute right-0 top-full mt-1 w-36 bg-ink-900 border border-white/10 rounded-lg shadow-xl py-1 z-50"
+               onClick={e => e.stopPropagation()}
+             >
+               <button 
+                 onClick={() => { setShowMenu(false); setIsEnlarged(true); }}
+                 className="w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10 flex items-center gap-2"
+               >
+                 <Maximize2 size={12} className="text-accent" /> Enlarge
+               </button>
+             </div>
+           )}
+         </div>
+      </div>
+
+      <div className="relative flex-shrink-0" style={{ width: currentSize, height: currentSize }}>
         <svg viewBox="0 0 110 110" className="w-full h-full transform -rotate-90">
           <circle cx="55" cy="55" r={radius} fill="transparent" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
           {data.map((item, idx) => {
@@ -238,15 +283,15 @@ function DonutChart({ data, size = 130 }) {
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-xl font-bold text-white leading-none">{total}</span>
-          <span className="text-[8px] text-slate-500 uppercase tracking-widest mt-1 font-semibold">Total</span>
+          <span className={`${isEnlarged ? 'text-6xl' : 'text-xl'} font-bold text-white leading-none`}>{total}</span>
+          <span className={`${isEnlarged ? 'text-lg mt-2' : 'text-[8px] mt-1'} text-slate-500 uppercase tracking-widest font-semibold`}>Total</span>
         </div>
       </div>
-      <div className="space-y-1.5 flex-1 min-w-0 w-full">
+      <div className={`space-y-1.5 flex-1 min-w-0 w-full ${isEnlarged ? 'space-y-6 max-w-sm' : ''}`}>
         {data.map((item, idx) => {
           const pct = Math.round((item.value / total) * 100);
           return (
-            <div key={idx} className="flex items-center justify-between text-[11px] font-medium leading-relaxed">
+            <div key={idx} className={`flex items-center justify-between font-medium leading-relaxed ${isEnlarged ? 'text-lg pb-3 border-b border-white/5' : 'text-[11px]'}`}>
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                 <span className="text-slate-400 truncate">{item.label}</span>
@@ -258,23 +303,94 @@ function DonutChart({ data, size = 130 }) {
       </div>
     </div>
   );
+
+  return (
+    <>
+      {chartContent}
+      {isEnlarged && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div ref={modalContentRef} className="bg-ink-900 border border-white/10 rounded-2xl w-[95vw] max-w-7xl h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+              <h3 className="text-2xl font-display font-bold text-white flex items-center gap-3">{title}</h3>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsEnlarged(false)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-8 overflow-auto bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent">
+              <div className="w-full min-h-full flex items-center justify-center">
+                {chartContent}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
 }
 
-function HorizontalBarList({ data, title, accentColor = 'bg-accent/70' }) {
+function HorizontalBarList({ data, title = 'Bar Chart', accentColor = 'bg-accent/70' }) {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const [isEnlarged, setIsEnlarged] = React.useState(false);
+  const cardRef = React.useRef(null);
+  const modalContentRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if (showMenu) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  React.useEffect(() => {
+    if (isEnlarged) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; }
+  }, [isEnlarged]);
+
   const max = Math.max(...data.map(item => item.value), 1);
-  return (
-    <div className="p-4 rounded-xl bg-white/2 border border-white/5 space-y-3">
-      {title && <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{title}</h5>}
-      <div className="space-y-3">
+  const chartContent = (
+    <div ref={cardRef} className={`p-4 rounded-xl bg-white/2 border border-white/5 relative group ${isEnlarged ? 'w-full flex flex-col justify-center space-y-8 max-w-5xl mx-auto my-auto p-12' : 'space-y-3'}`}>
+      {/* Three dots menu */}
+      <div className="absolute top-2 right-2 z-10">
+         <div className="relative">
+           <button 
+             onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+             className="p-1 rounded bg-white/5 hover:bg-white/20 text-slate-400 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+           >
+             <MoreVertical size={14} />
+           </button>
+           {showMenu && (
+             <div 
+               className="absolute right-0 top-full mt-1 w-36 bg-ink-900 border border-white/10 rounded-lg shadow-xl py-1 z-50"
+               onClick={e => e.stopPropagation()}
+             >
+               <button 
+                 onClick={() => { setShowMenu(false); setIsEnlarged(true); }}
+                 className="w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10 flex items-center gap-2"
+               >
+                 <Maximize2 size={12} className="text-accent" /> Enlarge
+               </button>
+             </div>
+           )}
+         </div>
+      </div>
+
+      {title && <h5 className={`${isEnlarged ? 'text-lg text-center mb-8' : 'text-[11px]'} font-bold text-slate-400 uppercase tracking-widest`}>{title}</h5>}
+      <div className={isEnlarged ? 'space-y-8' : 'space-y-3'}>
         {data.map((item, idx) => {
           const pct = Math.round((item.value / max) * 100);
           return (
-            <div key={idx} className="space-y-1">
-              <div className="flex justify-between text-xs font-semibold">
+            <div key={idx} className={isEnlarged ? 'space-y-3' : 'space-y-1'}>
+              <div className={`flex justify-between font-semibold ${isEnlarged ? 'text-lg' : 'text-xs'}`}>
                 <span className="text-slate-300 truncate pr-2" title={item.label}>{item.label}</span>
                 <span className="text-accent flex-shrink-0">{item.value}</span>
               </div>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className={`${isEnlarged ? 'h-4' : 'h-2'} bg-white/5 rounded-full overflow-hidden`}>
                 <div 
                   className={`h-full ${item.bg || accentColor} rounded-full transition-all duration-500`} 
                   style={{ width: `${pct}%` }} 
@@ -286,9 +402,55 @@ function HorizontalBarList({ data, title, accentColor = 'bg-accent/70' }) {
       </div>
     </div>
   );
+
+  return (
+    <>
+      {chartContent}
+      {isEnlarged && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div ref={modalContentRef} className="bg-ink-900 border border-white/10 rounded-2xl w-[95vw] max-w-7xl h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+              <h3 className="text-2xl font-display font-bold text-white flex items-center gap-3">{title || 'Bar Chart'}</h3>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsEnlarged(false)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-8 overflow-auto bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent">
+              <div className="w-full min-h-full flex items-center justify-center">
+                {chartContent}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
 }
 
-function VerticalSalaryChart({ data, title }) {
+function VerticalSalaryChart({ data, title = 'Salary Chart' }) {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const [isEnlarged, setIsEnlarged] = React.useState(false);
+  const cardRef = React.useRef(null);
+  const modalContentRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = () => setShowMenu(false);
+    if (showMenu) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
+  React.useEffect(() => {
+    if (isEnlarged) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+    return () => { document.body.style.overflow = ''; }
+  }, [isEnlarged]);
+
   // Find maximum salary amongst all series to scale vertical heights
   let maxSalary = 1;
   data.forEach(item => {
@@ -296,49 +458,74 @@ function VerticalSalaryChart({ data, title }) {
   });
   if (maxSalary === 0) maxSalary = 1;
 
-  return (
-    <div className="p-5 rounded-xl bg-white/2 border border-white/5 space-y-4">
-      {title && <h5 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">{title}</h5>}
-      <div className="flex items-end justify-around border-b border-white/10 pb-3 gap-3 sm:gap-6 h-40">
+  const chartContent = (
+    <div ref={cardRef} className={`p-5 rounded-xl bg-white/2 border border-white/5 relative group ${isEnlarged ? 'w-full flex flex-col max-w-6xl mx-auto my-auto space-y-12 py-10' : 'space-y-4'}`}>
+      {/* Three dots menu */}
+      <div className="absolute top-2 right-2 z-10">
+         <div className="relative">
+           <button 
+             onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+             className="p-1 rounded bg-white/5 hover:bg-white/20 text-slate-400 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+           >
+             <MoreVertical size={14} />
+           </button>
+           {showMenu && (
+             <div 
+               className="absolute right-0 top-full mt-1 w-36 bg-ink-900 border border-white/10 rounded-lg shadow-xl py-1 z-50"
+               onClick={e => e.stopPropagation()}
+             >
+               <button 
+                 onClick={() => { setShowMenu(false); setIsEnlarged(true); }}
+                 className="w-full text-left px-3 py-1.5 text-xs text-slate-300 hover:bg-white/10 flex items-center gap-2"
+               >
+                 <Maximize2 size={12} className="text-accent" /> Enlarge
+               </button>
+             </div>
+           )}
+         </div>
+      </div>
+
+      {title && <h5 className={`${isEnlarged ? 'text-lg mb-8' : 'text-[11px]'} font-bold text-slate-400 uppercase tracking-widest text-center`}>{title}</h5>}
+      <div className={`flex items-end justify-around border-b border-white/10 pb-3 gap-3 sm:gap-6 ${isEnlarged ? 'h-96 sm:h-[500px]' : 'h-40'}`}>
         {data.map((item, idx) => {
           const lastPct = (item.lastCTC / maxSalary) * 100;
           const offeredPct = (item.offeredCTC / maxSalary) * 100;
           const cocPct = (item.coc / maxSalary) * 100;
 
           return (
-            <div key={idx} className="flex flex-col items-center flex-1 h-full justify-end group min-w-0">
+            <div key={idx} className="flex flex-col items-center flex-1 h-full justify-end group/col min-w-0">
               <div className="flex items-end gap-1 h-full w-full justify-center">
                 {/* Last CTC */}
                 {item.lastCTC > 0 && (
                   <div 
-                    className="w-3 sm:w-4 bg-slate-500/60 hover:bg-slate-400 rounded-t transition-all duration-300 relative"
+                    className={`${isEnlarged ? 'w-8 sm:w-12' : 'w-3 sm:w-4'} bg-slate-500/60 hover:bg-slate-400 rounded-t transition-all duration-300 relative`}
                     style={{ height: `${lastPct}%` }}
                   >
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                    <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/col:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 ${isEnlarged ? 'text-sm px-3 py-1.5' : 'text-[9px]'} font-bold text-white whitespace-nowrap z-10 shadow-xl`}>
                       Last: ₹{(item.lastCTC / 100000).toFixed(1)}L
                     </div>
                   </div>
                 )}
                 {/* Offered CTC */}
                 <div 
-                  className="w-3 sm:w-4 bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative"
+                  className={`${isEnlarged ? 'w-8 sm:w-12' : 'w-3 sm:w-4'} bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative`}
                   style={{ height: `${offeredPct}%` }}
                 >
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                  <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/col:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 ${isEnlarged ? 'text-sm px-3 py-1.5' : 'text-[9px]'} font-bold text-white whitespace-nowrap z-10 shadow-xl`}>
                     Offered: ₹{(item.offeredCTC / 100000).toFixed(1)}L
                   </div>
                 </div>
                 {/* Cost of Company */}
                 <div 
-                  className="w-3 sm:w-4 bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative"
+                  className={`${isEnlarged ? 'w-8 sm:w-12' : 'w-3 sm:w-4'} bg-accent/70 hover:bg-accent rounded-t transition-all duration-300 relative`}
                   style={{ height: `${cocPct}%` }}
                 >
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-10 shadow-xl">
+                  <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/col:block bg-ink-950 border border-white/10 rounded px-2 py-0.5 ${isEnlarged ? 'text-sm px-3 py-1.5' : 'text-[9px]'} font-bold text-white whitespace-nowrap z-10 shadow-xl`}>
                     COC: ₹{(item.coc / 100000).toFixed(1)}L
                   </div>
                 </div>
               </div>
-              <span className="text-[10px] text-slate-500 font-semibold mt-2 text-center truncate w-full" title={item.candidate}>
+              <span className={`${isEnlarged ? 'text-sm mt-4' : 'text-[10px] mt-2'} text-slate-500 font-semibold text-center truncate w-full`} title={item.candidate}>
                 {item.candidate}
               </span>
             </div>
@@ -346,21 +533,50 @@ function VerticalSalaryChart({ data, title }) {
         })}
       </div>
       {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-4 text-[10px] pt-1">
+      <div className={`flex flex-wrap justify-center gap-4 ${isEnlarged ? 'text-sm pt-4' : 'text-[10px] pt-1'}`}>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-slate-500/60" />
+          <span className={`${isEnlarged ? 'w-4 h-4' : 'w-2.5 h-2.5'} rounded-sm bg-slate-500/60`} />
           <span className="text-slate-400">Last CTC</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-accent/70" />
+          <span className={`${isEnlarged ? 'w-4 h-4' : 'w-2.5 h-2.5'} rounded-sm bg-accent/70`} />
           <span className="text-slate-400">Offered CTC</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-sm bg-accent/70" />
+          <span className={`${isEnlarged ? 'w-4 h-4' : 'w-2.5 h-2.5'} rounded-sm bg-accent/70`} />
           <span className="text-slate-400">Cost of Company (COC)</span>
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {chartContent}
+      {isEnlarged && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div ref={modalContentRef} className="bg-ink-900 border border-white/10 rounded-2xl w-[95vw] max-w-7xl h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5 bg-white/[0.02]">
+              <h3 className="text-2xl font-display font-bold text-white flex items-center gap-3">{title || 'Salary Chart'}</h3>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsEnlarged(false)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-8 overflow-auto bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent">
+              <div className="w-full min-h-full flex items-center justify-center">
+                {chartContent}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 
