@@ -122,7 +122,7 @@ export default function Navbar() {
     switch (role) {
       case 'admin':
         return {
-          label: 'HR Admin',
+          label: 'Admin',
           badgeCls: 'bg-accent/10 border-accent/20 text-accent',
           avatarCls: 'bg-accent',
           icon: ShieldCheck
@@ -136,7 +136,7 @@ export default function Navbar() {
         }
       case 'hr':
         return {
-          label: 'HR Manager',
+          label: 'HR',
           badgeCls: 'bg-accent/10 border-accent/20 text-accent',
           avatarCls: 'bg-accent',
           icon: User

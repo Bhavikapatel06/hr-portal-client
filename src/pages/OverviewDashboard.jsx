@@ -1096,7 +1096,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [
       <ChartCard title="Department Total Vacancies" icon={PieChart} iconColor="text-indigo-400">
         <ReportDonutChart data={top5.map(([label, value], i) => ({ label, value, color: PALETTE[i % PALETTE.length] }))} />
       </ChartCard>
-      <UpcomingJoiningDatesCard tracker={tracker} />
+      {role === 'hr' && <UpcomingJoiningDatesCard tracker={tracker} />}
 
       {/* Row 3 */}
 
@@ -1106,7 +1106,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [
       <ChartCard title="Position Status" icon={PieChart} iconColor="text-indigo-400">
         <ReportDonutChart data={posData} />
       </ChartCard>
-      <RecentCandidatesCard candidates={candidates} />
+      {role === 'hr' && <RecentCandidatesCard candidates={candidates} />}
 
       {/* Row 4 */}
 
@@ -1122,7 +1122,7 @@ function PerformanceReportsSection({ mrfs, sheetData, user, role, candidates = [
           { label: 'Draft', value: mrfDraft, color: '#64748b' },
         ].filter(d => d.value > 0)} />
       </ChartCard>
-      <TodayInterviewsCard />
+      {role === 'hr' && <TodayInterviewsCard />}
 
 
       {/* Row 5 */}
@@ -1590,7 +1590,7 @@ export default function OverviewDashboard() {
     )
   }
 
-  // ── 3. HR MANAGER DASHBOARD VIEW ────────────────────────────────────────────
+  // ── 3. HR DASHBOARD VIEW ────────────────────────────────────────────
   if (role === 'hr') {
     const candidatePipelineCount = normalizedCandidates.length
     const interviewsScheduledCount = normalizedCandidates.filter(c => {

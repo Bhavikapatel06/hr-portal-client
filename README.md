@@ -13,9 +13,9 @@ graph TD
     A[HOD: Create MRF Requisition] --> B[HOD: Submit MRF]
     B --> C[Admin: Review & Approvals Page]
     C -- Reject with Notes --> A
-    C -- Approve MRF --> D[HR Manager: Awaiting Posting]
-    D --> E[HR Manager: Create Job Opening & Go Live]
-    E --> F[HR Manager: Upload Resumes & Parse Candidates]
+    C -- Approve MRF --> D[HR: Awaiting Posting]
+    D --> E[HR: Create Job Opening & Go Live]
+    E --> F[HR: Upload Resumes & Parse Candidates]
     F --> G[Recruiter: Screen & Move Candidates through Pipeline]
     G -- Hired & Joined --> H[System: Auto-Fulfill & Close Job Opening]
 ```
@@ -29,11 +29,11 @@ graph TD
   - **Qualification & Criteria** (Specializations, Qualification level, Preferred industries, IT requirements)
 
 ### 2. Requisition Approvals
-- **HR Admin Approvals**: Admins review pending manpower requests through a dedicated list.
+- **Admin Approvals**: Admins review pending manpower requests through a dedicated list.
 - **Digital Paper View**: Admins can open the paper-formatted MRF template, inspect the details, and either **Approve** (which makes the request available to HR for posting) or **Reject** (with comments sent back to the HOD for correction).
 
 ### 3. Resume Management & Candidate Ingestion
-- **Resumes Upload**: HR Managers can select an approved job requisition and drag-and-drop multiple resume files.
+- **Resumes Upload**: HR can select an approved job requisition and drag-and-drop multiple resume files.
 - **Ingestion Details**: Input candidates' basic profiles, experience details, and keep links to uploaded files.
 
 ### 4. Recruiter ATS Split-Pane Pipeline
@@ -73,8 +73,8 @@ hr-portal-client/
     │   ├── Login.jsx                 ← HR Portal Role-based Login
     │   ├── OverviewDashboard.jsx     ← Analytics dashboard
     │   ├── MyMRFsPage.jsx            ← HOD self-service center (optimistic updates)
-    │   ├── AdminMRFApprovalsPage.jsx ← HR Admin approvals center (interactive tabs)
-    │   └── HRManagerPage.jsx         ← Recruiter ATS workspace (split-pane pipeline)
+    │   ├── AdminMRFApprovalsPage.jsx ← Admin approvals center (interactive tabs)
+    │   └── HRPage.jsx                ← Recruiter ATS workspace (split-pane pipeline)
     └── services/
         └── api.js                    ← Axios integration layer with credentials
 ```
