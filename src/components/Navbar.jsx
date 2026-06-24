@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BriefcaseBusiness, Bell, ClipboardList,
-  Menu, X, LogOut, Activity, User, ShieldCheck, ChevronDown,
-  BarChart3, FileSpreadsheet, Settings, Users, Check, Trash2
+  Menu, X, LogOut, Activity, User, ShieldCheck,
+  Settings, Users, AlertTriangle
 } from 'lucide-react'
 import { notificationApi } from '../services/api'
 import ThemeToggle from '../context/ThemeToggle.jsx'
@@ -19,6 +19,9 @@ export default function Navbar() {
 
   const [notifications, setNotifications] = useState([])
   const [showNotifications, setShowNotifications] = useState(false)
+
+  // Logout confirmation modal
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const loadNotifications = async () => {
     if (!user) return
@@ -43,6 +46,14 @@ export default function Navbar() {
       clearInterval(intv)
     }
   }, [user?.email])
+
+  // ESC closes the logout modal
+  useEffect(() => {
+    if (!showLogoutConfirm) return
+    const onKey = (e) => { if (e.key === 'Escape') setShowLogoutConfirm(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showLogoutConfirm])
 
   const handleMarkRead = async (id) => {
     try {
@@ -73,12 +84,21 @@ export default function Navbar() {
     } catch (e) { console.error(e) }
   }
 
-  const handleLogout = () => {
+  // Step 1: ask for confirmation
+  const requestLogout = () => {
+    setMobile(false)
+    setShowLogoutConfirm(true)
+  }
+
+  // Step 2: actually log out after user confirms
+  const confirmLogout = () => {
     localStorage.removeItem('hr_token')
     localStorage.removeItem('hr_role')
     localStorage.removeItem('hr_user')
     setRole('')
     setUser(null)
+    setShowLogoutConfirm(false)
+    window.dispatchEvent(new Event('storage'))
     navigate('/login')
   }
 
@@ -120,47 +140,16 @@ export default function Navbar() {
 
   const getRoleDetails = () => {
     switch (role) {
-      case 'admin':
-        return {
-          label: 'Admin',
-          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
-          avatarCls: 'bg-accent',
-          icon: ShieldCheck
-        }
-      case 'department_head':
-        return {
-          label: 'Dept Head',
-          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
-          avatarCls: 'bg-accent',
-          icon: User
-        }
-      case 'hr':
-        return {
-          label: 'HR',
-          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
-          avatarCls: 'bg-accent',
-          icon: User
-        }
-      case 'interviewer':
-        return {
-          label: 'Interviewer',
-          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
-          avatarCls: 'bg-accent',
-          icon: User
-        }
+      case 'admin':           return { label: 'Admin',       badgeCls: 'bg-accent/10 border-accent/20 text-accent', avatarCls: 'bg-accent', icon: ShieldCheck }
+      case 'department_head': return { label: 'Dept Head',   badgeCls: 'bg-accent/10 border-accent/20 text-accent', avatarCls: 'bg-accent', icon: User }
+      case 'hr':              return { label: 'HR',          badgeCls: 'bg-accent/10 border-accent/20 text-accent', avatarCls: 'bg-accent', icon: User }
+      case 'interviewer':     return { label: 'Interviewer', badgeCls: 'bg-accent/10 border-accent/20 text-accent', avatarCls: 'bg-accent', icon: User }
       case 'candidate':
-      default:
-        return {
-          label: 'Candidate',
-          badgeCls: 'bg-accent/10 border-accent/20 text-accent',
-          avatarCls: 'bg-accent',
-          icon: User
-        }
+      default:                return { label: 'Candidate',   badgeCls: 'bg-accent/10 border-accent/20 text-accent', avatarCls: 'bg-accent', icon: User }
     }
   }
 
   const roleDetails = getRoleDetails()
-  const RoleIcon = roleDetails.icon
 
   if (pathname === '/login') return null
 
@@ -169,6 +158,7 @@ export default function Navbar() {
     : '?'
 
   return (
+    <>
     <header className="navbar-bg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
 
@@ -190,10 +180,7 @@ export default function Navbar() {
             return (
               <Link key={to} to={to}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
-                  ${active
-                    ? 'bg-accent/15 text-accent border border-accent/25'
-                    : 'hover:bg-white/6'
-                  }`}
+                  ${active ? 'bg-accent/15 text-accent border border-accent/25' : 'hover:bg-white/6'}`}
                 style={{ color: active ? undefined : 'var(--text-secondary)' }}
               >
                 <Icon size={15} /> {label}
@@ -204,13 +191,11 @@ export default function Navbar() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-2.5">
-
-          {/* Theme Toggle */}
           <ThemeToggle />
 
           {/* Notification bell */}
           <div className="relative">
-            <button 
+            <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
               style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)' }}
@@ -220,7 +205,7 @@ export default function Navbar() {
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-500 rounded-full" />
               )}
             </button>
-            
+
             {showNotifications && (
               <div className="fixed top-[64px] left-1/2 -translate-x-1/2 w-[calc(100vw-32px)] sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:right-0 sm:mt-2 sm:w-80 bg-ink-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
                 <div className="px-4 py-3 border-b border-white/10 flex justify-between items-center bg-white/5">
@@ -285,10 +270,11 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Logout */}
+          {/* Logout — now opens confirmation modal */}
           <button
-            onClick={handleLogout}
+            onClick={requestLogout}
             title="Log out"
+            data-testid="logout-button"
             className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-red-500/15 hover:border-red-500/30 transition-colors"
             style={{ background: 'var(--border-color)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
           >
@@ -324,7 +310,6 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Theme toggle on mobile */}
           <div className="flex items-center justify-between px-4 py-3">
             <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Theme</span>
             <ThemeToggle />
@@ -343,12 +328,89 @@ export default function Navbar() {
             )
           })}
 
-          <button onClick={handleLogout}
+          <button onClick={requestLogout}
+            data-testid="logout-button-mobile"
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all mt-2">
             <LogOut size={16} /> Logout
           </button>
         </div>
       )}
     </header>
+
+    {/* ── Logout Confirmation Modal ───────────────────────────────────────── */}
+    {showLogoutConfirm && (
+      <div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-modal-title"
+        data-testid="logout-confirm-modal"
+      >
+        {/* backdrop */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowLogoutConfirm(false)}
+        />
+        {/* dialog */}
+        <div
+          className="relative w-full max-w-sm rounded-2xl border shadow-2xl overflow-hidden"
+          style={{
+            background: 'var(--bg-primary, #0f172a)',
+            borderColor: 'var(--border-color, rgba(255,255,255,0.1))',
+          }}
+        >
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+                <AlertTriangle size={18} className="text-red-400" />
+              </div>
+              <h2
+                id="logout-modal-title"
+                className="font-display font-bold text-lg"
+                style={{ color: 'var(--text-primary, #fff)' }}
+              >
+                Confirm Logout
+              </h2>
+            </div>
+            <p
+              className="text-sm leading-relaxed"
+              style={{ color: 'var(--text-secondary, #94a3b8)' }}
+            >
+              Are you sure you want to logout? You will need to sign in again to access your dashboard.
+            </p>
+          </div>
+          <div
+            className="px-6 py-4 flex items-center justify-end gap-3 border-t"
+            style={{
+              borderColor: 'var(--border-color, rgba(255,255,255,0.08))',
+              background: 'var(--bg-secondary, rgba(255,255,255,0.02))',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(false)}
+              data-testid="logout-cancel-button"
+              className="px-4 py-2 rounded-lg text-sm font-medium border transition-colors"
+              style={{
+                borderColor: 'var(--border-color, rgba(255,255,255,0.1))',
+                color: 'var(--text-secondary, #cbd5e1)',
+                background: 'transparent',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmLogout}
+              data-testid="logout-confirm-button"
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-500 hover:bg-red-600 text-white shadow-sm transition-colors flex items-center gap-2"
+            >
+              <LogOut size={14} /> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
