@@ -1373,7 +1373,7 @@ export default function MyMRFsPage() {
                     {/* HOD Actions */}
                     {role === 'department_head' && mrf.mrfStatus === 'Draft' && (
                       <>
-                        {/* Only show Edit/Delete for MRFs the HOD owns (or unowned/seeded) */}
+                        {/* Only show Edit for MRFs the HOD owns (or unowned/seeded) */}
                         {(!mrf.submittedBy || mrf.submittedBy === userName) && (
                           <button
                             onClick={() => {
@@ -1393,14 +1393,6 @@ export default function MyMRFsPage() {
                             <Edit3 size={11} /> Edit
                           </button>
                         )}
-                        {(!mrf.submittedBy || mrf.submittedBy === userName) && (
-                          <button
-                            onClick={() => handleDelete(mrf._id)}
-                            className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        )}
                       </>
                     )}
 
@@ -1418,8 +1410,8 @@ export default function MyMRFsPage() {
                       );
                     })()}
 
-                    {/* Admin/HR: View button. Admin only: Delete */}
-                    {(role === 'admin' || role === 'hr') && (
+                    {/* Admin/HR/HOD: View button. Admin & HOD (all statuses): Delete */}
+                    {(role === 'admin' || role === 'hr' || role === 'department_head') && (
                       <>
                         <button
                           onClick={() => setViewingMrf(mrf)}
@@ -1427,10 +1419,11 @@ export default function MyMRFsPage() {
                         >
                           <Eye size={12} /> View
                         </button>
-                        {role === 'admin' && (
+                        {(role === 'admin' || (role === 'department_head' && (!mrf.submittedBy || mrf.submittedBy === userName))) && (
                           <button
                             onClick={() => handleDelete(mrf._id)}
                             className="flex items-center p-1.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-400 hover:bg-red-500 hover:text-white transition-all ml-1"
+                            title="Delete Requisition"
                           >
                             <Trash2 size={12} />
                           </button>

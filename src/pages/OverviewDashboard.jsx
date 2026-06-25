@@ -62,7 +62,7 @@ function getTrendData(mrfList) {
 
 // ── Custom SVG Donut Chart ───────────────────────────────────────────────────
 function DonutChart({ data, size = 120, isEnlarged }) {
-  const currentSize = isEnlarged ? 350 : size;
+  const currentSize = isEnlarged ? 260 : size;
   const total = data.reduce((sum, item) => sum + item.value, 0)
   const radius = 40
   const circumference = 2 * Math.PI * radius
@@ -118,8 +118,8 @@ function DonutChart({ data, size = 120, isEnlarged }) {
 
 // ── Custom SVG Line Chart ────────────────────────────────────────────────────
 function LineChart({ data, width = 500, height = 180, isEnlarged }) {
-  const currentHeight = isEnlarged ? 400 : height;
-  const currentWidth = isEnlarged ? 1000 : width;
+  const currentHeight = isEnlarged ? 300 : height;
+  const currentWidth = isEnlarged ? 800 : width;
 
   if (!data || data.length === 0) {
     return (
@@ -233,8 +233,8 @@ function LineChart({ data, width = 500, height = 180, isEnlarged }) {
 
 // ── Custom SVG Bar Chart ─────────────────────────────────────────────────────
 function BarChart({ data, width = 500, height = 180, isEnlarged }) {
-  const currentHeight = isEnlarged ? 400 : height;
-  const currentWidth = isEnlarged ? 1000 : width;
+  const currentHeight = isEnlarged ? 300 : height;
+  const currentWidth = isEnlarged ? 800 : width;
 
   if (!data || data.length === 0) {
     return (
@@ -669,16 +669,16 @@ function OpenRequisitionsCard({ mrfs }) {
 
 // Report Donut / Pie chart (Compacted)
 function ReportDonutChart({ data, size = 150, title, isEnlarged }) {
-  const currentSize = isEnlarged ? 400 : size;
+  const currentSize = isEnlarged ? 260 : size;
   const total = data.reduce((s, d) => s + d.value, 0) || 1
   const r = 62
   const circ = 2 * Math.PI * r
   let acc = 0
 
   return (
-    <div className={`flex flex-col items-center gap-3 w-full justify-center ${isEnlarged ? 'max-w-3xl mx-auto py-8' : 'h-full'}`}>
-      {title && <p className={`${isEnlarged ? 'text-xl mb-4' : 'text-sm'} font-bold text-slate-400 uppercase tracking-wider`}>{title}</p>}
-      <div className={`flex items-center gap-6 w-full justify-center ${isEnlarged ? 'flex-col gap-10' : ''}`}>
+    <div className={`flex flex-col items-center gap-3 w-full justify-center ${isEnlarged ? 'max-w-4xl mx-auto py-2' : 'h-full'}`}>
+      {title && <p className={`${isEnlarged ? 'text-lg mb-2' : 'text-sm'} font-bold text-slate-400 uppercase tracking-wider`}>{title}</p>}
+      <div className={`flex items-center gap-6 w-full justify-center ${isEnlarged ? 'gap-12' : ''}`}>
         <div className="relative flex-shrink-0" style={{ width: currentSize, height: currentSize }}>
           <svg viewBox="0 0 200 200" className="w-full h-full -rotate-90">
             <circle cx="100" cy="100" r={r} fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="18" />
@@ -732,7 +732,7 @@ function ReportDonutChart({ data, size = 150, title, isEnlarged }) {
 
 // Report Vertical bar chart (Compacted)
 function ReportBarChart({ data, height = 180, colorFn, isEnlarged }) {
-  const currentHeight = isEnlarged ? 450 : height;
+  const currentHeight = isEnlarged ? 300 : height;
   const maxVal = Math.max(...data.map(d => d.value), 1)
   const Y_STEPS = 3
   const gridLines = Array.from({ length: Y_STEPS + 1 }, (_, i) => Math.round((maxVal / Y_STEPS) * (Y_STEPS - i)))
@@ -774,7 +774,7 @@ function ReportBarChart({ data, height = 180, colorFn, isEnlarged }) {
 
 // Combined Department Position Summary Bar Chart (Side-by-Side Double Bars)
 function DeptSummaryBarChart({ deptLabels, deptOpen, deptFilled, height = 180, isEnlarged }) {
-  const currentHeight = isEnlarged ? 450 : height;
+  const currentHeight = isEnlarged ? 300 : height;
   const data = deptLabels.map(l => ({
     label: l,
     open: deptOpen[l] || 0,
@@ -876,7 +876,7 @@ function HBarChart({ data }) {
 
 // Report Line chart (trends) (Compacted)
 function ReportLineChart({ data, color = '#ec4899', label = 'Count', isEnlarged }) {
-  const W = isEnlarged ? 1000 : 500, H = isEnlarged ? 400 : 180, PAD = 20
+  const W = isEnlarged ? 800 : 500, H = isEnlarged ? 300 : 180, PAD = 20
   const vals = data.map(d => d.value)
   const maxVal = Math.max(...vals, 1)
   const divisor = data.length > 1 ? data.length - 1 : 1
@@ -1006,8 +1006,8 @@ function ChartCard({ title, icon: Icon, iconColor, children }) {
               </div>
             </div>
             
-            <div className="flex-1 p-8 overflow-auto bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent">
-              <div className="w-full min-h-full flex items-center justify-center">
+            <div className="flex-1 p-6 flex flex-col justify-center items-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] to-transparent min-h-0 overflow-hidden">
+              <div className="w-full h-full flex items-center justify-center min-h-0">
                 {React.Children.map(children, child => {
                   if (React.isValidElement(child)) {
                     return React.cloneElement(child, { isEnlarged: true });
@@ -1876,10 +1876,9 @@ export default function OverviewDashboard() {
     )
   }
 
-  // ── 4. DEPARTMENT HEAD DASHBOARD VIEW ────────────────────────────────────────
   const deptName = user?.department || 'Operations'
 
-  // Filter HOD MRFs and tracker and candidates by their department
+  // Filter HOD MRFs and tracker and candidates by their department for HOD KPIs
   const myDeptMRFs = normalizedMRFs.filter(m =>
     m.department && m.department.toLowerCase() === deptName.toLowerCase()
   )
@@ -2009,12 +2008,12 @@ export default function OverviewDashboard() {
           {/* Performance Reports grid full width */}
           <div className="fade-up-2 mt-6">
             <PerformanceReportsSection
-              mrfs={myDeptMRFs}
+              mrfs={normalizedMRFs}
               sheetData={sheetData}
               user={user}
               role={role}
-              candidates={myDeptCandidates}
-              tracker={myDeptTracker}
+              candidates={normalizedCandidates}
+              tracker={normalizedTracker}
             />
           </div>
         </>

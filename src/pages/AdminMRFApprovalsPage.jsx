@@ -267,7 +267,7 @@ export default function AdminMRFApprovalsPage() {
   const [viewingMrf, setViewingMrf] = useState(null)
   const [actioning, setActioning] = useState(false)
   const [filter, setFilter] = useState('All')
-  const [search, setSearch] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState('All')
   const [toast, setToast] = useState(null)
 
   useEffect(() => { loadMRFs() }, [])
@@ -346,6 +346,8 @@ export default function AdminMRFApprovalsPage() {
     { key: 'Rejected',               label: 'Rejected',         count: rejected,    icon: XCircle,       color: 'text-red-400' },
   ]
 
+  const uniqueLocations = Array.from(new Set(mrfs.map(m => m.location).filter(Boolean))).sort()
+
   // ── Filters + Search ───────────────────────────────────────────────────
   const filtered = mrfs
     .filter(m => {
@@ -356,14 +358,8 @@ export default function AdminMRFApprovalsPage() {
       return true
     })
     .filter(m => {
-      if (!search.trim()) return true
-      const q = search.toLowerCase()
-      return (
-        (m.designation || '').toLowerCase().includes(q) ||
-        (m.department || '').toLowerCase().includes(q) ||
-        (m.location || '').toLowerCase().includes(q) ||
-        (m.submittedBy || '').toLowerCase().includes(q)
-      )
+      if (selectedLocation === 'All') return true
+      return m.location && m.location.toLowerCase() === selectedLocation.toLowerCase()
     })
 
   return (
@@ -417,25 +413,30 @@ export default function AdminMRFApprovalsPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {filter !== 'All' && (
+          {(filter !== 'All' || selectedLocation !== 'All') && (
             <button
-              onClick={() => setFilter('All')}
-              className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all shadow-glow-sm"
+              onClick={() => {
+                setFilter('All')
+                setSelectedLocation('All')
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-accent/10 border border-accent/25 text-accent text-xs font-semibold hover:bg-accent hover:text-white transition-all shadow-glow-sm"
             >
-              <Filter size={11} /> Clear Filter <XCircle size={11} />
+              <Filter size={11} /> Clear Filters <XCircle size={11} />
             </button>
           )}
 
-          {/* Search */}
-          <div className="relative flex-shrink-0">
-            <Search size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search designation, dept, location..."
-              className="pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent/40 w-full sm:w-64"
-            />
-          </div>
+          {/* Location Filter */}
+          <select
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-accent/40 max-w-[160px] cursor-pointer"
+          >
+            <option value="All" className="bg-ink-950 text-slate-300">All Locations</option>
+            {uniqueLocations.map(l => (
+              <option key={l} value={l} className="bg-ink-950 text-slate-300">{l}</option>
+            ))}
+          </select>
+
           <span className="text-xs text-slate-600 flex-shrink-0 text-right sm:text-left">{filtered.length} Requisition(s)</span>
         </div>
       </div>
