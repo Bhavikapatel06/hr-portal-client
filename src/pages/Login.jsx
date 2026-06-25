@@ -17,7 +17,7 @@ export default function Login() {
   const [loginLoading, setLoginLoading] = useState(false)
 
   // Register state
-  const [regForm, setRegForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'candidate' })
+  const [regForm, setRegForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'candidate', department: '' })
   const [regError, setRegError] = useState('')
   const [regLoading, setRegLoading] = useState(false)
   const [regSuccess, setRegSuccess] = useState(false)
@@ -73,6 +73,7 @@ export default function Login() {
           email: regForm.email,
           password: regForm.password,
           role: regForm.role,
+          department: regForm.role === 'department_head' ? regForm.department : '',
         }),
       })
       const data = await res.json()
@@ -333,6 +334,30 @@ export default function Login() {
                   ))}
                 </div>
               </div>
+
+              {regForm.role === 'department_head' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
+                    Your Department
+                  </label>
+                  <select
+                    required
+                    value={regForm.department}
+                    onChange={e => setRegForm(f => ({ ...f, department: e.target.value }))}
+                    className={inputClass}
+                  >
+                    <option value="">Select Department</option>
+                    <option value="AI Engineering">AI Engineering</option>
+                    <option value="AI Innovation">AI Innovation</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Technology & Product Development">Technology & Product Development</option>
+                    <option value="Sales">Sales</option>
+                    <option value="HR">HR</option>
+                    <option value="Operations">Operations</option>
+                  </select>
+                </div>
+              )}
 
               {regError && (
                 <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-danger/10 border border-danger/25 text-danger text-xs">
